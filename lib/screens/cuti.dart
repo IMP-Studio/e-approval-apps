@@ -63,7 +63,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
   Future getCuti({String? jenisCuti}) async {
     int userId = preferences?.getInt('user_id') ?? 0;
     final String baseUrl =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/cuti';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/cuti';
     final Map<String, String> queryParams = {'id': userId.toString()};
 
     if (jenisCuti != null) {
@@ -82,7 +82,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/profile?id=$userId';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/profile?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);

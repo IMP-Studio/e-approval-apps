@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
@@ -18,6 +19,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:imp_approval/screens/create/create_wfa.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   AttendanceStatus _attendanceStatus = AttendanceStatus.loading;
   bool showCheckin = true;
   bool showAtributModalCheckin = true;
+  bool showAtributModalCheckOut = true;
   bool showModalWfa = false;
   String selectedOption = '';
   FilePickerResult? _pickedFile;
@@ -61,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
 
     final urlj =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/absensi/$userId';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi/$userId';
     var response = await http.get(Uri.parse(urlj));
 
     if (response.statusCode == 200) {
@@ -177,10 +180,6 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           children: [
                             if (showCheckin) _modalCheckin(),
-                            if (selectedOption == 'WFA') _modalWfa(),
-                            if (showModalWfa == 'true') _modalWfa(),
-                            if (selectedOption == 'WFO') _modalWfo(),
-                            if (selectedOption == 'PERJADIN') _modalPerjadin(),
                           ],
                         ),
                       ),
@@ -192,6 +191,61 @@ class _HomePageState extends State<HomePage> {
           },
         );
       },
+    );
+  }
+
+  Widget _modalvalidasidarurat(BuildContext context) {
+    return CupertinoAlertDialog(
+      title: Text("Berikan alasan mu pulang!",
+          style: GoogleFonts.montserrat(
+            fontSize: MediaQuery.of(context).size.width * 0.039,
+            fontWeight: FontWeight.w600,
+          )),
+      actions: [
+        CupertinoDialogAction(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Batal",
+                style: GoogleFonts.montserrat(
+                  fontSize: MediaQuery.of(context).size.width * 0.039,
+                  color: kTextBlocker,
+                  fontWeight: FontWeight.w600,
+                ))),
+        CupertinoDialogAction(
+            onPressed: () {
+              Navigator.pop(context); //tambahkan navipop agar tertutup
+            },
+            child: Text("Kirim",
+                style: GoogleFonts.montserrat(
+                  fontSize: MediaQuery.of(context).size.width * 0.039,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ))),
+      ],
+      content: Column(
+        children: [
+          SizedBox(height: 10),
+          CupertinoTextField(
+            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 5),
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+            placeholder: 'Ketikkan sesuatu...',
+            placeholderStyle: GoogleFonts.montserrat(
+              fontSize: MediaQuery.of(context).size.width * 0.039,
+              color: kTextgrey,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: greyText, width: 0.5),
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -208,7 +262,7 @@ class _HomePageState extends State<HomePage> {
         'Check Out',
         style: GoogleFonts.inter(
           color: whiteText,
-          fontSize: 14,
+          fontSize: MediaQuery.of(context).size.width * 0.039,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -236,15 +290,80 @@ class _HomePageState extends State<HomePage> {
                       width: 60,
                       height: 5,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
                         color: Colors.black12,
                       ),
                     ),
-                    if (showAtributModalCheckin) _modalCheckinAtribut(),
+                    if (showAtributModalCheckOut)
+                      _modalCheckOutAtribut(context),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Container(
                         child: Column(
-                          children: [Text('KONCAK')],
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.04,
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                minimumSize: Size(double.infinity, 45),
+                                backgroundColor: kButton,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        _modalvalidasidarurat(context),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text('Darurat',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.034,
+                                    color: whiteText,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.02,
+                            ),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                ),
+                                side: const BorderSide(
+                                  width: 1,
+                                  color: Color(0xff4381ca),
+                                ),
+                                // Mengatur lebar tombol menjadi double.infinity
+                                minimumSize: Size(double.infinity, 45),
+                              ),
+                              onPressed: () {},
+                              child: Text("Pulang",
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.034,
+                                    color: hitamText,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -271,53 +390,11 @@ class _HomePageState extends State<HomePage> {
         'Completed',
         style: GoogleFonts.inter(
           color: whiteText,
-          fontSize: 14,
+          fontSize: MediaQuery.of(context).size.width * 0.039,
           fontWeight: FontWeight.w500,
         ),
       ),
-      onPressed: () {
-        showModalBottomSheet<void>(
-          isScrollControlled: true,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15.0),
-              topRight: Radius.circular(15.0),
-            ),
-          ),
-          context: context,
-          builder: (BuildContext context) {
-            return Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                height: _tinggimodal,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(top: 15, bottom: 10),
-                      width: 60,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                      ),
-                    ),
-                    if (showAtributModalCheckin) _modalCheckinAtribut(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Container(
-                        child: Column(
-                          children: [Text('KONCAK')],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      onPressed: () {},
     );
   }
 
@@ -359,7 +436,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/profile?id=$userId';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/profile?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -369,7 +446,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/absensi?id=$userId';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -379,7 +456,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://85d1-2404-8000-1027-303f-c7c-d051-4a64-56ab.ngrok-free.app/api/absensi/today/$userId';
+        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi/today/$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -485,11 +562,6 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         body: SafeArea(
           child: _buildNarrowLayout(context),
-          // child: LayoutBuilder(
-          //   builder: (BuildContext context, BoxConstraints constraints) {
-          //     return _buildNarrowLayout(context);
-          //   },
-          // ),
         ),
       ),
     );
@@ -502,117 +574,79 @@ class _HomePageState extends State<HomePage> {
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.02,
         ),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(),
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateWfa(),
-                  ));
-              // setState(() {
-              //   selectedOption = 'WFA';
-              //   _tinggimodal = 420;
-              //   showCheckin = false;
-              //   showAtributModalCheckin = false;
-              // });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kButton,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('WFA',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: whiteText,
-                  fontWeight: FontWeight.w600,
-                )),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+            minimumSize: Size(double.infinity, 35),
+            backgroundColor: kButton,
           ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateWfa(),
+                ));
+          },
+          child: Text('WFA',
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.034,
+                color: whiteText,
+                fontWeight: FontWeight.w600,
+              )),
         ),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.02,
         ),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          width: double.infinity,
-          height: 38,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Color(0xff4381ca),
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            side: const BorderSide(
               width: 1,
+              color: Color(0xff4381ca),
             ),
+            minimumSize: Size(double.infinity, 35),
           ),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('PERJADIN',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: hitamText,
-                  fontWeight: FontWeight.w600,
-                )),
-            onPressed: () {
-              Navigator.push(
+          onPressed: () {
+            Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CreatePerjadin(),
                   ));
-              // setState(() {
-              //   selectedOption = 'PERJADIN';
-              //   _tinggimodal = 420;
-              //   showCheckin = false;
-              //   showAtributModalCheckin = false;
-              // });
-            },
-          ),
+          },
+          child: Text("PERJADIN",
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.034,
+                color: hitamText,
+                fontWeight: FontWeight.w600,
+              )),
         ),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.02,
         ),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          width: double.infinity,
-          height: 54,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kButton,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('WFO',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: whiteText,
-                  fontWeight: FontWeight.w600,
-                )),
-            onPressed: () {
-              Navigator.push(
+         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+            minimumSize: Size(double.infinity, 35),
+            backgroundColor: kButton,
+          ),
+          onPressed: () {
+            Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MapSample(),
                   ));
-              // setState(() {
-              //   selectedOption = 'WFO';
-              //   showCheckin = false;
-              //   showAtributModalCheckin = false;
-              // });
-            },
-          ),
+          },
+          child: Text('WFO',
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.034,
+                color: whiteText,
+                fontWeight: FontWeight.w600,
+              )),
         ),
       ],
     );
@@ -660,487 +694,47 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _modalWfa() {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.only(top: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Choose your type of WFA',
+  Widget _modalCheckOutAtribut(BuildContext context) {
+    return Align(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: 'Have a ',
                     style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
                     ),
                   ),
-                  Text(
-                    '*',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red,
+                  TextSpan(
+                    text: 'restful break!',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: Color.fromRGBO(67, 129, 202, 1),
                     ),
                   ),
                 ],
               ),
-              Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                decoration: InputDecoration(
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 15),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                hint: Text(
-                  'Select Keterangan WFA',
-                  style: GoogleFonts.montserrat(fontSize: 14),
-                ),
-                items: genderItems
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Text(
-                            item,
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select option.';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    selectedKeterangan = value ?? '';
-                  });
-                },
-                onSaved: (value) {
-                  selectedKeterangan = value ?? '';
-                },
-                selectedItemBuilder: (BuildContext context) {
-                  return genderItems.map<Widget>((String item) {
-                    return Text(
-                      item,
-                      style: GoogleFonts.montserrat(fontSize: 14),
-                    );
-                  }).toList();
-                },
+            ),
+            Text(
+              'Pilih Check Out',
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.039,
+                fontWeight: FontWeight.w400,
+                color: Color.fromRGBO(182, 182, 182, 1),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 10),
-                child: Text(
-                  'Description ( Optional )',
-                  style: GoogleFonts.montserrat(
-                    color: Colors.black,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              TextField(
-                controller:
-                    _descriptionController, // Declare TextEditingController
-                style: GoogleFonts.montserrat(color: kText),
-                keyboardType: TextInputType.text,
-                maxLines: 4,
-                scrollPhysics: ScrollPhysics(),
-                decoration: InputDecoration(
-                  hintText: 'Write description...',
-                  hintStyle: GoogleFonts.montserrat(
-                    color: Colors.black26,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                  filled: true,
-                  fillColor: Colors.transparent,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      color: Colors.black38,
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(
-                      color: Color.fromRGBO(182, 182, 182, 1),
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(right: 10),
-                      width: 120,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Color(0xff4381ca),
-                          width: 1,
-                        ),
-                      ),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Back',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: hitamText,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            selectedOption = 'BACK';
-                            _tinggimodal = 320;
-                            showModalWfa = false;
-                            showCheckin = true;
-                            showAtributModalCheckin = true;
-                          });
-                        },
-                      ),
-                    ),
-                    Container(
-                      width: 120,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: kButton,
-                          width: 1,
-                        ),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final facePageArgs = {
-                            'selectedOption': 'WFA',
-                            'description': _descriptionController.text,
-                            'keteranganWfa': selectedKeterangan,
-                          };
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  FacePage(arguments: facePageArgs),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          backgroundColor: kButton,
-                          shadowColor: Colors.transparent,
-                        ),
-                        child: Text(
-                          'Check In',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: whiteText,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _modalWfo() {
-    return Column(
-      children: [
-        Container(
-          child: Column(
-            children: [
-              Text('Choose your type of WFA'),
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _modalPerjadin() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(top: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text('Upload file',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      )),
-                  Text('*',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.red,
-                      )),
-                ],
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 5),
-                width: double.infinity, // Adjust the width here
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: kBorder,
-                    width: 1,
-                  ),
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: _pickFile,
-                  child: Row(
-                    children: [
-                      Text(
-                          _pickedFile != null
-                              ? '${_pickedFile!.files.first.name}'
-                              : 'Choose file',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            color: kTextgrey,
-                            fontWeight: FontWeight.w400,
-                          )),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 25, bottom: 5),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Mulai',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Text(
-                              '*',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 20),
-                          primary: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _selectDate,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selectedDate != null
-                                  ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
-                                  : 'mm/dd/yyyy',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 25, bottom: 5),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Selesai',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Text(
-                              '*',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 20),
-                          primary: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _selesaiTanggall,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selectedDate != null
-                                  ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
-                                  : 'mm/dd/yyyy',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 45),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(right: 10),
-                      width: 120,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Color(0xff4381ca),
-                          width: 1,
-                        ),
-                      ),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 18),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          'Back',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            selectedOption = 'BACK';
-                            _tinggimodal = 320;
-                            showModalWfa = false;
-                            showCheckin = true;
-                            showAtributModalCheckin = true;
-                          });
-                        },
-                      ),
-                    ),
-                    Container(
-                      width: 120,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedOption = 'WFA';
-                            showCheckin = false;
-                            showAtributModalCheckin = false;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 18),
-                          backgroundColor: kButton,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text('Check In'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        )
-      ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1153,61 +747,81 @@ class _HomePageState extends State<HomePage> {
           children: [
             Column(
               children: [
-                Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 0),
-                      padding: const EdgeInsets.only(left:20),
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height * 0.15,
-                      decoration: BoxDecoration(
-                        color: kCardblue,
-                      ),
-                      child: Row(
+                // hero img
+                Container(
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.width * 0.35,
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [kTextoo, kTextoo])),
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "IMP APPROVEL",
-                                style: GoogleFonts.montserrat(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.02,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.67,
-                                child: Text(
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  "Focus and finish what you have started.",
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                          ),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: 20.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "IMP APPROVEL",
                                   style: GoogleFonts.montserrat(
                                     fontSize:
-                                        MediaQuery.of(context).size.width * 0.044,
+                                        MediaQuery.of(context).size.width *
+                                            0.02,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: Image.asset(
-                                "assets/img/imp-logo2.png",
-                                width: MediaQuery.of(context).size.width * 0.5,
-                                height: MediaQuery.of(context).size.height * 0.15,
-                                fit: BoxFit.fill,
-                              ),
+                                SizedBox(
+                                  height: 5.0,
+                                ),
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.5,
+                                  child: Text(
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    "Focus and finish what you have started.",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.044,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: SvgPicture.asset(
+                          "assets/img/home-hero.svg",
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          height: MediaQuery.of(context).size.width * 0.3,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 // jadwal
                 // card baru
@@ -1215,10 +829,6 @@ class _HomePageState extends State<HomePage> {
                   padding:
                       EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 30),
                   width: double.infinity,
-                  // decoration: BoxDecoration(
-                  //     border: Border(
-                  //   bottom: BorderSide(width: 1.5, color: kTextoo.withOpacity(0.6)),
-                  // )),
                   child: Row(
                     children: [
                       Container(
@@ -1319,171 +929,15 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-
-                // card lama
-                // Padding(
-                //   padding: const EdgeInsets.only(left: 30, right: 30),
-                //   child: Center(
-                //     child: Container(
-                //       transform: Matrix4.translationValues(0.0, -40.0, 0.0),
-                //       width: double.infinity,
-                //       height: 120,
-                //       decoration: BoxDecoration(
-                //         color: kButton,
-                //         borderRadius: BorderRadius.circular(10),
-                //         boxShadow: [
-                //           BoxShadow(
-                //             color: Colors.black.withOpacity(0.25),
-                //             blurRadius: 4.0,
-                //             spreadRadius: 0.0, // Set to 0 for no spread
-                //             offset:
-                //                 Offset(2.0, 2.0), // changes position of shadow
-                //           ),
-                //         ],
-                //       ),
-                //       child: Column(
-                //         crossAxisAlignment: CrossAxisAlignment.center,
-                //         mainAxisAlignment: MainAxisAlignment.start,
-                //         children: [
-                //           Padding(
-                //             padding: const EdgeInsets.symmetric(vertical: 10),
-                //             child: Text('Total working hours',
-                //                 style: GoogleFonts.montserrat(
-                //                   color: kText2,
-                //                   fontSize: 12,
-                //                   fontWeight: FontWeight.w600,
-                //                 )),
-                //           ),
-                //           Divider(
-                //             color: Colors.white,
-                //             height: 1,
-                //             thickness: 1,
-                //           ),
-                //           IntrinsicHeight(
-                //             child: Padding(
-                //               padding: const EdgeInsets.only(
-                //                   top: 15, right: 30, left: 30, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment: MainAxisAlignment.center,
-                //                 children: [
-                //                   Column(
-                //                     crossAxisAlignment:
-                //                         CrossAxisAlignment.start,
-                //                     children: [
-                //                       Padding(
-                //                         padding: const EdgeInsets.only(
-                //                             top: 5, bottom: 5, right: 5),
-                //                         child: Container(
-                //                           padding: EdgeInsets.symmetric(
-                //                               vertical: 10),
-                //                           height: 2,
-                //                           width: 20,
-                //                           color: Colors.white,
-                //                         ),
-                //                       ),
-                //                       Text('Today',
-                //                           style: GoogleFonts.montserrat(
-                //                             fontSize: 12,
-                //                             color: kText2,
-                //                             fontWeight: FontWeight.w400,
-                //                           )),
-                //                       FutureBuilder(
-                //                         future: getAbsensiToday(),
-                //                         builder: (context, snapshot) {
-                //                           if (snapshot.hasData) {
-                //                             return Text('');
-                //                             // DateTime waktuMasuk =
-                //                             //     DateTime.parse(snapshot
-                //                             //         .data['waktu_masuk']);
-                //                             // DateTime waktuKeluar =
-                //                             //     DateTime.parse(snapshot
-                //                             //         .data['waktu_keluar']);
-                //                             // Duration workDuration = waktuKeluar
-                //                             //     .difference(waktuMasuk);
-                //                             // String hours =
-                //                             //     workDuration.inHours.toString();
-                //                             // String minutes =
-                //                             //     (workDuration.inMinutes % 60)
-                //                             //         .toString();
-
-                //                             // return Text(
-                //                             //   '$hours hours  ',
-                //                             //   style: GoogleFonts.montserrat(
-                //                             //     fontSize: 12,
-                //                             //     color: kText2,
-                //                             //     fontWeight: FontWeight.w700,
-                //                             //   ),
-                //                             // );
-                //                           } else {
-                //                             return CircularProgressIndicator();
-                //                           }
-                //                         },
-                //                       ),
-                //                     ],
-                //                   ),
-                //                   Spacer(),
-                //                   // VerticalDivider(
-                //                   //   color: Colors.white,
-                //                   //   thickness: 2,
-                //                   // ),
-                //                   Spacer(),
-                //                   Column(
-                //                     crossAxisAlignment: CrossAxisAlignment.end,
-                //                     children: [
-                //                       Padding(
-                //                         padding: const EdgeInsets.only(
-                //                           top: 5,
-                //                           bottom: 5,
-                //                           left: 5,
-                //                         ),
-                //                         child: Container(
-                //                           height: 2,
-                //                           width: 20,
-                //                           color: Colors.white,
-                //                         ),
-                //                       ),
-                //                       Text('Attendance',
-                //                           style: GoogleFonts.montserrat(
-                //                             fontSize: 12,
-                //                             color: kText2,
-                //                             fontWeight: FontWeight.w400,
-                //                           )),
-                //                       // FutureBuilder(
-                //                       //   future: getAbsensiAll(),
-                //                       //   builder: (context, snapshot) {
-                //                       //     if (snapshot.hasData) {
-                //                       //       return Text(
-                //                       //           snapshot.data['data'][]
-                //                       //               ['jenis_kehadiran'],
-                //                       //           style: GoogleFonts.montserrat(
-                //                       //             fontSize: 12,
-                //                       //             color: kText2,
-                //                       //             fontWeight: FontWeight.w700,
-                //                       //           ));
-                //                       //     } else {
-                //                       //       return CircularProgressIndicator();
-                //                       //     }
-                //                       //   },
-                //                       // ),
-                //                     ],
-                //                   ),
-                //                 ],
-                //               ),
-                //             ),
-                //           )
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             Container(
               child: Padding(
                 padding: const EdgeInsets.only(
-                    right: 10, left: 10, top: 20, bottom: 20),
+                    right: 10, left: 10, top: 15, bottom: 10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Newest Check',
                         style: GoogleFonts.montserrat(
@@ -1558,8 +1012,6 @@ class _HomePageState extends State<HomePage> {
                                             Container(
                                               margin:
                                                   EdgeInsets.only(bottom: 15),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10),
                                               width: double.infinity,
                                               height: 99,
                                               decoration: BoxDecoration(
@@ -1585,8 +1037,8 @@ class _HomePageState extends State<HomePage> {
                                                       padding:
                                                           const EdgeInsets.only(
                                                               top: 5,
-                                                              left: 5,
-                                                              right: 5),
+                                                              left: 10,
+                                                              right: 10),
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -1758,13 +1210,6 @@ class _HomePageState extends State<HomePage> {
                                                   Spacer(),
                                                   Container(
                                                     decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                              topLeft: Radius
-                                                                  .circular(10),
-                                                              topRight: Radius
-                                                                  .circular(
-                                                                      10)),
                                                       color: Color(0xffD9D9D9)
                                                           .withOpacity(0.15),
                                                     ),
@@ -1773,8 +1218,8 @@ class _HomePageState extends State<HomePage> {
                                                           const EdgeInsets.only(
                                                         bottom: 10,
                                                         top: 10,
-                                                        right: 5,
-                                                        left: 5,
+                                                        right: 10,
+                                                        left: 10,
                                                       ),
                                                       child: Row(
                                                         crossAxisAlignment:
@@ -1784,25 +1229,35 @@ class _HomePageState extends State<HomePage> {
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text('Rejected by',
+                                                          Text(
+                                                              'Work From Office',
+                                                              // snapshot.data['data'][index]['jenis_kehadiran'],
                                                               style: GoogleFonts
                                                                   .montserrat(
-                                                                fontSize: 8,
+                                                                fontSize: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.02,
                                                                 color:
-                                                                    Colors.red,
+                                                                    kTextgrey,
                                                                 fontWeight:
                                                                     FontWeight
-                                                                        .w400,
+                                                                        .w500,
                                                               )),
-                                                          Text('HR',
+                                                          Text('Ditolak oleh',
                                                               style: GoogleFonts
                                                                   .montserrat(
-                                                                fontSize: 8,
-                                                                color: Colors
-                                                                    .black,
+                                                                fontSize: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.02,
+                                                                color:
+                                                                    kTextgrey,
                                                                 fontWeight:
                                                                     FontWeight
-                                                                        .w600,
+                                                                        .w500,
                                                               )),
                                                         ],
                                                       ),
@@ -1843,7 +1298,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                     color: kButton,
                   ),
-                  child: _buildButtonBasedOnStatus()),
+                  child: _buildCheckOutButton()),
             ),
           ],
         ),

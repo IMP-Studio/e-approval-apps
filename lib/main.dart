@@ -7,6 +7,7 @@ import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:imp_approval/screens/home.dart';
 import 'package:imp_approval/screens/detail/detail_infoapp.dart';
 import 'package:imp_approval/screens/login.dart';
+import 'package:imp_approval/screens/map_wfo.dart';
 import 'package:imp_approval/screens/notification_page.dart';
 import 'package:imp_approval/screens/request.dart';
 import 'package:imp_approval/screens/standup.dart';
@@ -30,11 +31,13 @@ class MainApp extends StatelessWidget {
         // Wrap the entire content with GestureDetector
         onTap: () {
           // Reset system UI when user taps the screen
+          FocusManager.instance.primaryFocus?.unfocus();
+
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: StandUp(
+          home: MainLayout(
               // future: SharedPreferences.getInstance(),
               // builder: (context, snapshot) {
               //   if (snapshot.connectionState == ConnectionState.waiting) {

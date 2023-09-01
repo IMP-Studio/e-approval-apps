@@ -65,8 +65,9 @@ class _RubahPasswordState extends State<RubahPassword> {
               fontWeight: FontWeight.w500,
             ),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: greyText, width: 0.5),
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ],
