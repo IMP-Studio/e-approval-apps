@@ -151,60 +151,6 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsetsDirectional.symmetric(
-                    horizontal: 20, vertical: 20),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    spreadRadius: 0,
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ]),
-                child: Row(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(right: 10),
-                          child: Image.asset('assets/img/profil.png'),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hello, Fauzan Alghifari',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 14,
-                                color: kTextBlcknw,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Backend developer',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 10,
-                                color: kTextUnselected,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.notifications_none_sharp,
-                          color: kTextoo,
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.width * 0.4,
                 margin: EdgeInsets.only(bottom: 10),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
+import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
@@ -38,25 +39,33 @@ class _RequestScreenState extends State<RequestScreen> {
             children: [
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainLayout(),
+                    ),
+                  );
                 },
-                child: Icon(
-                  Icons.arrow_back_ios_rounded,
-                  color: kTextoo,
-                  size: MediaQuery.of(context).size.width * 0.050,
-                ),
-              ),
-              SizedBox(
-                width: 6.0,
-              ),
-              Text(
-                "Kembali",
-                style: GoogleFonts.getFont(
-                  'Montserrat',
-                  fontSize: MediaQuery.of(context).size.width * 0.0345,
-                  fontWeight: FontWeight.w400,
-                  color: kTextoo,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: kTextoo,
+                      size: MediaQuery.of(context).size.width * 0.050,
+                    ),
+                    SizedBox(
+                      width: 6.0,
+                    ),
+                    Text(
+                      "Kembali",
+                      style: GoogleFonts.getFont(
+                        'Montserrat',
+                        fontSize: MediaQuery.of(context).size.width * 0.0345,
+                        fontWeight: FontWeight.w400,
+                        color: kTextoo,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

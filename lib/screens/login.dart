@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen>
       'password': password.text.toString(),
     };
     final result = await API().postRequest(route: '/loginApi', data: data);
-    
+
     print(result.body);
     final response = jsonDecode(result.body);
     if (response['status'] == 200) {
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen>
       await preferences.setString('email', response['user']['email']);
       await preferences.setString('role', response['user']['role']);
       await preferences.setString('token', response['token']);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(response['message']),
@@ -122,43 +122,125 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       Container(
                         width: double.infinity,
-                        padding: EdgeInsets.only(right: 20, left: 20, bottom: 10),
+                        padding:
+                            EdgeInsets.only(right: 30, left: 30, bottom: 10),
                         decoration: const BoxDecoration(
                           color: kBackground,
                           borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(25.0)),
+                              BorderRadius.vertical(top: Radius.circular(35.0)),
                         ),
                         child: Column(
                           children: [
                             Container(
                               margin: EdgeInsets.only(top: 20),
-                              width: 80,
+                              width: 55,
                               height: 5,
                               decoration: BoxDecoration(
                                 color: Colors.black12,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)),
                               ),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 20, top: 20),
-                              child: Text(
-                                "Enter Your Account",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Color.fromRGBO(67, 129, 202, 1),
-                                  fontWeight: FontWeight.w500,
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: 30, top: 30),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Welcome to ',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.067,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Approvel!',
+                                          style: GoogleFonts.montserrat(
+                                            color: kTextoo,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.067,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.005,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Masuk ',
+                                          style: GoogleFonts.montserrat(
+                                            color: kTextoo,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Text(
+                                          'menggunakan akun mu!',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('E-mail',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.034,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.005,
+                            ),
+
                             TextFormField(
                               controller: email,
-                              style: GoogleFonts.poppins(color: kText),
+                              style: GoogleFonts.montserrat(
+                                color: kText,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.039,
+                                fontWeight: FontWeight.w400,
+                              ),
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
-                                hintText: 'Email',
-                                hintStyle: GoogleFonts.poppins(color: kIcon),
+                                hintText: 'Enter Your Email',
+                                hintStyle: GoogleFonts.montserrat(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.028,
+                                  fontWeight: FontWeight.w400,
+                                ),
                                 filled: true,
-                                fillColor: kInput,
+                                fillColor: Colors.transparent,
                                 prefixIcon: const Align(
                                   widthFactor: 3,
                                   heightFactor: 1.0,
@@ -169,13 +251,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: const BorderSide(
-                                    color: Colors.transparent,
+                                    color: kBorder,
                                     width: 1,
                                   ),
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(5),
                                   borderSide: const BorderSide(
                                     color: kInput,
                                     width: 1,
@@ -184,18 +266,43 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.024),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('Password',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.034,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.005,
+                            ),
 
                             TextFormField(
                               controller: password,
                               obscureText: true,
-                              style: GoogleFonts.poppins(color: kText),
+                              style: GoogleFonts.montserrat(
+                                color: kText,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.039,
+                                fontWeight: FontWeight.w400,
+                              ),
                               keyboardType: TextInputType.visiblePassword,
                               decoration: InputDecoration(
                                 hintText: 'Password',
-                                hintStyle: GoogleFonts.poppins(color: kIcon),
+                                hintStyle: GoogleFonts.montserrat(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.028,
+                                  fontWeight: FontWeight.w400,
+                                ),
                                 filled: true,
-                                fillColor: kInput,
+                                fillColor: Colors.transparent,
                                 prefixIcon: const Align(
                                   widthFactor: 3,
                                   heightFactor: 1.0,
@@ -206,13 +313,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: const BorderSide(
-                                    color: Colors.transparent,
+                                    color: kBorder,
                                     width: 1,
                                   ),
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(5),
                                   borderSide: const BorderSide(
                                     color: kInput,
                                     width: 1,
@@ -224,18 +331,25 @@ class _LoginScreenState extends State<LoginScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
-                                  child: Text(
-                                    "Forgot password ?",
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey.shade600),
+                                InkWell(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15),
+                                    child: Text("Lupa password ?",
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.034,
+                                          fontWeight: FontWeight.w400,
+                                        )),
                                   ),
                                 ),
                               ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.03,
                             ),
                             InkWell(
                               onTap: () {
@@ -251,10 +365,12 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 child: Center(
                                   child: Text(
-                                    "Sign In",
+                                    "Login to Approvel",
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.039,
                                       fontWeight: FontWeight.w700,
                                       color: kBackground,
                                     ),
