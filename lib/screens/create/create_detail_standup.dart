@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CreateDetailStandup extends StatefulWidget {
-  const CreateDetailStandup({super.key});
+class DetailCreateStandup extends StatefulWidget {
+  const DetailCreateStandup({super.key});
 
   @override
-  State<CreateDetailStandup> createState() => _CreateDetailStandupState();
+  State<DetailCreateStandup> createState() => _DetailCreateStandupState();
 }
 
-class _CreateDetailStandupState extends State<CreateDetailStandup> {
+class _DetailCreateStandupState extends State<DetailCreateStandup> {
   @override
-  final double _tinggidesc = 137;
+  final double _tinggidesc = 127;
   final double _tinggidescc = 68;
 
   Widget build(BuildContext context) {
@@ -78,56 +79,78 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
               // HERO
               Container(
                 width: double.infinity,
-                height: 130,
+                height: MediaQuery.of(context).size.width * 0.35,
+                margin: EdgeInsets.only(bottom: 10),
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                      Color.fromARGB(35, 36, 109, 193),
-                      Color.fromARGB(43, 36, 109, 193)
+                      kTextoo,
+                      kTextoo
                     ])),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            child: Container(
-                              width: 50.0,
-                              height: 2.0,
-                              decoration: BoxDecoration(
-                                  color: kBlck,
-                                  borderRadius: BorderRadius.circular(20.0)),
-                            ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            height: MediaQuery.of(context).size.width * 0.007,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
                           ),
-                          Text(
-                            "Mukhamad Arrafi",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                    color: kTextoo)),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: 20.0,
                           ),
-                          SizedBox(
-                            height: 5.0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Poject",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.055,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ),
+                              SizedBox(
+                                height: 5.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  "Buat rencana project mu dengan metode Done, Doing, Blocker",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      textStyle: TextStyle(
+                                          fontSize:
+                                              MediaQuery.of(context).size.width *
+                                                  0.028,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white)),
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Frontend Developer",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: kBlck)),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                    Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: SvgPicture.asset("assets/img/hero-image-standupdet.svg", width: MediaQuery.of(context).size.width * 0.3, height: MediaQuery.of(context).size.width * 0.3, fit: BoxFit.cover,),
+                    )
                   ],
                 ),
               ),
@@ -462,7 +485,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 40, vertical: 8),
                                 backgroundColor: Colors.white,
-                                side: BorderSide(color: kTextoo),
+                                side: BorderSide(color: kTextUnselected),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -473,7 +496,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                               child: Text(
                                 'Batal',
                                 style: GoogleFonts.inter(
-                                  color: kTextoo,
+                                  color: kTextUnselected,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -495,7 +518,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                 // BACK POP
                               },
                               child: Text(
-                                'Stand Up',
+                                'Kirim',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 12,

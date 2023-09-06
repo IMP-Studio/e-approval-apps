@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_standup.dart';
@@ -152,66 +153,82 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin {
             children: [
               Container(
                 width: double.infinity,
-                height: MediaQuery.of(context).size.width * 0.4,
+                height: MediaQuery.of(context).size.width * 0.35,
                 margin: EdgeInsets.only(bottom: 10),
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                      Color.fromARGB(35, 36, 109, 193),
-                      Color.fromARGB(43, 36, 109, 193)
-                    ])),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                        colors: [kTextoo, kTextoo])),
+                child: Row(
                   children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            height: MediaQuery.of(context).size.width * 0.007,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: 20.0,
+                            top: 10.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "IMP STANDUP",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.055,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ),
+                              SizedBox(
+                                height: 5.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.55,
+                                child: Text(
+                                  "Tempat berbagi masalah dan project",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      textStyle: TextStyle(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.028,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
                     Padding(
-                      padding: EdgeInsets.only(left: 20.0, top: 30.0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        height: MediaQuery.of(context).size.width * 0.007,
-                        decoration: BoxDecoration(
-                            color: kTextoo,
-                            borderRadius: BorderRadius.circular(20.0)),
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: SvgPicture.asset(
+                        "assets/img/hero-image.svg",
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: MediaQuery.of(context).size.width * 0.3,
+                        fit: BoxFit.cover,
                       ),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 20.0,
-                        top: 10.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "IMP STANDUP",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.055,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black)),
-                          ),
-                          SizedBox(
-                            height: 5.0,
-                          ),
-                          Text(
-                            "Jangan lupa Stand Up!",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.039,
-                                    fontWeight: FontWeight.w600,
-                                    color: kTextoo)),
-                          ),
-                        ],
-                      ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -237,14 +254,6 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin {
                     ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.005,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IndexedStack(
-                          index: _tabController.index,
-                        ),
-                      ],
                     ),
                     SizedBox(
                       height: 20.0,

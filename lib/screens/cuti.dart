@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_cuti.dart';
@@ -63,7 +64,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
   Future getCuti({String? jenisCuti}) async {
     int userId = preferences?.getInt('user_id') ?? 0;
     final String baseUrl =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/cuti';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/cuti';
     final Map<String, String> queryParams = {'id': userId.toString()};
 
     if (jenisCuti != null) {
@@ -82,7 +83,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/profile?id=$userId';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/profile?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -274,24 +275,77 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
             children: [
               Container(
                 width: double.infinity,
-                height: 200,
+                height: MediaQuery.of(context).size.width * 0.35,
+                margin: EdgeInsets.only(bottom: 10),
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                      Color.fromARGB(35, 36, 109, 193),
-                      Color.fromARGB(43, 36, 109, 193)
+                      kTextoo,
+                      kTextoo
                     ])),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Row(
                   children: [
-                    Container(
-                      width: 340,
-                      height: 120,
-                      decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(12.0)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            height: MediaQuery.of(context).size.width * 0.007,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: 20.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Calendar Cuti",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.055,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ),
+                              SizedBox(
+                                height: 5.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  "Kalender Cuti dan Riwayat Cuti",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      textStyle: TextStyle(
+                                          fontSize:
+                                              MediaQuery.of(context).size.width *
+                                                  0.028,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: SvgPicture.asset("assets/img/calendar.svg", width: MediaQuery.of(context).size.width * 0.3, height: MediaQuery.of(context).size.width * 0.3, fit: BoxFit.cover,),
                     )
                   ],
                 ),

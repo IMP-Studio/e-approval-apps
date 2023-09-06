@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
 
     final urlj =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi/$userId';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/absensi/$userId';
     var response = await http.get(Uri.parse(urlj));
 
     if (response.statusCode == 200) {
@@ -158,10 +158,10 @@ class _HomePageState extends State<HomePage> {
           context: context,
           builder: (BuildContext context) {
             return Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
+              // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
               child: SizedBox(
-                height: _tinggimodal,
+                // height: _tinggimodal,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -436,7 +436,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/profile?id=$userId';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/profile?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -446,7 +446,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi?id=$userId';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/absensi?id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -456,7 +456,7 @@ class _HomePageState extends State<HomePage> {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://a857-2404-8000-1027-303f-5-e362-978a-56b.ngrok-free.app/api/absensi/today/$userId';
+        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/absensi/today/$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -1298,7 +1298,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                     color: kButton,
                   ),
-                  child: _buildCheckOutButton()),
+                  child: _buildButtonBasedOnStatus()),
             ),
           ],
         ),

@@ -4,12 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'dart:ui_web' as ui;
-
 
 class HistoryAttendance extends StatefulWidget {
   const HistoryAttendance({super.key});
-  
 
   @override
   State<HistoryAttendance> createState() => _HistoryAttendanceState();
@@ -17,9 +14,6 @@ class HistoryAttendance extends StatefulWidget {
 
 class _HistoryAttendanceState extends State<HistoryAttendance>
     with SingleTickerProviderStateMixin {
-      
-
-      
   int activeIndex = 0;
   late TabController _tabController;
   DateTime date = DateTime.now();
@@ -65,6 +59,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
 
   void _showDatePickerModal() {
     showModalBottomSheet<void>(
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(15.0),
@@ -311,60 +306,6 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
             child: ListView(
               children: [
                 Container(
-                  padding: EdgeInsetsDirectional.symmetric(
-                      horizontal: 20, vertical: 20),
-                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      spreadRadius: 0,
-                      blurRadius: 4,
-                      offset: Offset(0, 1),
-                    ),
-                  ]),
-                  child: Row(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(right: 10),
-                            child: Image.asset('assets/img/profil.png'),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello, Fauzan Alghifari',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  color: kTextBlcknw,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Backend developer',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 10,
-                                  color: kTextUnselected,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.notifications_none_sharp,
-                            color: kTextoo,
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Container(
                   width: double.infinity,
                   height: MediaQuery.of(context).size.width * 0.35,
                   margin: EdgeInsets.only(bottom: 10),
@@ -437,7 +378,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: SvgPicture.asset(
-                          "images/hero-image-ha.svg",
+                          "assets/img/hero-image-ha.svg",
                           width: MediaQuery.of(context).size.width * 0.3,
                           height: MediaQuery.of(context).size.width * 0.3,
                           fit: BoxFit.cover,
@@ -446,7 +387,6 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                     ],
                   ),
                 ),
-                
                 SizedBox(
                   height: 10,
                 ),
@@ -534,268 +474,262 @@ class _DatePickerModalState extends State<DatePickerModal> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 400,
-      child: Column(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(top: 15, bottom: 10),
-            width: 60,
-            height: 5,
-            decoration: BoxDecoration(
-              color: Colors.black12,
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+      child: SizedBox(
+        // height: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 15, bottom: 10),
+              width: 60,
+              height: 5,
+              decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(8.0)),
             ),
-          ),
-          // SizedBox(
-          //   height: MediaQuery.of(context).size.width * 0.012,
-          // ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Search",
-                style: GoogleFonts.getFont(
-                  'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  fontSize: MediaQuery.of(context).size.width * 0.055,
-                  color: Colors.black,
+            // SizedBox(
+            //   height: MediaQuery.of(context).size.width * 0.012,
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Search",
+                  style: GoogleFonts.getFont(
+                    'Montserrat',
+                    fontWeight: FontWeight.w600,
+                    fontSize: MediaQuery.of(context).size.width * 0.055,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.012,
-              ),
-              Text(
-                "Filter",
-                style: GoogleFonts.getFont(
-                  'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  fontSize: MediaQuery.of(context).size.width * 0.055,
-                  color: kTextoo,
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.012,
                 ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.02,
+                Text(
+                  "Filter",
+                  style: GoogleFonts.getFont(
+                    'Montserrat',
+                    fontWeight: FontWeight.w600,
+                    fontSize: MediaQuery.of(context).size.width * 0.055,
+                    color: kTextoo,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Start Date",
-                        style: GoogleFonts.getFont('Montserrat',
-                            fontWeight: FontWeight.w600,
-                            fontSize: MediaQuery.of(context).size.width * 0.028,
-                            color: kBlck),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.02,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 20,
-                      ),
-                      primary: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: kBlck,
-                          width: 1,
-                        ),
-                      ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.02,
                     ),
-                    onPressed: () async {
-                      _showDatePicker(selectedButton: 1);
-                    },
-                    child: Row(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          _getButtonText(selectedDate1),
+                          "Start Date",
                           style: GoogleFonts.getFont('Montserrat',
                               fontWeight: FontWeight.w600,
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
                               color: kBlck),
                         ),
-                        Spacer(),
-                        Icon(
-                          LucideIcons.calendarDays,
-                          color: kTextoo,
-                          size: 18,
-                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.04,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "End Date",
-                        style: GoogleFonts.getFont('Montserrat',
-                            fontWeight: FontWeight.w600,
-                            fontSize: MediaQuery.of(context).size.width * 0.028,
-                            color: kBlck),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.02,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 20,
-                      ),
-                      primary: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: kBlck,
-                          width: 1,
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.02,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 20,
+                        ),
+                        primary: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: kBlck,
+                            width: 1,
+                          ),
                         ),
                       ),
-                    ),
-                    onPressed: () async {
-                      _showDatePicker(selectedButton: 2);
-                    },
-                    child: Row(
-                      children: [
-                        Text(_getButtonText(selectedDate2),
+                      onPressed: () async {
+                        _showDatePicker(selectedButton: 1);
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            _getButtonText(selectedDate1),
                             style: GoogleFonts.getFont('Montserrat',
                                 fontWeight: FontWeight.w600,
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
-                                color: kBlck)),
-                        Spacer(),
-                        Icon(
-                          LucideIcons.calendarDays,
-                          color: kTextoo,
-                          size: 18,
-                        ),
-                      ],
+                                color: kBlck),
+                          ),
+                          Spacer(),
+                          Icon(
+                            LucideIcons.calendarDays,
+                            color: kTextoo,
+                            size: 18,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.015,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    child: Row(
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.04,
+                    ),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        IndexedStack(
-                          index: widget.tabController.index,
-                          children: [buildContent()],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.04,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kTextoo,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 20,
-                      ),
-                      primary: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: kTextoo,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    onPressed: ()  {
-                      
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
                         Text(
-                          'Apply Filter',
+                          "End Date",
                           style: GoogleFonts.getFont('Montserrat',
                               fontWeight: FontWeight.w600,
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
-                              color: Colors.white),
-                        )
+                              color: kBlck),
+                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.width * 0.033,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 20,
-                      ),
-                      primary: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: kTextoo,
-                          width: 1,
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.02,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 20,
+                        ),
+                        primary: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: kBlck,
+                            width: 1,
+                          ),
                         ),
                       ),
+                      onPressed: () async {
+                        _showDatePicker(selectedButton: 2);
+                      },
+                      child: Row(
+                        children: [
+                          Text(_getButtonText(selectedDate2),
+                              style: GoogleFonts.getFont('Montserrat',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.028,
+                                  color: kBlck)),
+                          Spacer(),
+                          Icon(
+                            LucideIcons.calendarDays,
+                            color: kTextoo,
+                            size: 18,
+                          ),
+                        ],
+                      ),
                     ),
-                    onPressed: ()  {
-                      
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Cancel',
-                          style: GoogleFonts.getFont('Montserrat',
-                              fontWeight: FontWeight.w600,
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
-                              color: kTextoo),
-                        )
-                      ],
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.015,
                     ),
-                    
-                  ),
-                  
-                  
-                ],
+                    Container(
+                      child: IndexedStack(
+                        index: widget.tabController.index,
+                        children: [buildContent()],
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.04,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kTextoo,
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.width * 0.05,
+                          horizontal: 20,
+                        ),
+                        primary: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: kTextoo,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Apply Filter',
+                            style: GoogleFonts.getFont('Montserrat',
+                                fontWeight: FontWeight.w500,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.044,
+                                color: Colors.white),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.033,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.width * 0.05,
+                          horizontal: 20,
+                        ),
+                        primary: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: kTextoo,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Cancel',
+                            style: GoogleFonts.getFont('Montserrat',
+                                fontWeight: FontWeight.w500,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.044,
+                                color: kTextoo),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget buildContent() {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.89,
+      // width: MediaQuery.of(context).size.width * 0.79,
       padding: const EdgeInsets.only(top: 10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -810,10 +744,11 @@ class _DatePickerModalState extends State<DatePickerModal> {
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.065, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.065,
+                  vertical: 8),
               decoration: BoxDecoration(
-                color:
-                    activeIndex == 0 ? kTextoo : Colors.transparent,
+                color: activeIndex == 0 ? kTextoo : Colors.transparent,
                 borderRadius: BorderRadius.circular(20.0),
                 border: Border.all(
                   color: activeIndex == 0 ? kTextoo : kBlck,
@@ -845,10 +780,11 @@ class _DatePickerModalState extends State<DatePickerModal> {
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.065, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.065,
+                  vertical: 8),
               decoration: BoxDecoration(
-                color:
-                    activeIndex == 1 ? kTextoo : Colors.transparent,
+                color: activeIndex == 1 ? kTextoo : Colors.transparent,
                 borderRadius: BorderRadius.circular(20.0),
                 border: Border.all(
                   color: activeIndex == 1 ? kTextoo : kBlck,
@@ -880,10 +816,11 @@ class _DatePickerModalState extends State<DatePickerModal> {
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.065, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.065,
+                  vertical: 8),
               decoration: BoxDecoration(
-                color:
-                    activeIndex == 2 ? kTextoo : Colors.transparent,
+                color: activeIndex == 2 ? kTextoo : Colors.transparent,
                 borderRadius: BorderRadius.circular(20.0),
                 border: Border.all(
                   color: activeIndex == 2 ? kTextoo : kBlck,

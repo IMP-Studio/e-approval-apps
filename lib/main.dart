@@ -37,7 +37,7 @@ class MainApp extends StatelessWidget {
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: MainLayout(
+          home: HistoryAttendance(
               // future: SharedPreferences.getInstance(),
               // builder: (context, snapshot) {
               //   if (snapshot.connectionState == ConnectionState.waiting) {
