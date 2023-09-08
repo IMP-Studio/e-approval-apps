@@ -131,7 +131,7 @@ class _MainLayoutState extends State<MainLayout> {
                   (index) {
                     return BottomNavigationBarItem(
                       icon: Icon(
-                        listOfIcons[index], // Replace with your actual icons
+                        listOfIcons[index], // Replace with your actual icons. listOfIcons data.dart
                         color:
                             _currentIndex == index ? Colors.blue : Colors.grey,
                       ),

@@ -37,26 +37,26 @@ class MainApp extends StatelessWidget {
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: HistoryAttendance(
-              // future: SharedPreferences.getInstance(),
-              // builder: (context, snapshot) {
-              //   if (snapshot.connectionState == ConnectionState.waiting) {
-              //     return const Center(
-              //       child: CircularProgressIndicator(),
-              //     );
-              //   } else if (snapshot.hasError) {
-              //     return Text('Some error has Occurred');
-              //   } else if (snapshot.hasData) {
-              //     final token = snapshot.data!.getString('token');
-              //     if (token != null) {
-              //       return MainLayout();
-              //     } else {
-              //       return SplashScreen();
-              //     }
-              //   } else {
-              //     return LoginScreen();
-              //   }
-              // }
+          home: FutureBuilder(
+              future: SharedPreferences.getInstance(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text('Some error has Occurred');
+                } else if (snapshot.hasData) {
+                  final token = snapshot.data!.getString('token');
+                  if (token != null) {
+                    return MainLayout();
+                  } else {
+                    return SplashScreen();
+                  }
+                } else {
+                  return LoginScreen();
+                }
+              }
               ),
         ));
   }

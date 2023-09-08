@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/methods/api.dart';
+import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: unused_import
 import 'dart:math';
@@ -54,6 +55,12 @@ class _LoginScreenState extends State<LoginScreen>
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => MainLayout(),
       ));
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message']),
+        ),
+      );
     }
   }
 
@@ -332,7 +339,14 @@ class _LoginScreenState extends State<LoginScreen>
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ForgetPassword(),
+                                          ),
+                                        );
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 15),

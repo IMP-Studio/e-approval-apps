@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
+import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:imp_approval/screens/rubahPassword/rubah_password.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
@@ -223,9 +224,26 @@ class _PrivasiPageState extends State<PrivasiPage> {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.01,
               ),
-              Column(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ForgetPassword(),
+                            ),
+                          );
+                    },
+                    child: Text("Lupa password?",
+                        style: GoogleFonts.montserrat(
+                          fontSize: MediaQuery.of(context).size.width * 0.035,
+                          color: kTextBlocker,
+                          fontWeight: FontWeight.w400,
+                        )),
+                  ),
                   InkWell(
                     onTap: () {
                       Navigator.push(

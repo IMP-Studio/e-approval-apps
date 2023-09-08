@@ -244,23 +244,6 @@ class _RubahPasswordState extends State<RubahPassword> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      foregroundColor: Colors.black,
-                      side: const BorderSide(
-                        width: 1,
-                        color: kBorder,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Back"),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
                   Container(
                     width: 120,
                     child: ElevatedButton(

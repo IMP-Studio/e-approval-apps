@@ -48,7 +48,7 @@ const Color greyText = Color(0xff727272);
 List<IconData> listOfIcons = [
  LucideIcons.home,
  LucideIcons.briefcase,
- LucideIcons.award,
  LucideIcons.calendar,
-  LucideIcons.settings,
+ LucideIcons.history,
+ LucideIcons.settings,
 ];
