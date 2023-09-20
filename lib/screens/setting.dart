@@ -23,6 +23,26 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   @override
+  SharedPreferences? preferences;
+
+  bool isLoading = false;
+  Future<void> getUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void initState() {
+    super.initState();
+    getUserData().then((_) {
+      print(preferences?.getInt('user_id'));
+    });
+  }
+
   Widget build(BuildContext context) {
     TextEditingController _validpassController = TextEditingController();
     bool validasilogout = true;
@@ -31,8 +51,7 @@ class _SettingPageState extends State<SettingPage> {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String? token = preferences.getString('token');
       var response = await http.post(
-        Uri.parse(
-            'https://4598-2404-8000-1027-303f-c12d-d823-f61-7b0.ngrok-free.app/api/logout'),
+        Uri.parse('https://testing.impstudio.id/approvall/api/logout'),
         body: {
           "validpassword": _validpassController.text,
         },
@@ -129,7 +148,7 @@ class _SettingPageState extends State<SettingPage> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          backgroundColor: kBackground3,
+          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white, // Menghilangkan background color
             title: Text(
@@ -172,7 +191,7 @@ class _SettingPageState extends State<SettingPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Fauzan Alghifari',
+                                  '${preferences?.getString('nama_lengkap')}',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -182,7 +201,7 @@ class _SettingPageState extends State<SettingPage> {
                                   height: 5,
                                 ),
                                 Text(
-                                  'Backend developer',
+                                  '${preferences?.getString('posisi')}',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
@@ -246,11 +265,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+
                               ],
                             ),
                           ),
@@ -296,11 +311,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+
                               ],
                             ),
                           ),
@@ -351,11 +362,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+  
                               ],
                             ),
                           ),
@@ -406,11 +413,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+                             
                               ],
                             ),
                           ),
@@ -444,7 +447,7 @@ class _SettingPageState extends State<SettingPage> {
                                       Container(
                                         child: Row(
                                           children: [
-                                            Text('Faq',
+                                            Text('FAQ',
                                                 style: GoogleFonts.montserrat(
                                                   fontSize: 14,
                                                   color: kTextgrey,
@@ -461,11 +464,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+                              
                               ],
                             ),
                           ),
@@ -522,11 +521,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - 55,
-                                  height: 1,
-                                  color: kBorder,
-                                ),
+                             
                               ],
                             ),
                           ),

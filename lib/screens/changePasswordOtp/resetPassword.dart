@@ -53,7 +53,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         ),
       );
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => LoginScreen(),
+        builder: (context) => const LoginScreen(),
       ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -75,12 +75,12 @@ class _ResetPasswordState extends State<ResetPassword> {
         title: Text(
           'Verifikasi No Telp',
           style: GoogleFonts.montserrat(
-            color: Color(0xff000000),
+            color: const Color(0xff000000),
             fontSize: MediaQuery.of(context).size.width * 0.039,
             fontWeight: FontWeight.w600,
           ),
         ),
-        leading: Icon(
+        leading: const Icon(
           size: 20,
           Icons.arrow_back_ios_new_rounded,
           color: Colors.black,
@@ -91,9 +91,9 @@ class _ResetPasswordState extends State<ResetPassword> {
           children: [
             Container(
               padding:
-                  EdgeInsets.only(left: 40, right: 40, top: 20, bottom: 20),
+                  const EdgeInsets.only(left: 40, right: 40, top: 20, bottom: 20),
               alignment: Alignment.center,
-              margin: EdgeInsets.only(top: 20),
+              margin: const EdgeInsets.only(top: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,7 +136,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 25),
+                    margin: const EdgeInsets.only(top: 25),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +149,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Container(
@@ -160,7 +160,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             style: GoogleFonts.montserrat(color: kText),
                             obscureText: true,
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
+                              contentPadding: const EdgeInsets.all(10),
                               hintStyle: GoogleFonts.poppins(color: kIcon),
                               filled: true,
                               fillColor: Colors.transparent,
@@ -174,7 +174,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Text(
@@ -185,7 +185,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Container(
@@ -196,7 +196,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             obscureText: true,
                             keyboardType: TextInputType.visiblePassword,
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
+                              contentPadding: const EdgeInsets.all(10),
                               hintStyle: GoogleFonts.poppins(color: kIcon),
                               filled: true,
                               fillColor: Colors.transparent,
@@ -214,7 +214,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 30),
+                    margin: const EdgeInsets.only(top: 30),
                     child: InkWell(
                       onTap: () {
                          resetPassword();
@@ -223,7 +223,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: Color(0XFF4381CA),
+                          color: const Color(0XFF4381CA),
                         ),
                         child: Center(
                           child: Text(

@@ -3,15 +3,49 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DetailWfo extends StatefulWidget {
-  const DetailWfo({super.key});
+  final dynamic absen;
+  DetailWfo({required this.absen});
 
   @override
   State<DetailWfo> createState() => _DetailWfoState();
 }
 
 class _DetailWfoState extends State<DetailWfo> {
+  Widget _category(BuildContext context) {
+    if (widget.absen['category'] == 'WFO') {
+      return Text('Work From Office',
+          style: GoogleFonts.montserrat(
+            fontSize: MediaQuery.of(context).size.width * 0.039,
+            color: kTextgrey,
+            fontWeight: FontWeight.w600,
+          ));
+    } else {
+      return const Text('Unknown category');
+    }
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return '-- : --';
+    }
+
+    try {
+      List<String> parts = dateTimeStr.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+      String period = hour >= 12 ? 'PM' : 'AM';
+
+      if (hour > 12) hour -= 12;
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      return '-- : --';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +78,7 @@ class _DetailWfoState extends State<DetailWfo> {
                 ],
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Align(
               alignment: Alignment.center,
               child: Icon(
@@ -69,7 +103,7 @@ class _DetailWfoState extends State<DetailWfo> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Attendance',
+                      'Detail',
                       style: GoogleFonts.montserrat(
                         fontSize: MediaQuery.of(context).size.width * 0.070,
                         fontWeight: FontWeight.w600,
@@ -79,7 +113,7 @@ class _DetailWfoState extends State<DetailWfo> {
                       width: MediaQuery.of(context).size.width * 0.02,
                     ),
                     Text(
-                      'Complete',
+                      'Attendance',
                       style: GoogleFonts.montserrat(
                         color: kTextoo,
                         fontSize: MediaQuery.of(context).size.width * 0.070,
@@ -96,9 +130,9 @@ class _DetailWfoState extends State<DetailWfo> {
                   color: kTextoo,
                 ),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 20),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.only(top: 20, bottom: 13),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
                     top: BorderSide(color: kBorder, width: 1),
@@ -107,7 +141,7 @@ class _DetailWfoState extends State<DetailWfo> {
                     children: [
                       CircleAvatar(
                         radius: MediaQuery.of(context).size.width * 0.05,
-                        backgroundImage: AssetImage(
+                        backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
                       ),
@@ -118,7 +152,7 @@ class _DetailWfoState extends State<DetailWfo> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Fauzan Alghifari',
+                            widget.absen['nama_lengkap'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -127,7 +161,7 @@ class _DetailWfoState extends State<DetailWfo> {
                             ),
                           ),
                           Text(
-                            'Backend Developer',
+                            widget.absen['posisi'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -137,22 +171,23 @@ class _DetailWfoState extends State<DetailWfo> {
                           ),
                         ],
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(vertical: 5.5),
                             alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width * 0.15,
+                            width: MediaQuery.of(context).size.width * 0.16,
                             decoration: BoxDecoration(
+                                border: Border.all(width: 0.8, color: kGreen),
                                 color: kGreenAllow,
                                 borderRadius: BorderRadius.circular(
-                                    MediaQuery.of(context).size.width * 0.025)),
+                                    MediaQuery.of(context).size.width * 0.030)),
                             child: Text(
                               "Allowed",
                               style: GoogleFonts.getFont("Montserrat",
                                   fontSize:
-                                      MediaQuery.of(context).size.width * 0.02,
+                                      MediaQuery.of(context).size.width * 0.025,
                                   color: kGreen,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -164,7 +199,7 @@ class _DetailWfoState extends State<DetailWfo> {
                 ),
                 Container(
                   padding:
-                      EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 30),
+                      const EdgeInsets.only(top: 5, bottom: 10, left: 20, right: 30),
                   width: double.infinity,
                   child: Column(
                     children: [
@@ -174,19 +209,25 @@ class _DetailWfoState extends State<DetailWfo> {
                           Text('Work From Office',
                               style: GoogleFonts.montserrat(
                                 fontSize:
-                                    MediaQuery.of(context).size.width * 0.039,
+                                    MediaQuery.of(context).size.width * 0.044,
                                 color: kTextoo,
                                 fontWeight: FontWeight.w600,
                               )),
+                          const SizedBox(
+                            height: 3,
+                          ),
                           Row(
                             children: [
-                              Text('27 Agustus 2023',
+                              Text(
+                                  DateFormat('dd MMMM yyyy').format(
+                                      DateTime.parse(widget.absen['date']) ??
+                                          DateTime.now()),
                                   style: GoogleFonts.montserrat(
                                     fontSize:
                                         MediaQuery.of(context).size.width *
-                                            0.024,
+                                            0.030,
                                     color: greyText,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                   )),
                             ],
                           ),
@@ -207,7 +248,7 @@ class _DetailWfoState extends State<DetailWfo> {
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.024,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: kTextUnselected,
                                 ),
                               ),
@@ -231,7 +272,7 @@ class _DetailWfoState extends State<DetailWfo> {
                           Container(
                             width: 1,
                             height: MediaQuery.of(context).size.width * 0.07,
-                            decoration: BoxDecoration(color: kTextoo),
+                            decoration: const BoxDecoration(color: kTextoo),
                           ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.045,
@@ -246,7 +287,7 @@ class _DetailWfoState extends State<DetailWfo> {
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.024,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: kTextUnselected,
                                 ),
                               ),
@@ -255,7 +296,7 @@ class _DetailWfoState extends State<DetailWfo> {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                "08:32 AM",
+                                formatDateTime(widget.absen['entry_time']),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -270,7 +311,7 @@ class _DetailWfoState extends State<DetailWfo> {
                           Container(
                             width: 1,
                             height: MediaQuery.of(context).size.width * 0.07,
-                            decoration: BoxDecoration(color: kTextoo),
+                            decoration: const BoxDecoration(color: kTextoo),
                           ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.065,
@@ -285,7 +326,7 @@ class _DetailWfoState extends State<DetailWfo> {
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.024,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: kTextUnselected,
                                 ),
                               ),
@@ -294,7 +335,7 @@ class _DetailWfoState extends State<DetailWfo> {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                "11:32 AM",
+                                formatDateTime(widget.absen['exit_time']),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -313,67 +354,99 @@ class _DetailWfoState extends State<DetailWfo> {
             Container(
               width: double.infinity,
               height: 180.0,
-              decoration: BoxDecoration(
-                color: kTextUnselectedOpa
-              ),
+              decoration: const BoxDecoration(
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //       blurRadius: 4,
+                  //       offset: Offset(0, 1),
+                  //       color: Colors.black.withOpacity(0.25))
+                  // ],
+                  border: Border(top: BorderSide(color: Color(0xffD9D9D9), width: 0.5) ,bottom: BorderSide(color: Color(0xffD9D9D9,), width: 0.5)),
+                  image: DecorationImage(
+                      image: AssetImage(
+                        'assets/img/map1.jpg',
+                      ),
+                      fit: BoxFit.cover)),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.width * 0.06,
+              height: MediaQuery.of(context).size.width * 0.05,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Deskripsi Darurat',
+            widget.absen['emergency_description'] == null
+                ? Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          child: SvgPicture.asset(
+                            "assets/img/emergency-desc.svg",
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: MediaQuery.of(context).size.width * 0.5,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(top: 6, bottom: 10),
+                          child: Text('Tidak ada deskripsi',
                               style: GoogleFonts.montserrat(
                                 fontSize:
-                                    MediaQuery.of(context).size.width * 0.034,
-                                color: kBlck,
+                                    MediaQuery.of(context).size.width * 0.039,
+                                color: kTextgrey,
                                 fontWeight: FontWeight.w600,
                               )),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.006,
-                  ),
-                  RichText(
-                    textAlign: TextAlign.justify,
-                    text: TextSpan(
+                        )
+                      ],
+                    ),
+                  )
+                : Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '“ ',
-                          style: GoogleFonts.montserrat(
-                            color: kPrimary,
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
-                          ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Text('Deskripsi Darurat',
+                              style: GoogleFonts.montserrat(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.044,
+                                color: kTextgrey,
+                                fontWeight: FontWeight.w600,
+                              )),
                         ),
-                        TextSpan(
-                          text:
-                              'Penyakit tipes saya kambuh yang mengharuskan saya pulang.',
-                          style: GoogleFonts.montserrat(
-                            color: greyText,
-                            fontSize: MediaQuery.of(context).size.width * 0.028,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ”',
-                          style: GoogleFonts.montserrat(
-                            color: kPrimary,
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
+                        RichText(
+                          textAlign: TextAlign.justify,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '“',
+                                style: GoogleFonts.montserrat(
+                                  color: kPrimary,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.034,
+                                ),
+                              ),
+                              TextSpan(
+                                text: widget.absen['emergency_description'],
+                                style: GoogleFonts.montserrat(
+                                  color: greyText,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.034,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '”',
+                                style: GoogleFonts.montserrat(
+                                  color: kPrimary,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.034,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.028,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.02,
-                  ),
-                ],
-              ),
-            ),
+                  )
           ],
         ),
       ),

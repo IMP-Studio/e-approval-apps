@@ -2,8 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
+import 'package:imp_approval/screens/detail/detail_absensi.dart';
+import 'package:imp_approval/screens/detail/detail_bolos.dart';
+import 'package:imp_approval/screens/detail/detail_wfo.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
+import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
+import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:imp_approval/screens/detail/detail_cuti.dart';
+import 'package:imp_approval/screens/detail/detail_perjadin.dart';
+import 'package:imp_approval/screens/detail/detail_wfa.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HistoryAttendance extends StatefulWidget {
   const HistoryAttendance({super.key});
@@ -14,10 +27,51 @@ class HistoryAttendance extends StatefulWidget {
 
 class _HistoryAttendanceState extends State<HistoryAttendance>
     with SingleTickerProviderStateMixin {
+  SharedPreferences? preferences;
   int activeIndex = 0;
   late TabController _tabController;
   DateTime date = DateTime.now();
   bool isButtonVisible = true;
+
+  String? startDate;
+  String? endDate;
+  String? type;
+
+  Future? _dataFuture;
+
+  onStartDateSelected(DateTime date) {
+    setState(() {
+      startDate = date.toIso8601String();
+    });
+  }
+
+  onEndDateSelected(DateTime date) {
+    setState(() {
+      endDate = date.toIso8601String();
+    });
+  }
+
+  onTypeSelected(String selectedType) {
+    setState(() {
+      type = selectedType;
+    });
+  }
+
+  String formatDate(DateTime? dateTime) {
+    if (dateTime == null) return ''; // handle null datetime if necessary
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+  }
+
+  bool isLoading = false;
+  Future<void> getUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   void hideButton() {
     if (isButtonVisible) {
@@ -35,20 +89,135 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     }
   }
 
+  String formatDateRange(String startDate, String endDate) {
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
+
+    String formattedStartDay = DateFormat('d').format(start);
+    String formattedEndDay = DateFormat('d').format(end);
+    String formattedMonth =
+        DateFormat('MMMM').format(start); // e.g., "November"
+    String formattedYear = DateFormat('y').format(start); // e.g., "2023"
+
+    return '$formattedStartDay-$formattedEndDay $formattedMonth $formattedYear';
+  }
+
+  Future getAbsensiAll(
+      {String? startDate, String? endDate, String? type}) async {
+    int userId = preferences?.getInt('user_id') ?? 0;
+
+    print("Inside getAbsensiAll method"); // Add this line
+
+    String urlj =
+        'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed,pending,rejected&scope=self';
+
+    if (startDate != null) {
+      urlj += '&start_date=$startDate';
+    }
+
+    if (endDate != null) {
+      urlj += '&end_date=$endDate';
+    }
+
+    if (type != null) {
+      urlj += '&type=$type';
+    }
+
+    print("Constructed URL: $urlj"); // This will print the URL
+
+    var response = await http.get(Uri.parse(urlj));
+    print(response.body);
+    return jsonDecode(response.body);
+  }
+
+  Future<void> _refreshContent() async {
+    setState(() {
+      _dataFuture = getAbsensiAll();
+    });
+  }
+
   void startTimer() {
     // Start a timer to hide the button after 4 seconds of inactivity
-    Duration duration = Duration(seconds: 4);
+    Duration duration = const Duration(seconds: 4);
     Future.delayed(duration, hideButton);
   }
 
   void initState() {
     // TODO: implement initState
     super.initState();
+    getUserData().then((_) {
+      print(preferences?.getInt('user_id'));
+      _dataFuture = getAbsensiAll();
+    });
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
     startTimer();
+  }
+
+  String calculateTotalHours(String entryTime, String exitTime) {
+    if (entryTime == '00:00:00' || exitTime == '00:00:00') {
+      return 'Ongoing';
+    }
+
+    try {
+      DateTime entry = DateTime.parse('2023-01-01 ' + entryTime);
+      DateTime exit = DateTime.parse('2023-01-01 ' + exitTime);
+
+      Duration difference = exit.difference(entry);
+      return '${difference.inHours.toString().padLeft(2, '0')}:${(difference.inMinutes % 60).toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Error';
+    }
+  }
+
+  void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
+    // Convert activeIndex to the respective type
+    String? type;
+    if (activeIndex == 1) {
+      type = 'WFA';
+    } else if (activeIndex == 2) {
+      type = 'PERJADIN';
+    }
+
+    setState(() {
+      _dataFuture = getAbsensiAll(
+          startDate: formatDate(startDate),
+          endDate: formatDate(endDate),
+          type: type);
+    });
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return '-- : --';
+    }
+
+    try {
+      List<String> parts = dateTimeStr.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+      String period = hour >= 12 ? 'PM' : 'AM';
+
+      if (hour > 12) hour -= 12;
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      return '-- : --';
+    }
+  }
+
+  String formatTime(String? dateTimeStr) {
+    if (dateTimeStr == null) {
+      return '-- : --';
+    }
+
+    try {
+      DateTime parsedDateTime = DateTime.parse(dateTimeStr);
+      return DateFormat('hh').format(parsedDateTime);
+    } catch (e) {
+      return '-- : --';
+    }
   }
 
   @override
@@ -57,10 +226,59 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     super.dispose();
   }
 
+  String statusText(String? status) {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'allow_HT':
+        return 'Diterima oleh';
+      case 'allowed':
+        return 'Diterima oleh';
+      case 'rejected':
+        return 'Ditolak oleh';
+      default:
+        return '';
+    }
+  }
+
+  String categoryText(String? category) {
+    switch (category) {
+      case 'WFO':
+        return 'Work From Office';
+      case 'telework':
+        return 'Work From Anywhere';
+      case 'work_trip':
+        return 'Perjalanan Dinas';
+      case 'leave':
+        return 'Cuti';
+      case 'skip':
+        return 'Cuti';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  String permissionText(String? status, String category, [String? rejector]) {
+    if (category == 'wfo') return 'HR';
+
+    switch (status) {
+      case 'pending':
+        return 'HT';
+      case 'allow_HT':
+        return 'HT';
+      case 'allowed':
+        return 'HT & HR';
+      case 'rejected':
+        return rejector ?? '';
+      default:
+        return 'HT & HR';
+    }
+  }
+
   void _showDatePickerModal() {
     showModalBottomSheet<void>(
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(15.0),
           topRight: Radius.circular(15.0),
@@ -70,228 +288,835 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
       builder: (BuildContext context) {
         return DatePickerModal(
           onDateSelected: (selectedDate) {
-            // Handle the selected date here as needed
             print("Selected date: $selectedDate");
           },
+          onApplyFilter: (startDate, endDate, activeIndex) {
+            print(
+                "Filter applied with dates: $startDate to $endDate and index: $activeIndex");
+          },
           tabController: _tabController,
-          // buildContent: buildContent,
         );
       },
     );
   }
 
   Widget _jadwalContainer() {
-    return GestureDetector(
-        onTap: () {
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => DetailAbsensi(),
-          //     ));
-        },
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          padding: EdgeInsets.only(right: 10, left: 10),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 10, left: 10),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      width: double.infinity,
-                      height: 99,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 4.0,
-                            spreadRadius: 0.0,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IntrinsicHeight(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, left: 5, right: 5),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 15, bottom: 5, right: 5),
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          height: 2,
-                                          width: 20,
-                                          color: kTextoo,
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            child: Column(
+              children: [
+                FutureBuilder(
+                    future: _dataFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Column(
+                          children: [
+                            ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 7,
+                              separatorBuilder: (context, index) => const SizedBox(
+                                height: 10,
+                              ),
+                              itemBuilder: (context, index) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(right: 20, left: 20),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.only(bottom: 15),
+                                          width: double.infinity,
+                                          height: 95,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: const Color(0xffC2C2C2)
+                                                      .withOpacity(0.30))),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              IntrinsicHeight(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 5,
+                                                          left: 10,
+                                                          right: 10),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 15,
+                                                                    bottom: 7,
+                                                                    right: 5),
+                                                            child: Container(
+                                                              width: 20,
+                                                              color: Colors
+                                                                  .grey[300],
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                100, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      const VerticalDivider(
+                                                        color:
+                                                            Color(0xffE6E6E6),
+                                                        thickness: 1,
+                                                      ),
+                                                      const Spacer(),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                30, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              Container(
+                                                color: const Color(0xffD9D9D9)
+                                                    .withOpacity(0.15),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 10,
+                                                          top: 10,
+                                                          right: 10,
+                                                          left: 10),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width
+                                                        height: 8.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                40, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                60, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Text('July 16th, 2023',
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: 12,
-                                            color: kTextoo,
-                                            fontWeight: FontWeight.w600,
-                                          )),
-                                      Row(
-                                        children: [
-                                          Text('00:00 ',
-                                              style: GoogleFonts.montserrat(
-                                                fontSize: 12,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w700,
-                                              )),
-                                          Text('Total hours',
-                                              style: GoogleFonts.montserrat(
-                                                fontSize: 12,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w400,
-                                              )),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: VerticalDivider(
-                                      color: Colors.black,
-                                      thickness: 1,
+                                      ],
                                     ),
                                   ),
-                                  Spacer(),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 15,
-                                          bottom: 5,
-                                          left: 5,
+                                );
+                              },
+                            )
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        if (snapshot.hasData) {
+                          if (snapshot.data?['data'] == null ||
+                              snapshot.data['data'].isEmpty) {
+                            // Return an Image or placeholder here
+                            return Center(
+                              child: Container(
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+
+                          var limitedData = snapshot.data['data'].toList();
+                          return ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: limitedData.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                print(snapshot.data['data']);
+                                print(limitedData[index]['entry_time']);
+                                print(
+                                    snapshot.data['data'][index]['entry_time']);
+                                return GestureDetector(
+                                  onTap: () {
+                                    String category = snapshot.data['data']
+                                            [index][
+                                        'category']; // Assuming your data has a 'category' key.
+
+                                    Widget detailPage;
+
+                                    switch (category) {
+                                      case 'WFO':
+                                        detailPage = DetailWfo(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                      case 'telework':
+                                        detailPage = DetailWfa(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                      case 'work_trip':
+                                        detailPage = DetailPerjadin(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                      case 'leave':
+                                        detailPage = DetailCuti(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                      case 'skip':
+                                        detailPage = DetailBolos(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                      default:
+                                        detailPage = DetailAbsensi(
+                                            absen: snapshot.data['data']
+                                                [index]);
+                                        break;
+                                    }
+
+                                    Navigator.of(context)
+                                        .push(
+                                      MaterialPageRoute(
+                                          builder: (context) => detailPage),
+                                    )
+                                        .then((result) {
+                                      if (result == 'refresh') {
+                                        _refreshContent();
+                                      }
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(right: 20, left: 20),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 95,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: const Color(0xffC2C2C2)
+                                                      .withOpacity(0.30))),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              IntrinsicHeight(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 5,
+                                                          left: 10,
+                                                          right: 10),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 15,
+                                                                    bottom: 7,
+                                                                    right: 5),
+                                                            child: Container(
+                                                              padding: const EdgeInsets
+                                                                  .symmetric(
+                                                                      vertical:
+                                                                          10),
+                                                              height: 2,
+                                                              width: 20,
+                                                              color: blueText,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            snapshot.data['data'][index]['category'] ==
+                                                                    'leave'
+                                                                ? formatDateRange(
+                                                                    snapshot.data['data']
+                                                                            [index]
+                                                                        [
+                                                                        'start_date'],
+                                                                    snapshot.data['data']
+                                                                            [index]
+                                                                        [
+                                                                        'end_date'])
+                                                                : DateFormat(
+                                                                        'dd MMMM yyyy')
+                                                                    .format(DateTime.parse(
+                                                                            snapshot.data['data'][index]['date']) ??
+                                                                        DateTime.now()),
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 10,
+                                                              color: blueText,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              const SizedBox(
+                                                                height: 2,
+                                                              ),
+                                                              Text(
+                                                                  calculateTotalHours(
+                                                                      snapshot.data['data']
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'entry_time'],
+                                                                      snapshot.data['data']
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'exit_time']),
+                                                                  style: GoogleFonts
+                                                                      .montserrat(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                  )),
+                                                              Text(
+                                                                  ' Total hours',
+                                                                  style: GoogleFonts
+                                                                      .montserrat(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                  )),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      const Padding(
+                                                        padding:
+                                                            EdgeInsets
+                                                                .only(top: 10),
+                                                        child: VerticalDivider(
+                                                          color:
+                                                              Color(0xffE6E6E6),
+                                                          thickness: 1,
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                              top: 15,
+                                                              bottom: 7,
+                                                              left: 5,
+                                                            ),
+                                                            child: Container(
+                                                              height: 2,
+                                                              width: 20,
+                                                              color: blueText,
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                Column(
+                                                                  children: [
+                                                                    Text(
+                                                                        'Check in',
+                                                                        style: GoogleFonts
+                                                                            .montserrat(
+                                                                          fontSize:
+                                                                              10,
+                                                                          color:
+                                                                              blueText,
+                                                                          fontWeight:
+                                                                              FontWeight.w600,
+                                                                        )),
+                                                                    const SizedBox(
+                                                                      height: 3,
+                                                                    ),
+                                                                    Text(
+                                                                        formatDateTime(snapshot.data['data'][index]
+                                                                            [
+                                                                            'entry_time']),
+                                                                        style: GoogleFonts
+                                                                            .montserrat(
+                                                                          fontSize:
+                                                                              11,
+                                                                          color:
+                                                                              Colors.black,
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                        )),
+                                                                  ],
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 10),
+                                                                Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .end,
+                                                                  children: [
+                                                                    Text(
+                                                                        'Check out',
+                                                                        style: GoogleFonts
+                                                                            .montserrat(
+                                                                          fontSize:
+                                                                              10,
+                                                                          color:
+                                                                              blueText,
+                                                                          fontWeight:
+                                                                              FontWeight.w600,
+                                                                        )),
+                                                                    const SizedBox(
+                                                                      height: 3,
+                                                                    ),
+                                                                    Text(
+                                                                        formatDateTime(snapshot.data['data'][index]
+                                                                            [
+                                                                            'exit_time']),
+                                                                        style: GoogleFonts
+                                                                            .montserrat(
+                                                                          fontSize:
+                                                                              11,
+                                                                          color:
+                                                                              Colors.black,
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                        )),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xffD9D9D9)
+                                                      .withOpacity(0.15),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    bottom: 10,
+                                                    top: 10,
+                                                    right: 10,
+                                                    left: 10,
+                                                  ),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            categoryText(snapshot
+                                                                        .data[
+                                                                    'data'][index]
+                                                                ['category']),
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 8,
+                                                              color: const Color(
+                                                                  0xffB6B6B6),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Text(
+                                                            statusText(snapshot
+                                                                        .data[
+                                                                    'data'][index]
+                                                                ['status']),
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 8,
+                                                              color: const Color(
+                                                                  0xffB6B6B6),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          Text(
+                                                            permissionText(
+                                                                snapshot.data[
+                                                                            'data']
+                                                                        [index]
+                                                                    ['status'],
+                                                                snapshot.data[
+                                                                            'data']
+                                                                        [index][
+                                                                    'category'],
+                                                                snapshot.data[
+                                                                            'data']
+                                                                        [index][
+                                                                    'someKey']),
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 8,
+                                                              color: const Color(
+                                                                  0xffB6B6B6),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        child: Container(
-                                          height: 2,
-                                          width: 20,
-                                          color: kTextoo,
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            Column(
-                                              children: [
-                                                Text('Check in',
-                                                    style:
-                                                        GoogleFonts.montserrat(
-                                                      fontSize: 8,
-                                                      color: kTextoo,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    )),
-                                                Text('08:00 AM',
-                                                    style:
-                                                        GoogleFonts.montserrat(
-                                                      fontSize: 10,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    )),
-                                              ],
-                                            ),
-                                            SizedBox(width: 10),
-                                            Column(
-                                              children: [
-                                                Text('Check out',
-                                                    style:
-                                                        GoogleFonts.montserrat(
-                                                      fontSize: 8,
-                                                      color: kTextoo,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    )),
-                                                Text('08:00 AM',
-                                                    style:
-                                                        GoogleFonts.montserrat(
-                                                      fontSize: 10,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    )),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ],
+                                );
+                              });
+                        } else {
+                          return Column(
+                          children: [
+                            ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 7,
+                              separatorBuilder: (context, index) => const SizedBox(
+                                height: 10,
                               ),
-                            ),
-                          ),
-                          Spacer(),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(8),
-                                  bottomRight: Radius.circular(8)),
-                              color: Color(0xffD9D9D9).withOpacity(0.15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: 10,
-                                top: 10,
-                                right: 5,
-                                left: 5,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Rejected by',
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: 8,
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.w400,
-                                      )),
-                                  Text('HR',
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: 8,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                              itemBuilder: (context, index) {
+                                return Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(right: 20, left: 20),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.only(bottom: 15),
+                                          width: double.infinity,
+                                          height: 95,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: const Color(0xffC2C2C2)
+                                                      .withOpacity(0.30))),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              IntrinsicHeight(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 5,
+                                                          left: 10,
+                                                          right: 10),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    top: 15,
+                                                                    bottom: 7,
+                                                                    right: 5),
+                                                            child: Container(
+                                                              width: 20,
+                                                              color: Colors
+                                                                  .grey[300],
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                100, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      const VerticalDivider(
+                                                        color:
+                                                            Color(0xffE6E6E6),
+                                                        thickness: 1,
+                                                      ),
+                                                      const Spacer(),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 3,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                30, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              Container(
+                                                color: const Color(0xffD9D9D9)
+                                                    .withOpacity(0.15),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 10,
+                                                          top: 10,
+                                                          right: 10,
+                                                          left: 10),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width
+                                                        height: 8.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                40, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          Container(
+                                                            width:
+                                                                60, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        );
+                        }
+                      }
+                    }),
+              ],
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: GestureDetector(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: GestureDetector(
         onTap: () {
           showButton();
           startTimer();
@@ -300,165 +1125,148 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
           showButton();
           startTimer();
         },
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: ListView(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.width * 0.35,
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [kTextoo, kTextoo])),
-                  child: Row(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.15,
-                              height: MediaQuery.of(context).size.width * 0.007,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20.0)),
-                            ),
+        child: SafeArea(
+          child: ListView(
+            children: [
+              Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.width * 0.35,
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [kTextoo, kTextoo])),
+                child: Row(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            height: MediaQuery.of(context).size.width * 0.007,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.0)),
                           ),
-                          SizedBox(
-                            height: 10.0,
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20.0,
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: 20.0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Riwayat Absensi",
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Riwayat Absensi",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.055,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  "Work From Anywhere, Pekerjaan Dinas, Work From Office",
                                   style: GoogleFonts.getFont('Montserrat',
                                       textStyle: TextStyle(
                                           fontSize: MediaQuery.of(context)
                                                   .size
                                                   .width *
-                                              0.055,
+                                              0.028,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white)),
                                 ),
-                                SizedBox(
-                                  height: 5.0,
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  child: Text(
-                                    "Work From Anywhere, Pekerjaan Dinas, Work From Office",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.028,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white)),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: SvgPicture.asset(
-                          "assets/img/hero-image-ha.svg",
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          height: MediaQuery.of(context).size.width * 0.3,
-                          fit: BoxFit.cover,
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 280,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.only(right: 10, left: 10),
-                      child: Column(
-                        children: [
-                          _jadwalContainer(),
-                        ],
-                      ),
+                      ],
                     ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          floatingActionButton: isButtonVisible
-              ? Stack(
-                  children: [
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      width: 110.0,
-                      height: 45.0,
-                      decoration: BoxDecoration(
-                          color: kTextoo,
-                          borderRadius: BorderRadius.circular(25.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: Text(
-                          "Filter",
-                          style: GoogleFonts.getFont('Montserrat',
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600),
-                        ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: SvgPicture.asset(
+                        "assets/img/hero-image-ha.svg",
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: MediaQuery.of(context).size.width * 0.3,
+                        fit: BoxFit.cover,
                       ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      child: Container(
-                        height: 45,
-                        width: 45,
-                        child: FloatingActionButton(
-                          heroTag: 'next1',
-                          onPressed: _showDatePickerModal,
-                          child: Icon(LucideIcons.slidersHorizontal),
-                          backgroundColor: kTextooAgakGelap,
-                          elevation: 0,
-                          hoverElevation: 0,
-                        ),
-                      ),
-                    ),
+                    )
                   ],
-                )
-              : null,
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+                ),
+              ),
+              _jadwalContainer(),
+              const SizedBox(
+                height: 10,
+              )
+            ],
+          ),
         ),
       ),
+      floatingActionButton: isButtonVisible
+          ? Stack(
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  width: 110.0,
+                  height: 45.0,
+                  decoration: BoxDecoration(
+                      color: kTextoo,
+                      borderRadius: BorderRadius.circular(25.0)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text(
+                      "Filter",
+                      style: GoogleFonts.getFont('Montserrat',
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  child: Container(
+                    height: 45,
+                    width: 45,
+                    child: FloatingActionButton(
+                      heroTag: 'next1',
+                      onPressed: _showDatePickerModal,
+                      child: const Icon(LucideIcons.slidersHorizontal),
+                      backgroundColor: kTextooAgakGelap,
+                      elevation: 0,
+                      hoverElevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
 
 class DatePickerModal extends StatefulWidget {
+  final Function(DateTime?, DateTime?, int) onApplyFilter;
   final Function(DateTime) onDateSelected;
   final TabController tabController;
 
   DatePickerModal({
+    required this.onApplyFilter,
     required this.onDateSelected,
     required this.tabController,
   });
@@ -484,7 +1292,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(top: 15, bottom: 10),
+              margin: const EdgeInsets.only(top: 15, bottom: 10),
               width: 60,
               height: 5,
               decoration: BoxDecoration(
@@ -546,7 +1354,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           vertical: 20,
                           horizontal: 20,
                         ),
@@ -554,7 +1362,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: kBlck,
                             width: 1,
                           ),
@@ -573,8 +1381,8 @@ class _DatePickerModalState extends State<DatePickerModal> {
                                     MediaQuery.of(context).size.width * 0.028,
                                 color: kBlck),
                           ),
-                          Spacer(),
-                          Icon(
+                          const Spacer(),
+                          const Icon(
                             LucideIcons.calendarDays,
                             color: kTextoo,
                             size: 18,
@@ -603,7 +1411,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           vertical: 20,
                           horizontal: 20,
                         ),
@@ -611,7 +1419,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: kBlck,
                             width: 1,
                           ),
@@ -628,8 +1436,8 @@ class _DatePickerModalState extends State<DatePickerModal> {
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.028,
                                   color: kBlck)),
-                          Spacer(),
-                          Icon(
+                          const Spacer(),
+                          const Icon(
                             LucideIcons.calendarDays,
                             color: kTextoo,
                             size: 18,
@@ -653,20 +1461,23 @@ class _DatePickerModalState extends State<DatePickerModal> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kTextoo,
                         padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.width * 0.05,
+                          vertical: MediaQuery.of(context).size.width * 0.035,
                           horizontal: 20,
                         ),
                         primary: Colors.transparent,
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: kTextoo,
                             width: 1,
                           ),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        widget.onApplyFilter(
+                            selectedDate1, selectedDate2, activeIndex);
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -689,14 +1500,14 @@ class _DatePickerModalState extends State<DatePickerModal> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.width * 0.05,
+                          vertical: MediaQuery.of(context).size.width * 0.035,
                           horizontal: 20,
                         ),
                         primary: Colors.transparent,
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: kTextoo,
                             width: 1,
                           ),
@@ -770,7 +1581,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
               )),
             ),
           ),
-          Divider(),
+          const Divider(),
           // SizedBox(
           //   width: 15.0,
           // ),
@@ -806,7 +1617,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
               )),
             ),
           ),
-          Divider(),
+          const Divider(),
           // SizedBox(
           //   width: 15.0,
           // ),

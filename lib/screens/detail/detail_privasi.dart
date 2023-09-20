@@ -6,6 +6,7 @@ import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:imp_approval/screens/rubahPassword/rubah_password.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrivasiPage extends StatefulWidget {
   const PrivasiPage({super.key});
@@ -15,6 +16,27 @@ class PrivasiPage extends StatefulWidget {
 }
 
 class _PrivasiPageState extends State<PrivasiPage> {
+  SharedPreferences? preferences;
+
+  bool isLoading = false;
+  Future<void> getUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void initState() {
+    super.initState();
+    getUserData().then((_) {
+      print(preferences?.getInt('user_id'));
+    });
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +48,7 @@ class _PrivasiPageState extends State<PrivasiPage> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(LucideIcons.chevronLeft),
+          icon: const Icon(LucideIcons.chevronLeft),
         ),
         title: Text(
           'Privasi',
@@ -41,93 +63,14 @@ class _PrivasiPageState extends State<PrivasiPage> {
       ),
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: ListView(
             scrollDirection: Axis.vertical,
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             children: [
-              // staff id
-              Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text('Staff id',
-                          style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.035,
-                            color: kTextgrey,
-                            fontWeight: FontWeight.w400,
-                          )),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Text('21233311232',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // no handphone
-              Padding(
-                padding: EdgeInsets.only(top: 14, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text('No. Handphone',
-                          style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.035,
-                            color: kTextgrey,
-                            fontWeight: FontWeight.w400,
-                          )),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Text('0878-2099-4530',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              )),
-                          Spacer(),
-                          Icon(
-                            LucideIcons.phoneCall,
-                            color: kBorder,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               // email
               Padding(
-                padding: EdgeInsets.only(top: 14, bottom: 5),
+                padding: const EdgeInsets.only(top: 14, bottom: 5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -142,21 +85,21 @@ class _PrivasiPageState extends State<PrivasiPage> {
                     ),
                     Container(
                       padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                       width: double.infinity,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                         color: Colors.white,
                       ),
                       child: Row(
                         children: [
-                          Text('fauzan123@gmail.com',
+                          Text('${preferences?.getString('email')}',
                               style: GoogleFonts.montserrat(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               )),
-                          Spacer(),
-                          Icon(
+                          const Spacer(),
+                          const Icon(
                             LucideIcons.mail,
                             color: kBorder,
                             size: 18,
@@ -169,7 +112,7 @@ class _PrivasiPageState extends State<PrivasiPage> {
               ),
               // password
               Padding(
-                padding: EdgeInsets.only(top: 14, bottom: 5),
+                padding: const EdgeInsets.only(top: 14, bottom: 5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -185,9 +128,9 @@ class _PrivasiPageState extends State<PrivasiPage> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       width: double.infinity,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                         color: Colors.white,
                       ),
@@ -203,14 +146,14 @@ class _PrivasiPageState extends State<PrivasiPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText:
                                     'Enter your password', // Ganti dengan teks yang sesuai
                                 border: InputBorder.none,
                               ),
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             LucideIcons.lock,
                             color: kBorder,
                             size: 18,
@@ -225,22 +168,22 @@ class _PrivasiPageState extends State<PrivasiPage> {
                 height: MediaQuery.of(context).size.height * 0.01,
               ),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   InkWell(
-                    onTap: () {
-                      Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ForgetPassword(),
-                            ),
-                          );
-                    },
-                    child: Text("Lupa password?",
+                   onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const ForgetPassword(),
+                                          ),
+                                        );
+                                  },
+                    child: Text("Lupa password",
                         style: GoogleFonts.montserrat(
                           fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextBlocker,
+                          color: kTextgrey,
                           fontWeight: FontWeight.w400,
                         )),
                   ),
@@ -249,7 +192,7 @@ class _PrivasiPageState extends State<PrivasiPage> {
                       Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => RubahPassword(),
+                              builder: (context) => const RubahPassword(),
                             ),
                           );
                     },

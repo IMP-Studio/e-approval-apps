@@ -24,7 +24,7 @@ class _ProfileState extends State<Profile> {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String? token = preferences.getString('token');
       var response = await http.post(
-        Uri.parse('https://04f1-103-195-58-163.ngrok-free.app/api/logout'),
+        Uri.parse('https://testing.impstudio.id/approvall/api/logout'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -33,12 +33,12 @@ class _ProfileState extends State<Profile> {
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => LoginScreen(),
+            builder: (context) => const LoginScreen(),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Logout gagal')),
+          const SnackBar(content: Text('Logout gagal')),
         );
       }
     }
@@ -72,7 +72,7 @@ class _ProfileState extends State<Profile> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(top: 15),
+                          margin: const EdgeInsets.only(top: 15),
                           child: Text(
                             'Mahesa Alfian Dhika',
                             style: GoogleFonts.montserrat(
@@ -83,7 +83,7 @@ class _ProfileState extends State<Profile> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(top: 3),
+                          margin: const EdgeInsets.only(top: 3),
                           child: Text(
                             'Backend Developer',
                             style: GoogleFonts.montserrat(
@@ -101,17 +101,17 @@ class _ProfileState extends State<Profile> {
                       left: 0,
                       right: 0,
                       child: Padding(
-                        padding: EdgeInsets.only(left: 20, right: 20),
+                        padding: const EdgeInsets.only(left: 20, right: 20),
                         child: Container(
                           height: 75,
-                          padding: EdgeInsets.symmetric(horizontal: 50),
+                          padding: const EdgeInsets.symmetric(horizontal: 50),
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.25),
                                 spreadRadius: 0,
                                 blurRadius: 8,
-                                offset: Offset(0, 1),
+                                offset: const Offset(0, 1),
                               ),
                             ],
                             color: Colors.white,
@@ -193,11 +193,12 @@ class _ProfileState extends State<Profile> {
               ),
               const SizedBox(height: 40),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Container(
-                  padding: EdgeInsets.only(top: 30),
+                  padding: const EdgeInsets.only(top: 30),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 25, horizontal: 35),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 25, horizontal: 35),
 
                     width: MediaQuery.of(context)
                         .size
@@ -209,7 +210,7 @@ class _ProfileState extends State<Profile> {
                           color: Colors.black.withOpacity(0.25),
                           spreadRadius: 0,
                           blurRadius: 8,
-                          offset: Offset(0, 1),
+                          offset: const Offset(0, 1),
                         ),
                       ],
                       borderRadius: BorderRadius.circular(20),
@@ -508,10 +509,10 @@ class _ProfileState extends State<Profile> {
                             children: [
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 40, vertical: 15),
                                     backgroundColor: Colors.red,
-                                    side: BorderSide(color: Colors.red),
+                                    side: const BorderSide(color: Colors.red),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),

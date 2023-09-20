@@ -38,7 +38,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         ),
       );
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => OTPPage(),
+        builder: (context) => const OTPPage(),
       ));
     }else{
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +60,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         title: Text(
           'Verifikasi Email',
           style: GoogleFonts.montserrat(
-            color: Color(0xff000000),
+            color: const Color(0xff000000),
             fontSize: MediaQuery.of(context).size.width * 0.039,
             fontWeight: FontWeight.w600,
           ),
@@ -69,7 +69,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           onTap: () {
               Navigator.pop(context);
           },
-          child: Icon(
+          child: const Icon(
             size: 20,
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
@@ -80,7 +80,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.only(top: 30),
+              margin: const EdgeInsets.only(top: 30),
               child: Column(
                 children: [
                   Row(
@@ -90,12 +90,12 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                       Text(
                         'Lupa',
                         style: GoogleFonts.montserrat(
-                          color: Color(0xff000000),
+                          color: const Color(0xff000000),
                           fontSize: MediaQuery.of(context).size.width * 0.055,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
@@ -109,7 +109,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     ],
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 8),
+                    margin: const EdgeInsets.only(top: 8),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -142,7 +142,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 45),
+                    margin: const EdgeInsets.only(top: 45),
                     width: 260,
                     height: 45,
                     child: TextFormField(
@@ -154,18 +154,18 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: Container(
-                          padding: EdgeInsets.only(right: 15, left: 15),
-                          margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          decoration: BoxDecoration(
+                          padding: const EdgeInsets.only(right: 15, left: 15),
+                          margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          decoration: const BoxDecoration(
                               border: Border(
                                   right: BorderSide(
                                       width: 1.0, color: Colors.grey))),
-                          child: Icon(Icons.phone_android_rounded),
+                          child: const Icon(Icons.phone_android_rounded),
                         ),
-                        contentPadding: EdgeInsets.fromLTRB(10, 10, 10,
+                        contentPadding: const EdgeInsets.fromLTRB(10, 10, 10,
                             10), // Adjust the padding for the input text.
                         border: OutlineInputBorder(
-                            borderSide: BorderSide(),
+                            borderSide: const BorderSide(),
                             borderRadius: BorderRadius.circular(8)),
                         hintText: 'example@mail.com',
                         hintStyle: GoogleFonts.montserrat(
@@ -176,7 +176,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 40),
+                    margin: const EdgeInsets.only(top: 40),
                     child: InkWell(
                       onTap: () {
                         forgetPasswordOtp();
@@ -186,7 +186,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: Color(0XFF4381CA),
+                          color: const Color(0XFF4381CA),
                         ),
                         child: Center(
                           child: Text(

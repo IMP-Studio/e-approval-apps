@@ -9,9 +9,9 @@ import 'dart:io';
 import 'package:image/image.dart' as imglib;
 import 'package:camera/camera.dart';
 import 'package:imp_approval/faceModule/model.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:imp_approval/screens/standup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/collection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -27,8 +27,10 @@ import 'package:image_picker/image_picker.dart';
 
 class FacePage extends StatefulWidget {
   final Map<String, dynamic> arguments;
+  final Map<String, dynamic> profile;
 
-  const FacePage({Key? key, required this.arguments}) : super(key: key);
+  const FacePage({Key? key, required this.arguments, required this.profile})
+      : super(key: key);
 
   @override
   State<FacePage> createState() => _FacePageState();
@@ -41,30 +43,26 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    getUserData().then((_) {
-      fetchName();
-      // fetchFace();
-      fetchId().then((_) {
-        print('Facepoint: ${preferences?.getString('facepoint')}');
-        print(user_id);
-        print(nama_lengkap);
-        print(widget.arguments['selectedOption']);
-        print(widget.arguments['keteranganWfa']);
-        print(widget.arguments['description']);
-        print(widget.arguments['latitude']);
-        fetchUserFacePoint();
-        print(widget.arguments['longitude']);
-      });
-      _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-        // Update every 10 seconds (adjust the duration as needed)
-        _updateLocationAndAddress();
-      });
-    });
-
     WidgetsBinding.instance!.addObserver(this);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    _start();
+    initializePage();
+  }
+
+  Future<void> initializePage() async {
+    try {
+      await getUserData();
+      await fetchName();
+      await fetchId();
+      await faceP();
+      print('file guach : ${widget.arguments['file'].toString()}');
+      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+        _updateLocationAndAddress();
+      });
+      _start();
+    } catch (e) {
+      print("Error in initializePage: $e");
+    }
   }
 
   SharedPreferences? preferences;
@@ -78,6 +76,12 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   Future<void> fetchId() async {
     user_id = preferences?.getInt('user_id') ?? 2;
     print(user_id);
+    setState(() {});
+  }
+
+  Future<void> faceP() async {
+    face = preferences?.getString('facepoint') ?? 'null';
+    print(face);
     setState(() {});
   }
 
@@ -156,6 +160,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       await Future.delayed(const Duration(milliseconds: 400));
       _camera = null;
       _timer?.cancel();
+      recognitionTimer?.cancel();
     }
     super.dispose();
   }
@@ -176,6 +181,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   List? e1;
   bool loading = true;
   late String nama_lengkap;
+  late String face;
   late int user_id;
 
   bool faceRecognized = false;
@@ -188,23 +194,24 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   final TextEditingController _name = TextEditingController(text: '');
 
- Future<void> fetchData() async {
-  Map<String, dynamic> userData = await fetchUserFacePoint();
-  data = userData['facePoint']; // Assuming 'facePoint' is a field in the returned JSON.
-  nama_lengkap = userData['name']; // Assuming 'name' is a field in the returned JSON.
-}
-
-Future<Map<String, dynamic>> fetchUserFacePoint() async {
-  final response = await http.get(
-    Uri.parse('https://04f1-103-195-58-163.ngrok-free.app/api/fetchPoint?id=$user_id'),
-  );
-
-  if (response.statusCode == 200) {
-    return json.decode(response.body);
-  } else {
-    throw Exception('Failed to load face point.');
+  Future<void> fetchData() async {
+    Map<String, dynamic> userData = await fetchUserFacePoint();
+    data = userData['facePoint'];
+    nama_lengkap = userData['name'];
   }
-}
+
+  Future<Map<String, dynamic>> fetchUserFacePoint() async {
+    final response = await http.get(
+      Uri.parse(
+          'https://testing.impstudio.id/approvall/api/fetchPoint?id=$user_id'),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load face point.');
+    }
+  }
 
   Timer? recognitionTimer;
 
@@ -212,7 +219,7 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
     if (recognizedName.isNotEmpty) {
       if (recognitionTimer == null) {
         faceRecognized = true;
-        recognitionTimer = Timer(Duration(seconds: 5), () async {
+        recognitionTimer = Timer(const Duration(seconds: 5), () async {
           if (faceRecognized) {
             storeAbsen();
             if (_camera != null) {
@@ -221,10 +228,13 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
               await _camera!.dispose();
               await Future.delayed(const Duration(milliseconds: 400));
               _camera = null;
+              _timer.cancel();
             }
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => MainLayout()),
-            );
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => MainLayout()),
+              );
+            }
           }
           recognitionTimer = null;
         });
@@ -317,8 +327,11 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
               await _camera!.dispose();
               await Future.delayed(const Duration(milliseconds: 400));
               _camera = null;
+              _timer.cancel();
             }
-            Navigator.pop(context);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => MainLayout()),
+            );
           },
         );
       }
@@ -370,31 +383,69 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
   }
 
   Future storeAbsen() async {
-    DateTime combinedDateTime = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, selectedTime.hour, selectedTime.minute);
-    // final base64Image = base64Encode(imageBytes!);
+    DateTime combinedDateTime =
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     String jsonData = json.encode(data);
 
-    final response = await http.post(
-        Uri.parse(
-            'https://04f1-103-195-58-163.ngrok-free.app/api/absensi/store'),
-        body: {
-          "user_id": user_id.toString(),
-          "jenis_kehadiran": widget.arguments['selectedOption'].toString(),
-          "keterangan_wfa": widget.arguments['keteranganWfa'].toString(),
-          "alasan_wfa": widget.arguments['description'].toString(),
-          // "standup_id": null,
-          "waktu_masuk": DateTime.now().toIso8601String(),
-          // "waktu_keluar": null,
-          "latitude": _position?.latitude.toString(),
-          "longitude": _position?.longitude.toString(),
-          "tanggal": DateTime.now().toIso8601String(),
-          "gambar": jsonData ?? 'sawarasenaii', //store in this
-          "status_wfa": 'PENDING',
+    var uri =
+        Uri.parse('https://testing.impstudio.id/approvall/api/presence/store');
+    var request = http.MultipartRequest('POST', uri);
+
+    Map<String, String> fields = {
+      "user_id": user_id.toString(),
+      "category": widget.arguments['category'].toString(),
+      "exit_time": '00:00:00',
+      "latitude": _position!.latitude.toString(),
+      "longitude": _position!.longitude.toString(),
+      "date": DateTime.now().toIso8601String(),
+      "face_point": jsonData ?? 'sawarasenaii',
+      "status": 'pending',
+    };
+
+    request.fields.addAll(fields);
+
+    // Conditional fields based on category
+    switch (widget.arguments['category']) {
+      case 'telework':
+        request.fields.addAll({
+          "telework_category": widget.arguments['keteranganWfa'].toString(),
+          "category_description": widget.arguments['description'].toString(),
+        });
+        break;
+      case 'work_trip':
+        request.fields.addAll({
+          "start_date":
+              DateFormat('yyyy-MM-dd').format(widget.arguments['start_date']),
+          "end_date":
+              DateFormat('yyyy-MM-dd').format(widget.arguments['end_date']),
+          "entry_date":
+              DateFormat('yyyy-MM-dd').format(widget.arguments['entry_date']),
         });
 
-    print(response.body);
-    return json.decode(response.body);
+        // Check if the 'file' argument contains a valid file path.
+        if (widget.arguments.containsKey('file')) {
+          String filePath = widget.arguments['file'].toString();
+          request.files.add(await http.MultipartFile.fromPath(
+              'file', // This 'file' should match the key on the server
+              filePath));
+        }
+
+        break;
+      default:
+        break;
+    }
+
+    var response = await request.send();
+
+    // Handling the response from the server
+    if (response.statusCode == 200) {
+      var responseData = await response.stream.bytesToString();
+      print(responseData);
+      return json.decode(responseData);
+    } else {
+      print('Error occurred. Code: ${response.statusCode}.');
+      throw Exception('Failed to store data.');
+    }
   }
 
   @override
@@ -403,33 +454,47 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
     var selectedOption = widget.arguments['selectedOption'];
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      floatingActionButton: Visibility(
-        visible: preferences?.getString('facepoint') != null,
-        child: FloatingActionButton(
-            onPressed: () async {
-              final String nameFromArguments = nama_lengkap;
+      floatingActionButton: widget.profile['facepoint'] == null
+          ? FloatingActionButton(
+              onPressed: () async {
+                try {
+                  print('Button pressed');
 
-              data[nameFromArguments] = e1;
-              jsonFile.writeAsStringSync(json.encode(data));
+                  final String nameFromArguments = nama_lengkap;
+                  data[nameFromArguments] = e1;
+                  jsonFile.writeAsStringSync(json.encode(data));
 
-              await storeAbsen();
+                  print('Before storeAbsen()');
+                  await storeAbsen();
+                  print('After storeAbsen()');
 
-              if (_camera != null) {
-                await _camera!.stopImageStream();
-                await Future.delayed(const Duration(milliseconds: 400));
-                await _camera!.dispose();
-                await Future.delayed(const Duration(milliseconds: 400));
-                _camera = null;
-              }
+                  if (_camera != null) {
+                    print('Stopping camera');
+                    await _camera!.stopImageStream();
+                    await Future.delayed(const Duration(milliseconds: 400));
+                    await _camera!.dispose();
+                    await Future.delayed(const Duration(milliseconds: 400));
+                    _camera = null;
+                    _timer.cancel();
+                  }
 
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-            },
-            child: const Icon(Icons.photo_camera_outlined)),
-      ),
+                  print('Before navigation');
+                  if (mounted) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => MainLayout()),
+                    );
+                  }
+                  print('After navigation');
+                } catch (error) {
+                  print('Error: $error');
+                }
+              },
+              child: const Icon(Icons.photo_camera_outlined))
+          : Container(
+              color: Colors.transparent,
+            ),
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Menghilangkan background color
+        backgroundColor: Colors.white, // Menghilangkan background color
         leading: IconButton(
           color: Colors.black,
           onPressed: () async {
@@ -439,11 +504,12 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
               await _camera!.dispose();
               await Future.delayed(const Duration(milliseconds: 400));
               _camera = null;
+              _timer.cancel();
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => new HomePage()));
+                  MaterialPageRoute(builder: (context) => new MainLayout()));
             }
           },
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
           'Verify your face',
@@ -469,7 +535,7 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
         return Center(
           child: Container(
             constraints: const BoxConstraints.expand(),
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 0,
             ),
             child: _camera == null
@@ -529,7 +595,7 @@ Future<Map<String, dynamic>> fetchUserFacePoint() async {
                               style: GoogleFonts.poppins(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.04,
-                                color: Color.fromRGBO(182, 182, 182, 1),
+                                color: const Color.fromRGBO(182, 182, 182, 1),
                                 fontWeight: FontWeight.w400,
                               ),
                             ),

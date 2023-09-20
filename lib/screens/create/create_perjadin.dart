@@ -2,8 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
+import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CreatePerjadin extends StatefulWidget {
   const CreatePerjadin({super.key});
@@ -18,8 +24,43 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
   DateTime? _tanggalKembali;
   FilePickerResult? _pickedFile;
 
+  void initState() {
+    super.initState();
+    getUserData().then((_) {
+      print(preferences?.getInt('user_id'));
+      getProfil();
+    });
+  }
+
+  SharedPreferences? preferences;
+
+  bool isLoading = false;
+  Future<void> getUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future getProfil() async {
+    int userId = preferences?.getInt('user_id') ?? 0;
+    // String user = userId.toString();
+    final String urlj =
+        'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
+    var response = await http.get(Uri.parse(urlj));
+    print(response.body);
+    return jsonDecode(response.body);
+  }
+
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'xls', 'xlsx', 'doc', 'docx'],
+    );
+
     if (result != null) {
       setState(() {
         _pickedFile = result;
@@ -106,8 +147,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                   ],
                 ),
               ),
-              Spacer(),
-              Align(
+              const Spacer(),
+              const Align(
                 alignment: Alignment.center,
                 child: Icon(
                   LucideIcons.award,
@@ -120,21 +161,21 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
         body: SafeArea(
           child: ListView(
             scrollDirection: Axis.vertical,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               Container(
-                padding: const EdgeInsets.only(left: 3, right: 30),
+                padding: const EdgeInsets.only(right: 30),
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(padding: EdgeInsets.only(top: 20)),
+                    const Padding(padding: EdgeInsets.only(top: 20)),
                     Container(
                       width: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Divider(
+                      child: const Divider(
                         color: Color.fromRGBO(67, 129, 202, 1),
                         thickness: 2,
                       ),
@@ -148,14 +189,14 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
                         Text(
                           "Perjadin",
                           style: GoogleFonts.montserrat(
                             fontSize: 20,
-                            color: Color.fromRGBO(67, 129, 202, 1),
+                            color: const Color.fromRGBO(67, 129, 202, 1),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -174,7 +215,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               // form
@@ -185,20 +226,20 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                         fontSize: MediaQuery.of(context).size.width * 0.03,
                         fontWeight: FontWeight.w600,
                       )),
-                  Text('*',
+                  const Text('*',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.red,
                       )),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Container(
                 width: double.infinity, // Adjust the width here
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: kBorder,
                     width: 1,
@@ -206,11 +247,11 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                 ),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   onPressed: _pickFile,
@@ -225,7 +266,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                             color: kTextgrey,
                             fontWeight: FontWeight.w400,
                           )),
-                      Spacer(),
+                      const Spacer(),
                       const Icon(
                         LucideIcons.arrowDownCircle,
                         color: kBorder,
@@ -238,7 +279,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 5),
+                    padding: const EdgeInsets.only(top: 18, bottom: 5),
                     child: Row(
                       children: [
                         Text(
@@ -261,83 +302,85 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                   ),
                   Row(
                     children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 30),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _selectDate,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selectedDate != null
-                                  ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
-                                  : 'Mulai',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w400,
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 15),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(
+                                color: kBorder,
+                                width: 1,
                               ),
                             ),
-                            SizedBox(
-                                width:
-                                    MediaQuery.of(context).size.width * 0.04),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 30),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
+                          ),
+                          onPressed: _selectDate,
+                          child: Row(
+                            children: [
+                              Text(
+                                _selectedDate != null
+                                    ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
+                                    : 'Mulai',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: kTextgrey,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(
+                                LucideIcons.calendar,
+                                color: kBorder,
+                                size: 16,
+                              ),
+                            ],
                           ),
                         ),
-                        onPressed: _selesaiTanggall,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selesaiTanggal != null
-                                  ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
-                                  : 'Akhir',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w400,
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 15),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(
+                                color: kBorder,
+                                width: 1,
                               ),
                             ),
-                            SizedBox(
-                                width:
-                                    MediaQuery.of(context).size.width * 0.04),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
+                          ),
+                          onPressed: _selesaiTanggall,
+                          child: Row(
+                            children: [
+                              Text(
+                                _selesaiTanggal != null
+                                    ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
+                                    : 'Akhir',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: kTextgrey,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(
+                                LucideIcons.calendar,
+                                color: kBorder,
+                                size: 16,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ],
@@ -347,7 +390,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 25, bottom: 5),
+                    padding: const EdgeInsets.only(top: 18, bottom: 5),
                     child: Row(
                       children: [
                         Text(
@@ -371,12 +414,12 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: kBorder,
                           width: 1,
                         ),
@@ -395,9 +438,9 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        Spacer(),
-                        Icon(
-                          Icons.calendar_today,
+                        const Spacer(),
+                        const Icon(
+                          LucideIcons.calendar,
                           color: kBorder,
                           size: 18,
                         ),
@@ -405,56 +448,6 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                     ),
                   ),
                 ],
-              ),
-              // alasan
-              Padding(padding: EdgeInsets.only(top: 25)),
-              Row(
-                children: [
-                  Text(
-                    'Alasan',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '*',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-              Padding(padding: EdgeInsets.only(bottom: 5)),
-              TextField(
-                style: GoogleFonts.montserrat(color: kText),
-                keyboardType: TextInputType.text,
-                maxLines: 4,
-                scrollPhysics: ScrollPhysics(),
-                decoration: InputDecoration(
-                  hintText: 'description...',
-                  hintStyle: GoogleFonts.montserrat(
-                      color: kBorder,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14),
-                  filled: true,
-                  fillColor: Colors.transparent,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      color: kBorder,
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(
-                      color: Color.fromRGBO(182, 182, 182, 1),
-                      width: 1,
-                    ),
-                  ),
-                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,20 +458,86 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
                           width: 120,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              setState(() {});
+                          child: FutureBuilder(
+                            future: getProfil(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                if (snapshot.hasError) {
+                                  return const Text(
+                                      'Error occurred while fetching profile');
+                                } else {
+                                  var profileData = snapshot.data;
+
+                                  return ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        final facePageArgs = {
+                                          'category': 'work_trip',
+                                          'start_date': _selectedDate,
+                                          'end_date': _selesaiTanggal,
+                                          'entry_date': _tanggalKembali,
+                                          'file': _pickedFile?.files.first.path,
+                                        };
+
+                                        print(facePageArgs);
+                                        print(
+                                            'Category: ${facePageArgs['category']}');
+                                        print(
+                                            'Start Date: ${facePageArgs['start_date']}');
+                                        print(
+                                            'End Date: ${facePageArgs['end_date']}');
+                                        print(
+                                            'Entry Date: ${facePageArgs['entry_date']}');
+                                        print('File: ${facePageArgs['file']}');
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => FacePage(
+                                                arguments: facePageArgs,
+                                                profile: profileData),
+                                          ),
+                                        );
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 10),
+                                      backgroundColor: kButton,
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Ajukan Perjadin',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10,
+                                        color: whiteText,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                return Shimmer.fromColors(
+                                  baseColor: kButton.withOpacity(0.5),
+                                  highlightColor: kButton.withOpacity(0.7),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      color: kButton,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 19),
+                                  ),
+                                );
+                              }
                             },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              backgroundColor: kButton,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            child: const Text('Ajukan Perjadin'),
                           ),
                         ),
                       ],

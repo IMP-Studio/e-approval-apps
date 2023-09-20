@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:imp_approval/screens/edit/edit_cuti.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class DetailRequestCuti extends StatefulWidget {
-  const DetailRequestCuti({super.key});
+  final dynamic absen;
+  DetailRequestCuti({required this.absen});
 
   @override
   State<DetailRequestCuti> createState() => _DetailRequestCutiState();
@@ -44,7 +51,7 @@ Widget _modalvalidasireject(BuildContext context) {
           height: MediaQuery.of(context).size.height * 0.010,
         ),
         CupertinoTextField(
-          padding: EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -66,8 +73,131 @@ Widget _modalvalidasireject(BuildContext context) {
 }
 
 class _DetailRequestCutiState extends State<DetailRequestCuti> {
+  String formatDateRange(String startDate, String endDate) {
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
+
+    String formattedStartDay = DateFormat('d').format(start);
+    String formattedEndDay = DateFormat('d').format(end);
+    String formattedMonth =
+        DateFormat('MMMM').format(start); // e.g., "November"
+    String formattedYear = DateFormat('y').format(start); // e.g., "2023"
+
+    return '$formattedStartDay-$formattedEndDay $formattedMonth $formattedYear';
+  }
+
+  Future destroyLeave() async {
+    String url = 'https://testing.impstudio.id/approvall/api/leave/delete/' +
+        widget.absen['id'].toString();
+
+    var response = await http.delete(Uri.parse(url));
+    print(response.body);
+    return json.decode(response.body);
+  }
+
+  Future editPresence() async {
+    String url = 'https://testing.impstudio.id/approvall/api/leave/get/' +
+        widget.absen['id'].toString();
+    var response = await http.get(Uri.parse(url));
+    print(response.body);
+    return json.decode(response.body);
+  }
+
+  Widget _category(BuildContext context) {
+    if (widget.absen['category'] == 'leave') {
+      return Text('Perjalanan Cuti',
+          style: GoogleFonts.montserrat(
+            fontSize: MediaQuery.of(context).size.width * 0.039,
+            color: blueText,
+            fontWeight: FontWeight.w600,
+          ));
+    } else {
+      return const Text('Unknown category');
+    }
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return '-- : --';
+    }
+
+    try {
+      List<String> parts = dateTimeStr.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+      String period = hour >= 12 ? 'PM' : 'AM';
+
+      if (hour > 12) hour -= 12;
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      return '-- : --';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget getStatusRow(String status) {
+      Color containerColor;
+      Color textColor;
+      String text;
+
+      switch (status) {
+        case 'rejected':
+          containerColor = const Color(0xffF9DCDC);
+          textColor =
+              const Color(0xffCA4343); // Or any color that matches well with red.
+          text = 'Rejected';
+          break;
+        case 'pending':
+          containerColor = const Color(0xffFFEFC6);
+          textColor =
+              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          text = 'Pending';
+          break;
+        case 'allow_HT':
+          containerColor = const Color(0xffFFEFC6);
+          textColor =
+              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          text = 'Pending';
+          break;
+        case 'allowed':
+          containerColor = kGreenAllow; // Assuming kGreenAllow is green
+          textColor = kGreen; // Your green color for text
+          text = 'Allowed';
+          break;
+        default:
+          containerColor = Colors.grey;
+          textColor = Colors.white;
+          text = 'Unknown Status';
+      }
+
+      return Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5.5),
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.16,
+            decoration: BoxDecoration(
+                border: Border.all(width: 0.8, color: textColor),
+                color: containerColor,
+                borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.030)),
+            child: Text(
+              text,
+              style: GoogleFonts.getFont("Montserrat",
+                  fontSize: MediaQuery.of(context).size.width * 0.025,
+                  color: textColor,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      );
+    }
+
+    String currentStatus = widget.absen['status'];
+
+    Widget statusWidget = getStatusRow(currentStatus);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -98,7 +228,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                 ],
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Align(
               alignment: Alignment.center,
               child: Icon(
@@ -116,19 +246,21 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
           children: [
             Column(
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Request',
+                      'Detail Request ',
                       style: GoogleFonts.montserrat(
                         fontSize: MediaQuery.of(context).size.width * 0.070,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      'Employee',
+                      'Attendance',
                       style: GoogleFonts.montserrat(
                         color: kTextoo,
                         fontSize: MediaQuery.of(context).size.width * 0.070,
@@ -145,9 +277,9 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                   color: kTextoo,
                 ),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 20),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
                     top: BorderSide(color: kBorder, width: 1),
@@ -156,7 +288,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                     children: [
                       CircleAvatar(
                         radius: MediaQuery.of(context).size.width * 0.05,
-                        backgroundImage: AssetImage(
+                        backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
                       ),
@@ -167,7 +299,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Fauzan Alghifari',
+                            widget.absen['nama_lengkap'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -176,7 +308,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                             ),
                           ),
                           Text(
-                            'Backend Developer',
+                            widget.absen['posisi'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -186,21 +318,15 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                           ),
                         ],
                       ),
-                      Spacer(),
-                      Text(
-                        '08.43 AM',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.02,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      const Spacer(),
+                      getStatusRow(currentStatus)
                     ],
                   ),
                 ),
               ],
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,8 +346,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                           ),
                         ),
                         TextSpan(
-                          text:
-                              'Sebagai karyawan, saya mengajukan permohonan untuk bekerja dari tempat lain karena kondisi kesehatan yang sedang saya hadapi. Sayangnya, penyakit yang saya alami saat ini membuat saya sulit untuk hadir di kantor secara fisik. Meskipun demikian, saya ingin menekankan bahwa komitmen saya terhadap pekerjaan dan tim tetap kuat.',
+                          text: widget.absen['type_description'] ?? 'kocak',
                           style: GoogleFonts.montserrat(
                             color: greyText,
                             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -249,20 +374,26 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                             color: kTextoo,
                             fontWeight: FontWeight.w600,
                           )),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Row(
                         children: [
-                          Text('Tanggal : 23-25 Agustus 2023',
+                          Text(
+                              'Tanggal : ' +
+                                  formatDateRange(widget.absen['start_date'],
+                                      widget.absen['end_date']),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
                                 color: greyText,
                                 fontWeight: FontWeight.w500,
                               )),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.08,
-                          ),
-                          Text('Masuk : 28 Agustus 2023',
+                          const Spacer(),
+                          Text(
+                              'Masuk : ' +
+                                  DateFormat('dd MMMM yyyy').format(
+                                      DateTime.parse(
+                                              widget.absen['entry_date']) ??
+                                          DateTime.now()),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
@@ -274,51 +405,9 @@ class _DetailRequestCutiState extends State<DetailRequestCuti> {
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.02,
+                    height: MediaQuery.of(context).size.height * 0.01,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, bottom: 35),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: kTextBlocker,
-                                side: const BorderSide(
-                                  color: kTextBlocker,
-                                ),
-                              ),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return _modalvalidasireject(context);
-                                  },
-                                );
-                              },
-                              child: const Text("Reject"),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.05,
-                            ),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: kButton,
-                                side: const BorderSide(
-                                  color: kButton,
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: const Text("Approve"),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  
                 ],
               ),
             ),

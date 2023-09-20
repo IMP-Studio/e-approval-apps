@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_cuti.dart';
+import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
+import 'package:shimmer/shimmer.dart';
 
 class CutiScreen extends StatefulWidget {
   const CutiScreen({super.key});
@@ -41,34 +43,57 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
   }
 
   void startTimer() {
-    // Start a timer to hide the button after 2 seconds of inactivity
-    Duration duration = Duration(seconds: 2);
+    Duration duration = const Duration(seconds: 2);
     Future.delayed(duration, hideButton);
   }
 
   @override
   void initState() {
     super.initState();
+
     getUserData().then((_) {
       getCuti();
+      refreshData();
       getProfil();
       startTimer();
     });
 
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      setState(() {});
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          activeIndex = _tabController.index;
+          refreshData();
+        });
+      }
     });
+
+    // Default to the first tab and fetch/refresh data
+    activeIndex = 1;
+
+    refreshData();
+  }
+
+  void _handleTabChange() {
+    if (_tabController.indexIsChanging || _tabController.index == 0) {
+      setState(() {
+        activeIndex = _tabController.index;
+        refreshData();
+      });
+    }
   }
 
   Future getCuti({String? jenisCuti}) async {
     int userId = preferences?.getInt('user_id') ?? 0;
+
     final String baseUrl =
-        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/cuti';
+        'https://testing.impstudio.id/approvall/api/leave?id=$userId';
+
+    // Include the userId in the queryParams map directly
     final Map<String, String> queryParams = {'id': userId.toString()};
 
     if (jenisCuti != null) {
-      queryParams['jenis_cuti'] = jenisCuti;
+      queryParams['type'] = jenisCuti;
     }
 
     final Uri uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
@@ -83,7 +108,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://147d-2404-8000-1027-303f-51a4-2ec9-e5e5-1128.ngrok-free.app/api/profile?id=$userId';
+        'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -107,13 +132,13 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
 
     switch (activeIndex) {
       case 0:
-        jenisCuti = "KHUSUS";
+        jenisCuti = "exclusive";
         break;
       case 1:
-        jenisCuti = "DARURAT";
+        jenisCuti = "emergency";
         break;
       case 2:
-        jenisCuti = "TAHUNAN";
+        jenisCuti = "yearly";
         break;
     }
 
@@ -126,7 +151,6 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
 
     setState(() {
       isLoading = false;
-      // Process 'data' and update your UI accordingly
     });
   }
 
@@ -177,8 +201,8 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
               )),
             ),
           ),
-          Divider(),
-          SizedBox(
+          const Divider(),
+          const SizedBox(
             width: 15.0,
           ),
           GestureDetector(
@@ -214,8 +238,8 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
               )),
             ),
           ),
-          Divider(),
-          SizedBox(
+          const Divider(),
+          const SizedBox(
             width: 15.0,
           ),
           GestureDetector(
@@ -271,20 +295,18 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
+          
           child: Column(
             children: [
               Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.width * 0.35,
-                margin: EdgeInsets.only(bottom: 10),
+                margin: const EdgeInsets.only(bottom: 10),
                 decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                      kTextoo,
-                      kTextoo
-                    ])),
+                        colors: [kTextoo, kTextoo])),
                 child: Row(
                   children: [
                     Column(
@@ -292,7 +314,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(left: 20.0),
+                          padding: const EdgeInsets.only(left: 20.0),
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.15,
                             height: MediaQuery.of(context).size.width * 0.007,
@@ -301,18 +323,18 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                 borderRadius: BorderRadius.circular(20.0)),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         Padding(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             left: 20.0,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Calendar Cuti",
+                                "Kalender Cuti",
                                 style: GoogleFonts.getFont('Montserrat',
                                     textStyle: TextStyle(
                                         fontSize:
@@ -321,18 +343,33 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white)),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5.0,
                               ),
                               Container(
-                                width: MediaQuery.of(context).size.width * 0.5,
+                                width: MediaQuery.of(context).size.width * 0.55,
                                 child: Text(
-                                  "Kalender Cuti dan Riwayat Cuti",
+                                  "Kalender cuti dan riwayat cuti",
                                   style: GoogleFonts.getFont('Montserrat',
                                       textStyle: TextStyle(
-                                          fontSize:
-                                              MediaQuery.of(context).size.width *
-                                                  0.028,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.028,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white)),
+                                ),
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.55,
+                                child: Text(
+                                  "Ajukan cuti jika berkenan",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      textStyle: TextStyle(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.028,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white)),
                                 ),
@@ -342,68 +379,24 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: SvgPicture.asset("assets/img/calendar.svg", width: MediaQuery.of(context).size.width * 0.3, height: MediaQuery.of(context).size.width * 0.3, fit: BoxFit.cover,),
+                      child: SvgPicture.asset(
+                        "assets/img/calendar-cuti.svg",
+                        width: MediaQuery.of(context).size.width * 0.3,
+                        height: MediaQuery.of(context).size.width * 0.3,
+                        fit: BoxFit.cover,
+                      ),
                     )
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 50.0,
-                      height: 1.0,
-                      decoration: BoxDecoration(
-                          color: kTextoo,
-                          borderRadius: BorderRadius.circular(20.0)),
-                    ),
-                    SizedBox(
-                      height: 5.0,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Calendar",
-                          style: GoogleFonts.getFont('Montserrat',
-                              textStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black)),
-                        ),
-                        SizedBox(
-                          width: 5.0,
-                        ),
-                        Text(
-                          "Cuti",
-                          style: GoogleFonts.getFont('Montserrat',
-                              textStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: kTextoo)),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "Cuti kamu bulan ini",
-                      style: GoogleFonts.getFont('Montserrat',
-                          textStyle: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w600,
-                              color: kTextBlcknw)),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
+              const SizedBox(
                 height: 20.0,
               ),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 width: double.infinity,
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -413,7 +406,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                         color: Colors.black.withOpacity(0.25),
                         spreadRadius: 0,
                         blurRadius: 4,
-                        offset: Offset(0, 1),
+                        offset: const Offset(0, 1),
                       )
                     ]),
                 child: Padding(
@@ -425,22 +418,22 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                         rowHeight: 25,
                         focusedDay: today,
                         headerStyle: HeaderStyle(
-                          leftChevronIcon: Icon(
+                          leftChevronIcon: const Icon(
                             Icons.arrow_back_ios_rounded,
                             color: kTextoo,
                             size: 10.0,
                           ),
-                          leftChevronMargin: EdgeInsets.only(right: 30.0),
-                          rightChevronIcon: Icon(
+                          leftChevronMargin: const EdgeInsets.only(right: 30.0),
+                          rightChevronIcon: const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: kTextoo,
                             size: 10.0,
                           ),
-                          rightChevronMargin: EdgeInsets.only(left: 30.0),
+                          rightChevronMargin: const EdgeInsets.only(left: 30.0),
                           formatButtonVisible: false,
                           titleCentered: true,
                           titleTextStyle: GoogleFonts.getFont('Montserrat',
-                              textStyle: TextStyle(
+                              textStyle: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: kTextBlcknw)),
@@ -449,20 +442,20 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                         lastDay: DateTime.utc(20024, 1, 1),
                         calendarStyle: CalendarStyle(
                           outsideTextStyle:
-                              TextStyle(fontSize: 10, color: Colors.grey),
+                              const TextStyle(fontSize: 10, color: Colors.grey),
                           todayTextStyle: GoogleFonts.getFont('Montserrat',
                               fontSize: 10, color: Colors.white),
-                          todayDecoration: BoxDecoration(
+                          todayDecoration: const BoxDecoration(
                               shape: BoxShape.circle, color: kTextoo),
-                          tablePadding: EdgeInsets.symmetric(horizontal: 10.0),
-                          cellMargin: EdgeInsets.all(4),
+                          tablePadding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          cellMargin: const EdgeInsets.all(4),
                           weekendTextStyle: GoogleFonts.getFont('Montserrat',
-                              textStyle: TextStyle(
+                              textStyle: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
-                                  color: const Color.fromRGBO(244, 67, 54, 1))),
+                                  color: Color.fromRGBO(244, 67, 54, 1))),
                           defaultTextStyle: GoogleFonts.getFont('Montserrat',
-                              textStyle: TextStyle(
+                              textStyle: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
                                   color: kTextBlcknw)),
@@ -487,7 +480,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                           width: double.infinity,
                           height: 20.0,
                           decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 249, 249, 249),
+                              color: const Color.fromARGB(255, 249, 249, 249),
                               borderRadius: BorderRadius.circular(5.0)),
                           child: Padding(
                             padding:
@@ -501,7 +494,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                       color: kTextUnselected,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 Row(
                                   children: [
                                     Text(
@@ -511,7 +504,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                           color: kTextBlocker,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 25.0,
                                     ),
                                     Text(
@@ -521,7 +514,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                           color: kTextoo,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 25.0,
                                     ),
                                     Text(
@@ -542,7 +535,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 25.0,
               ),
               Column(
@@ -555,7 +548,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                         color: kTextoo,
                         borderRadius: BorderRadius.circular(20.0)),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5.0,
                   ),
                   Row(
@@ -564,38 +557,38 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                       Text(
                         "Total",
                         style: GoogleFonts.getFont('Montserrat',
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.black)),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5.0,
                       ),
                       Text(
                         "Cuti",
                         style: GoogleFonts.getFont('Montserrat',
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: kTextoo)),
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5.0,
                   ),
                   Text(
-                    "Cuti tahunan, Khusus, dan Darurat",
+                    "Cuti khusus, darurat, tahunan",
                     style: GoogleFonts.getFont('Montserrat',
-                        textStyle: TextStyle(
+                        textStyle: const TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w600,
                             color: kTextBlcknw)),
                   ),
                 ],
               ),
-              SizedBox(height: 5.0),
+              const SizedBox(height: 5.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -607,15 +600,143 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20.0,
               ),
               Container(
                 height: MediaQuery.of(context).size.height / 2.2,
                 child: isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
+                    ?  ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30.0),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.25),
+                                            spreadRadius: 0,
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 1))
+                                      ],
+                                    ),
+                                    child: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: double.infinity,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius: const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(8.0),
+                                                    topLeft:
+                                                        Radius.circular(8.0))),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15.0,
+                                                      vertical: 10.0),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        60, // Arbitrary width for status text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const Spacer(),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width for date text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(width: 5.0),
+                                                      Container(
+                                                        width:
+                                                            5, // Arbitrary width for '-' text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(width: 5.0),
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width for date text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: double.infinity,
+                                            height: 70.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius: const BorderRadius.only(
+                                                  bottomRight:
+                                                      Radius.circular(8.0),
+                                                  bottomLeft:
+                                                      Radius.circular(8.0)),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 15.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        40, // Arbitrary width for 'Alasan' text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const SizedBox(height: 5.0),
+                                                  Container(
+                                                    width: double
+                                                        .infinity, // Max width for description text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const SizedBox(height: 5.0),
+                                                  Container(
+                                                    width: double
+                                                        .infinity, // Max width for description text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                          },
+                        )
                     : FutureBuilder(
                         future: _cutiFuture,
                         builder: (context, snapshot) {
@@ -630,158 +751,341 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                               );
                             }
                             return ListView.builder(
-                                padding: EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.only(top: 4),
                                 itemCount: snapshot.data['data'].length,
                                 itemBuilder: (context, index) {
                                   print(snapshot.data['data']);
-                                  return Container(
-                                    margin: EdgeInsets.only(bottom: 10),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 30.0),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          height: 40.0,
-                                          decoration: BoxDecoration(
-                                              color: kTextoo,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight:
-                                                      Radius.circular(8.0),
-                                                  topLeft:
-                                                      Radius.circular(8.0))),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 15.0,
-                                                vertical: 10.0),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Allowed",
-                                                  style: GoogleFonts.getFont(
-                                                      'Montserrat',
-                                                      color: Colors.white,
-                                                      fontSize: 10.0,
-                                                      fontWeight:
-                                                          FontWeight.w400),
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(
+                                          MaterialPageRoute(
+                                              builder: (context) => DetailCuti(
+                                                    absen: snapshot.data['data']
+                                                        [index],
+                                                  )),
+                                        )
+                                            .then((result) {
+                                          if (result == 'refresh') {
+                                            refreshData(); // Call your refresh logic
+                                          }
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 30.0),
+                                        child: Container(
+                                          margin: const EdgeInsets.only(bottom: 10),
+                                          decoration: BoxDecoration(boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.25),
+                                                spreadRadius: 0,
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 1))
+                                          ]),
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                height: 40.0,
+                                                decoration: const BoxDecoration(
+                                                    color: kTextoo,
+                                                    borderRadius: BorderRadius
+                                                        .only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    8.0),
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    8.0))),
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 15.0,
+                                                      vertical: 10.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "${snapshot.data['data'][index]['status'][0].toUpperCase()}${snapshot.data['data'][index]['status'].substring(1).toLowerCase()}",
+                                                        style:
+                                                            GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                      ),
+                                                      const Spacer(),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            DateFormat(
+                                                                    'dd MMMM yyyy')
+                                                                .format(DateTime.parse(snapshot
+                                                                                .data['data']
+                                                                            [
+                                                                            index]
+                                                                        [
+                                                                        'start_date']) ??
+                                                                    DateTime
+                                                                        .now()),
+                                                            style: GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 5.0,
+                                                          ),
+                                                          Text(
+                                                            "-",
+                                                            style: GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 5.0,
+                                                          ),
+                                                          Text(
+                                                            DateFormat(
+                                                                    'dd MMMM yyyy')
+                                                                .format(DateTime.parse(snapshot
+                                                                                .data['data']
+                                                                            [
+                                                                            index]
+                                                                        [
+                                                                        'end_date']) ??
+                                                                    DateTime
+                                                                        .now()),
+                                                            style: GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                Spacer(),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "4 January 2023",
-                                                      style:
-                                                          GoogleFonts.getFont(
-                                                              'Montserrat',
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 10.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5.0,
-                                                    ),
-                                                    Text(
-                                                      "-",
-                                                      style:
-                                                          GoogleFonts.getFont(
-                                                              'Montserrat',
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 10.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5.0,
-                                                    ),
-                                                    Text(
-                                                      "10 August 2023",
-                                                      style:
-                                                          GoogleFonts.getFont(
-                                                              'Montserrat',
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 10.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
+                                              ),
+                                              Container(
+                                                width: double.infinity,
+                                                height: 70.0,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  8.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 15.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        "Alasan",
+                                                        style:
+                                                            GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .black,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 5.0,
+                                                      ),
+                                                      Text(
+                                                        truncateText(
+                                                            snapshot.data[
+                                                                        'data']
+                                                                    [index][
+                                                                'type_description'],
+                                                            60),
+                                                        maxLines: 2,
+                                                        style:
+                                                            GoogleFonts.getFont(
+                                                                'Montserrat',
+                                                                color: Colors
+                                                                    .black,
+                                                                fontSize: 10.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w300),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
                                           ),
                                         ),
-                                        Container(
-                                          width: double.infinity,
-                                          height: 70.0,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.only(
+                                      ));
+                                });
+                          } else {
+                            return  ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30.0),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.25),
+                                            spreadRadius: 0,
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 1))
+                                      ],
+                                    ),
+                                    child: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: double.infinity,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius: const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(8.0),
+                                                    topLeft:
+                                                        Radius.circular(8.0))),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15.0,
+                                                      vertical: 10.0),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        60, // Arbitrary width for status text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const Spacer(),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width for date text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(width: 5.0),
+                                                      Container(
+                                                        width:
+                                                            5, // Arbitrary width for '-' text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(width: 5.0),
+                                                      Container(
+                                                        width:
+                                                            50, // Arbitrary width for date text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: double.infinity,
+                                            height: 70.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius: const BorderRadius.only(
                                                   bottomRight:
                                                       Radius.circular(8.0),
                                                   bottomLeft:
                                                       Radius.circular(8.0)),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.25),
-                                                    spreadRadius: 0,
-                                                    blurRadius: 4,
-                                                    offset: Offset(0, 1))
-                                              ]),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 10.0,
-                                                horizontal: 15.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Alasan",
-                                                  style: GoogleFonts.getFont(
-                                                      'Montserrat',
-                                                      color: Colors.black,
-                                                      fontSize: 10.0,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                SizedBox(
-                                                  height: 5.0,
-                                                ),
-                                                Text(
-                                                  truncateText(
-                                                      "Karena ada acara keluarga yang hanya 3 tahun, Karena ada acara",
-                                                      60),
-                                                  maxLines: 2,
-                                                  style: GoogleFonts.getFont(
-                                                      'Montserrat',
-                                                      color: Colors.black,
-                                                      fontSize: 10.0,
-                                                      fontWeight:
-                                                          FontWeight.w300),
-                                                ),
-                                              ],
                                             ),
-                                          ),
-                                        )
-                                      ],
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 15.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        40, // Arbitrary width for 'Alasan' text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const SizedBox(height: 5.0),
+                                                  Container(
+                                                    width: double
+                                                        .infinity, // Max width for description text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                  const SizedBox(height: 5.0),
+                                                  Container(
+                                                    width: double
+                                                        .infinity, // Max width for description text
+                                                    height: 10.0,
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  );
-                                });
-                          } else {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
+                                  ),
+                                ));
+                          },
+                        );
                           }
                         }),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               )
             ],
@@ -824,7 +1128,7 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                                     ),
                                   ));
                             },
-                            child: Icon(Icons.add),
+                            child: const Icon(Icons.add),
                             backgroundColor: kTextooAgakGelap,
                             elevation: 0,
                           ),
@@ -832,7 +1136,9 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
                       ],
                     );
                   } else {
-                    return CircularProgressIndicator();
+                    return Container(
+                      color: Colors.transparent,
+                    );
                   }
                 },
               )

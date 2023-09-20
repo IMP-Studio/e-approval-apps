@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
+import 'package:imp_approval/screens/create/create_standup.dart';
+import 'package:imp_approval/screens/create/emergency_chekout.dart';
 import 'package:imp_approval/screens/cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
@@ -15,6 +17,7 @@ import 'package:imp_approval/splash_screen/splash.dart';
 import 'package:imp_approval/screens/history_attedance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,15 +31,18 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        // Wrap the entire content with GestureDetector
         onTap: () {
-          // Reset system UI when user taps the screen
           FocusManager.instance.primaryFocus?.unfocus();
-
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          scrollBehavior: _getScrollBehavior(),
           home: FutureBuilder(
               future: SharedPreferences.getInstance(),
               builder: (context, snapshot) {
@@ -45,19 +51,46 @@ class MainApp extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
-                  return Text('Some error has Occurred');
+                  return const Text('Some error has Occurred');
                 } else if (snapshot.hasData) {
                   final token = snapshot.data!.getString('token');
                   if (token != null) {
                     return MainLayout();
                   } else {
-                    return SplashScreen();
+                    return const SplashScreen();
                   }
                 } else {
-                  return LoginScreen();
+                  return const LoginScreen();
                 }
-              }
-              ),
+              }),
         ));
   }
+
+ ScrollBehavior _getScrollBehavior() {
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.iOS:
+      return NoBounceBehavior();
+    case TargetPlatform.android:
+      return NoGlowBehavior();
+    default:
+      return const MaterialScrollBehavior();  // Return the default behavior for other platforms
+  }
 }
+
+
+}
+
+class NoBounceBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
+  }
+}
+
+class NoGlowBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
+  }
+}
+

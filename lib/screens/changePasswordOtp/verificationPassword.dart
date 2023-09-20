@@ -59,7 +59,7 @@ class _OTPPageState extends State<OTPPage> {
         ),
       );
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ResetPassword(),
+        builder: (context) => const ResetPassword(),
       ));
     }else if (response['status'] == 400 && response['message'].contains('OTP code expired, Try Again') ){
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +68,7 @@ class _OTPPageState extends State<OTPPage> {
         ),
       );
        Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ForgetPassword(),
+        builder: (context) => const ForgetPassword(),
       ));
     }
     else{
@@ -91,12 +91,12 @@ class _OTPPageState extends State<OTPPage> {
         title: Text(
           'Verifikasi No Telp',
           style: GoogleFonts.montserrat(
-            color: Color(0xff000000),
+            color: const Color(0xff000000),
             fontSize: MediaQuery.of(context).size.width * 0.039,
             fontWeight: FontWeight.w600,
           ),
         ),
-        leading: Icon(
+        leading: const Icon(
           size: 20,
           Icons.arrow_back_ios_new_rounded,
           color: Colors.black,
@@ -106,14 +106,14 @@ class _OTPPageState extends State<OTPPage> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.only(top: 30),
+              margin: const EdgeInsets.only(top: 30),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
@@ -127,7 +127,7 @@ class _OTPPageState extends State<OTPPage> {
                     ],
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 8),
+                    margin: const EdgeInsets.only(top: 8),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -160,7 +160,7 @@ class _OTPPageState extends State<OTPPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 40),
+                    margin: const EdgeInsets.only(top: 40),
                     width: 260,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,7 +172,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -199,7 +199,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers2,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -226,7 +226,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers3,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -253,7 +253,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers4,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -280,7 +280,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers5,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -307,7 +307,7 @@ class _OTPPageState extends State<OTPPage> {
                             controller: otpControllers6,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide(),
+                                  borderSide: const BorderSide(),
                                   borderRadius: BorderRadius.circular(8)),
                             ),
                             onChanged: (value) {
@@ -331,7 +331,7 @@ class _OTPPageState extends State<OTPPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 40),
+                    margin: const EdgeInsets.only(top: 40),
                     child: InkWell(
                       onTap: () {
                         verificationOtp();
@@ -341,7 +341,7 @@ class _OTPPageState extends State<OTPPage> {
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: Color(0XFF4381CA),
+                          color: const Color(0XFF4381CA),
                         ),
                         child: Center(
                           child: Text(

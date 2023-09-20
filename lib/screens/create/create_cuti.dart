@@ -38,6 +38,11 @@ class _CreateCutiState extends State<CreateCuti> {
     'Khusus',
     'Darurat',
   ];
+  final List<String> valueItem = [
+    'yearly',
+    'exclusive',
+    'emergency',
+  ];
 
   String? selectedValue;
 
@@ -48,21 +53,19 @@ class _CreateCutiState extends State<CreateCuti> {
     }
 
     final response = await http.post(
-        Uri.parse('https://04f1-103-195-58-163.ngrok-free.app/api/cuti/store'),
+        Uri.parse('https://testing.impstudio.id/approvall/api/leave/store'),
         body: {
           "user_id": widget.profile['user_id'].toString(),
-          "jenis_cuti": selectedValue,
-          "tanggal_pemohonan": DateTime.now().toIso8601String(),
-          "jumlah_hari_cuti": (_selesaiTanggal!
-                      .difference(_mulaiTanggal!)
-                      .inDays +
-                  1)
-              .toString(), // This calculates the days difference and adds 1 to include both start and end dates
-          "tanggal_mulai": formatDate(_mulaiTanggal!),
-          "tanggal_akhir": formatDate(_selesaiTanggal!),
-          "tanggal_masuk": formatDate(_tanggalMasuknya!),
-          "alasan": alasan.text,
-          "status": 'PENDING',
+          "type": selectedValue,
+          "submission_date": DateTime.now().toIso8601String(),
+          "total_leave_days":
+              (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1)
+                  .toString(),
+          "start_date": formatDate(_mulaiTanggal!),
+          "end_date": formatDate(_selesaiTanggal!),
+          "entry_date": formatDate(_tanggalMasuknya!),
+          "type_description": alasan.text,
+          "status": 'pending',
         });
 
     print(response.body);
@@ -73,7 +76,7 @@ class _CreateCutiState extends State<CreateCuti> {
     if (_mulaiTanggal != null && _selesaiTanggal != null) {
       return _selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1;
     }
-    return 0; // Return 0 if any of the dates is null
+    return 0;
   }
 
   // date
@@ -127,9 +130,10 @@ class _CreateCutiState extends State<CreateCuti> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+          backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          shadowColor: Colors.transparent,
+          elevation: 0,
           title: Row(
             children: [
               InkWell(
@@ -149,8 +153,8 @@ class _CreateCutiState extends State<CreateCuti> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
-              Align(
+              const Spacer(),
+              const Align(
                 alignment: Alignment.center,
                 child: Icon(
                   LucideIcons.award,
@@ -163,7 +167,7 @@ class _CreateCutiState extends State<CreateCuti> {
         body: SafeArea(
           child: ListView(
             scrollDirection: Axis.vertical,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               Container(
                 padding: const EdgeInsets.only(left: 3, right: 30),
@@ -171,13 +175,13 @@ class _CreateCutiState extends State<CreateCuti> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(padding: EdgeInsets.only(top: 20)),
+                    const Padding(padding: EdgeInsets.only(top: 20)),
                     Container(
                       width: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Divider(
+                      child: const Divider(
                         color: Color.fromRGBO(67, 129, 202, 1),
                         thickness: 2,
                       ),
@@ -191,12 +195,14 @@ class _CreateCutiState extends State<CreateCuti> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        SizedBox(width: 5,),
+                        const SizedBox(
+                          width: 5,
+                        ),
                         Text(
                           "Cuti",
                           style: GoogleFonts.montserrat(
                             fontSize: 20,
-                            color: Color.fromRGBO(67, 129, 202, 1),
+                            color: const Color.fromRGBO(67, 129, 202, 1),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -215,7 +221,7 @@ class _CreateCutiState extends State<CreateCuti> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
@@ -227,7 +233,7 @@ class _CreateCutiState extends State<CreateCuti> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
+                  const Text(
                     '*',
                     style: TextStyle(
                       fontSize: 12,
@@ -236,58 +242,60 @@ class _CreateCutiState extends State<CreateCuti> {
                   ),
                 ],
               ),
-              Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                decoration: InputDecoration(
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 15),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                hint: Text(
-                  'Pilih jenis cuti',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    color: kTextgrey,
-                  ),
-                ),
-                items: jenisItems
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Text(
-                            item,
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Pilih jenis cuti.';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    selectedValue = value!;
-                  });
-                },
-                selectedItemBuilder: (BuildContext context) {
-                  return jenisItems.map<Widget>((String item) {
-                    return Text(
-                      item,
-                      style: GoogleFonts.montserrat(fontSize: 14),
-                    );
-                  }).toList();
-                },
-              ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+             DropdownButtonFormField<String>(
+  isExpanded: true,
+  decoration: InputDecoration(
+    contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  hint: Text(
+    'Pilih jenis cuti',
+    style: GoogleFonts.montserrat(
+      fontSize: 14,
+      color: kTextgrey,
+    ),
+  ),
+  items: List.generate(jenisItems.length, (index) {
+    return DropdownMenuItem<String>(
+      value: valueItem[index], // Use value from valueItem based on the index.
+      child: Text(
+        jenisItems[index],
+        style: const TextStyle(
+          fontSize: 14,
+        ),
+      ),
+    );
+  }),
+  validator: (value) {
+    if (value == null) {
+      return 'Pilih jenis cuti.';
+    }
+    return null;
+  },
+  onChanged: (value) {
+    setState(() {
+      selectedValue = value!;
+    });
+  },
+  selectedItemBuilder: (BuildContext context) {
+    return jenisItems.map<Widget>((String item) {
+      return Text(
+        item,
+        style: GoogleFonts.montserrat(fontSize: 14),
+      );
+    }).toList();
+  },
+  icon: const Icon(LucideIcons.arrowDownCircle,
+      color: Color(0xffB6B6B6), size: 17),
+),
+
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(padding: const EdgeInsets.only(top: 25, bottom: 5)),
+                  const Padding(padding: EdgeInsets.only(top: 18, bottom: 5)),
                   Row(
                     children: [
                       Text(
@@ -297,7 +305,7 @@ class _CreateCutiState extends State<CreateCuti> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
+                      const Text(
                         '*',
                         style: TextStyle(
                           fontSize: 12,
@@ -306,80 +314,88 @@ class _CreateCutiState extends State<CreateCuti> {
                       ),
                     ],
                   ),
-                  Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                   Row(
                     children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          primary: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _memulaiTanggal,
-                        child: Row(
-                          children: [
-                            Text(
-                              _mulaiTanggal != null
-                                  ? "${_mulaiTanggal!.year}/${_mulaiTanggal!.month}/${_mulaiTanggal!.day}"
-                                  : 'Mulai cuti',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 15),
+                            primary: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(
+                                color: kBorder,
+                                width: 1,
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          primary: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
+                          ),
+                          onPressed: _memulaiTanggal,
+                          child: Row(
+                            children: [
+                              Text(
+                                _mulaiTanggal != null
+                                    ? "${_mulaiTanggal!.year}/${_mulaiTanggal!.month}/${_mulaiTanggal!.day}"
+                                    : 'Mulai cuti',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: kTextgrey,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(
+                                LucideIcons.calendar,
+                                color: kBorder,
+                                size: 16,
+                              ),
+                            ],
                           ),
                         ),
-                        onPressed: _selesaiTanggall,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selesaiTanggal != null
-                                  ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
-                                  : 'Akhir cuti',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 15),
+                            primary: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(
+                                color: kBorder,
+                                width: 1,
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.calendar_today,
-                              color: kBorder,
-                              size: 18,
-                            ),
-                          ],
+                          ),
+                          onPressed: _selesaiTanggall,
+                          child: Row(
+                            children: [
+                              Text(
+                                _selesaiTanggal != null
+                                    ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
+                                    : 'Akhir cuti',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: kTextgrey,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(
+                                LucideIcons.calendar,
+                                color: kBorder,
+                                size: 16,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ],
@@ -387,16 +403,16 @@ class _CreateCutiState extends State<CreateCuti> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(padding: EdgeInsets.only(top: 10)),
+                  const Padding(padding: EdgeInsets.only(top: 10)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
                       primary: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: BorderSide(
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(
                           color: kBorder,
                           width: 1,
                         ),
@@ -409,31 +425,32 @@ class _CreateCutiState extends State<CreateCuti> {
                           _tanggalMasuknya != null
                               ? "${_tanggalMasuknya!.year}/${_tanggalMasuknya!.month}/${_tanggalMasuknya!.day}"
                               : 'Tanggal Masuk',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.montserrat(
                             fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: kTextgrey,
                           ),
                         ),
-                        Spacer(),
-                        Icon(
-                          Icons.calendar_today,
+                        const Spacer(),
+                        const Icon(
+                          LucideIcons.calendar,
                           color: kBorder,
-                          size: 18,
+                          size: 16,
                         ),
                       ],
                     ),
                   ),
-                  Padding(padding: EdgeInsets.only(top: 25)),
+                  const Padding(padding: EdgeInsets.only(top: 18)),
                   Row(
                     children: [
                       Text(
-                        'Alasan',
+                        'Deskripsi',
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
+                      const Text(
                         '*',
                         style: TextStyle(
                           fontSize: 12,
@@ -442,19 +459,20 @@ class _CreateCutiState extends State<CreateCuti> {
                       ),
                     ],
                   ),
-                  Padding(padding: EdgeInsets.only(bottom: 5)),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                   TextField(
                     controller: alasan,
                     style: GoogleFonts.montserrat(color: kText),
                     keyboardType: TextInputType.text,
                     maxLines: 4,
-                    scrollPhysics: ScrollPhysics(),
+                    scrollPhysics: const ScrollPhysics(),
                     decoration: InputDecoration(
-                      hintText: 'Write description...',
+                      hintText: 'Ketikan sesuatu...',
                       hintStyle: GoogleFonts.montserrat(
-                          color: kBorder,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: kTextgrey,
+                      ),
                       filled: true,
                       fillColor: Colors.transparent,
                       enabledBorder: OutlineInputBorder(
@@ -474,7 +492,7 @@ class _CreateCutiState extends State<CreateCuti> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 5),
+                    padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       'Total Cuti : ${computeTotalCuti()} hari',
                       style: GoogleFonts.montserrat(
@@ -489,25 +507,25 @@ class _CreateCutiState extends State<CreateCuti> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
-                          width: 120,
+                          width: 110,
                           child: ElevatedButton(
                             onPressed: () {
                               setState(() {
                                 storeCuti().then((value) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => CutiScreen()));
-                                  // Navigator.pop(context);
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => CutiScreen()));
+                                  Navigator.pop(context);
                                 });
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 18),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               backgroundColor: kButton,
                               shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                             child: const Text('Ajukan Cuti'),

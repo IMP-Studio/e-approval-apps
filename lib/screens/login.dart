@@ -37,14 +37,21 @@ class _LoginScreenState extends State<LoginScreen>
     final response = jsonDecode(result.body);
     if (response['status'] == 200) {
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      await preferences.setInt('user_id', response['user']['id']);
+        await preferences.setInt('user_id', response['user']['id']);
       await preferences.setString('name', response['user']['name']);
       await preferences.setString(
           'nama_lengkap', response['user']['nama_lengkap']);
       await preferences.setString('divisi', response['user']['divisi']);
-      await preferences.setString('status', response['user']['status']);
+      await preferences.setString('posisi', response['user']['posisi']);
+      await preferences.setInt('is_active', response['user']['is_active']);
       await preferences.setString('email', response['user']['email']);
       await preferences.setString('role', response['user']['role']);
+      await preferences.setString('first_name', response['user']['first_name']);
+      await preferences.setString('last_name', response['user']['last_name']);
+      await preferences.setString('gender', response['user']['gender']);
+      await preferences.setString('birth_date', response['user']['birth_date']);
+      await preferences.setString('id_number', response['user']['id_number']);
+      await preferences.setString('facepoint', response['user']['facepoint'] ?? 'null') ;
       await preferences.setString('token', response['token']);
 
       ScaffoldMessenger.of(context).showSnackBar(

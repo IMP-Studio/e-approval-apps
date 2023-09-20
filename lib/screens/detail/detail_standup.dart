@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
@@ -7,17 +6,18 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class CreateDetailStandup extends StatefulWidget {
-  final Map project;
-  const CreateDetailStandup({super.key, required this.project});
+class DetailStandUp extends StatefulWidget {
+  final Map standup;
+  const DetailStandUp({super.key, required this.standup});
 
   @override
-  State<CreateDetailStandup> createState() => _CreateDetailStandupState();
+  State<DetailStandUp> createState() => _DetailStandUpState();
 }
 
-class _CreateDetailStandupState extends State<CreateDetailStandup> {
+class _DetailStandUpState extends State<DetailStandUp> {
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -26,7 +26,11 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
 
   void initState() {
     super.initState();
-    getUserData().then((_) {});
+    getUserData().then((_) {
+      done.text = widget.standup['done'] ?? '';
+      doing.text = widget.standup['doing'] ?? '';
+      blocker.text = widget.standup['blocker'] ?? '';
+    });
   }
 
   bool isLoading = false;
@@ -44,9 +48,11 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
   TextEditingController doing = TextEditingController();
   TextEditingController blocker = TextEditingController();
 
-  Future storeStandUp() async {
-    final response = await http.post(
-        Uri.parse('https://testing.impstudio.id/approvall/api/standup/store'),
+  Future updateStandUp() async {
+    int idStandup = widget.standup['id'];
+    final response = await http.put(
+        Uri.parse(
+            'https://testing.impstudio.id/approvall/api/standup/update/$idStandup'),
         body: {
           "user_id": preferences
               ?.getInt('user_id')
@@ -54,7 +60,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
           "done": done.text,
           "doing": doing.text,
           "blocker": blocker.text,
-          "project_id": widget.project['id'].toString(),
+          "project_id": widget.standup['project_id'].toString(),
         });
 
     print(response.body);
@@ -242,7 +248,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                       alignment: WrapAlignment.start,
                                       children: [
                                         Text(
-                                          widget.project['project'],
+                                          widget.standup['project'],
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
                                             color: const Color.fromARGB(255, 0, 0, 0),
@@ -308,6 +314,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                     alignment: WrapAlignment.start,
                                     children: [
                                       TextFormField(
+                                        enabled: false,
                                         controller: done,
                                         style: GoogleFonts.montserrat(
                                           color: kBlck,
@@ -316,8 +323,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                         ),
                                         maxLines: 6,
                                         decoration: InputDecoration.collapsed(
-                                          hintText:
-                                              "Tulis apa yang kamu telah selesaikan hari ini",
+                                          hintText: "",
                                           hintStyle: GoogleFonts.montserrat(
                                             color: kTextUnselected,
                                             fontSize: 12,
@@ -393,16 +399,16 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                     alignment: WrapAlignment.start,
                                     children: [
                                       TextFormField(
+                                        enabled: false,
                                         controller: doing,
                                         style: GoogleFonts.montserrat(
                                           color: kBlck,
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                         maxLines: 6,
                                         decoration: InputDecoration.collapsed(
-                                          hintText:
-                                              "Tulis apa yang masih kamu lakukan hari ini",
+                                          hintText: "",
                                           hintStyle: GoogleFonts.montserrat(
                                             color: kTextUnselected,
                                             fontSize: 12,
@@ -478,16 +484,16 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                                     alignment: WrapAlignment.start,
                                     children: [
                                       TextFormField(
+                                        enabled: false,
                                         controller: blocker,
                                         style: GoogleFonts.montserrat(
                                           color: kBlck,
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                         maxLines: 6,
                                         decoration: InputDecoration.collapsed(
-                                          hintText:
-                                              "Tulis apa permasalahan kamu hari ini",
+                                          hintText: "",
                                           hintStyle: GoogleFonts.montserrat(
                                             color: kTextUnselected,
                                             fontSize: 12,
@@ -508,72 +514,6 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
                           height: _tinggidesc,
                         ),
                       ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 8),
-                                backgroundColor: Colors.white,
-                                side: const BorderSide(color: kTextUnselected),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                'Batal',
-                                style: GoogleFonts.inter(
-                                  color: kTextUnselected,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 8),
-                                backgroundColor: kTextoo,
-                                side: const BorderSide(color: kTextoo),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () {
-                                print('Done: ${done.text}');
-                                print('Doing: ${doing.text}');
-                                print('Blocker: ${blocker.text}');
-                                print('Project ID: ${widget.project['id']}');
-                                storeStandUp().then((_) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => MainLayout()));
-                                });
-                              },
-                              child: Text(
-                                'Kirim',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )),
-                        ],
-                      ),
                     ),
                     const SizedBox(
                       height: 20,
