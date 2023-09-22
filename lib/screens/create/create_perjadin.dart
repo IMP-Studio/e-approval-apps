@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,8 +26,156 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
   DateTime? _tanggalKembali;
   FilePickerResult? _pickedFile;
 
+  late Timer _timer; // Define the timer
+  bool _isMounted = false;
+  bool _isSnackbarVisible = false;
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    _isMounted = false;
+    super.dispose();
+  }
+
+  void showSnackbarWarning(String message, String submessage,
+      Color backgroundColor, Icon customIcon) {
+    if (_isSnackbarVisible) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    }
+
+    _isSnackbarVisible = true;
+
+    int secondsRemaining = 3; // Set the initial duration to 10 seconds
+    _timer.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!_isMounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (secondsRemaining == 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _isSnackbarVisible = false;
+        timer.cancel();
+      } else {
+        setState(() {
+          secondsRemaining--;
+        });
+      }
+    });
+    final snackBar = SnackBar(
+      margin:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.85),
+      content: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [customIcon],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  child: Text(
+                                    message,
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        textStyle: TextStyle(
+                                            color: kBlck,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w600)),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2),
+                              ),
+                              Text(
+                                submessage,
+                                style: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 10,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              Container(
+                width: 5,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      duration: Duration(seconds: 10),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void initState() {
     super.initState();
+    _timer = Timer(Duration.zero, () {});
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
       getProfil();
@@ -247,7 +397,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                 ),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
@@ -413,8 +564,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 15),
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
@@ -473,7 +624,47 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
 
                                   return ElevatedButton(
                                     onPressed: () {
-                                      setState(() {
+                                      if (_pickedFile == null) {
+                                        final snackBar = showSnackbarWarning(
+                                            "Fail...",
+                                            "Opsi belum dipilih",
+                                            kYelw,
+                                            Icon(
+                                              LucideIcons.checkCircle2,
+                                              size: 26.0,
+                                              color: kYelw,
+                                            ));
+                                      } else if (_selectedDate == null || _selesaiTanggal == null) {
+                                        final snackBar = showSnackbarWarning(
+                                            "Fail...",
+                                            "Tanggal mulai atau akhir masih kosong",
+                                            kYelw,
+                                            Icon(
+                                              LucideIcons.checkCircle2,
+                                              size: 26.0,
+                                              color: kYelw,
+                                            ));
+                                      } else if (_tanggalKembali == null) {
+                                        final snackBar = showSnackbarWarning(
+                                            "Fail...",
+                                            "Tanggal masuk masih kosong",
+                                            kYelw,
+                                            Icon(
+                                              LucideIcons.checkCircle2,
+                                              size: 26.0,
+                                              color: kYelw,
+                                            ));
+                                      } else {
+                                        final snackBar = showSnackbarWarning(
+                                            "Success",
+                                            "Berhasil dikirim",
+                                            kTextoo,
+                                            Icon(
+                                              LucideIcons.checkCircle2,
+                                              size: 26.0,
+                                              color: kTextoo,
+                                            ));
+                                            setState(() {
                                         final facePageArgs = {
                                           'category': 'work_trip',
                                           'start_date': _selectedDate,
@@ -502,10 +693,11 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                                           ),
                                         );
                                       });
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
                                       backgroundColor: kButton,
                                       shadowColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
@@ -533,7 +725,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> {
                                       color: kButton,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 19),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 19),
                                   ),
                                 );
                               }

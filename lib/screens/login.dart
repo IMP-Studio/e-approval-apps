@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/methods/api.dart';
 import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: unused_import
 import 'dart:math';
@@ -26,6 +28,153 @@ class _LoginScreenState extends State<LoginScreen>
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
+  late Timer _timer; // Define the timer
+  bool _isMounted = false;
+  bool _isSnackbarVisible = false;
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    _isMounted = false;
+    super.dispose();
+  }
+
+  void showSnackbarWarning(String message, String submessage,
+      Color backgroundColor, Icon customIcon) {
+    if (_isSnackbarVisible) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    }
+
+    _isSnackbarVisible = true;
+
+    int secondsRemaining = 3; // Set the initial duration to 10 seconds
+    _timer.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!_isMounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (secondsRemaining == 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _isSnackbarVisible = false;
+        timer.cancel();
+      } else {
+        setState(() {
+          secondsRemaining--;
+        });
+      }
+    });
+    final snackBar = SnackBar(
+      margin:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.85),
+      content: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [customIcon],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  child: Text(
+                                    message,
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        textStyle: TextStyle(
+                                            color: kBlck,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w600)),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2),
+                              ),
+                              Text(
+                                submessage,
+                                style: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 10,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              Container(
+                width: 5,
+                height: 49,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      duration: Duration(seconds: 10),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void loginUser() async {
     final data = {
       'email': email.text.toString(),
@@ -37,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen>
     final response = jsonDecode(result.body);
     if (response['status'] == 200) {
       SharedPreferences preferences = await SharedPreferences.getInstance();
-        await preferences.setInt('user_id', response['user']['id']);
+      await preferences.setInt('user_id', response['user']['id']);
       await preferences.setString('name', response['user']['name']);
       await preferences.setString(
           'nama_lengkap', response['user']['nama_lengkap']);
@@ -51,29 +200,39 @@ class _LoginScreenState extends State<LoginScreen>
       await preferences.setString('gender', response['user']['gender']);
       await preferences.setString('birth_date', response['user']['birth_date']);
       await preferences.setString('id_number', response['user']['id_number']);
-      await preferences.setString('facepoint', response['user']['facepoint'] ?? 'null') ;
+      await preferences.setString(
+          'facepoint', response['user']['facepoint'] ?? 'null');
       await preferences.setString('token', response['token']);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response['message']),
-        ),
-      );
+      final snackBar = showSnackbarWarning(
+          "Success",
+          response['message'],
+          kTextoo,
+          Icon(
+            LucideIcons.checkCircle2,
+            size: 26.0,
+            color: kTextoo,
+          ));
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => MainLayout(),
       ));
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response['message']),
-        ),
-      );
+    } else {
+     final snackBar = showSnackbarWarning(
+          "Fail..",
+          response['message'],
+          kYelw,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kYelw,
+          ));
     }
   }
 
   @override
   void initState() {
     super.initState();
+    _timer = Timer(Duration.zero, () {});
 
     _controller = AnimationController(
       vsync: this,
@@ -85,12 +244,6 @@ class _LoginScreenState extends State<LoginScreen>
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward(); // Start the animation when the widget is initialized
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -347,12 +500,12 @@ class _LoginScreenState extends State<LoginScreen>
                               children: [
                                 InkWell(
                                   onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ForgetPassword(),
-                                          ),
-                                        );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ForgetPassword(),
+                                      ),
+                                    );
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
