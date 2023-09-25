@@ -7,6 +7,7 @@ import 'package:imp_approval/screens/rubahPassword/rubah_password.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 class PrivasiPage extends StatefulWidget {
   const PrivasiPage({super.key});
@@ -15,7 +16,8 @@ class PrivasiPage extends StatefulWidget {
   State<PrivasiPage> createState() => _PrivasiPageState();
 }
 
-class _PrivasiPageState extends State<PrivasiPage> {
+class _PrivasiPageState extends State<PrivasiPage> with WidgetsBindingObserver{
+  
   SharedPreferences? preferences;
 
   bool isLoading = false;
@@ -31,6 +33,12 @@ class _PrivasiPageState extends State<PrivasiPage> {
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
     });

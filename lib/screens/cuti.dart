@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
 class CutiScreen extends StatefulWidget {
   const CutiScreen({super.key});
@@ -19,7 +20,7 @@ class CutiScreen extends StatefulWidget {
   State<CutiScreen> createState() => _CutiScreenState();
 }
 
-class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
+class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   DateTime today = DateTime.now();
   int activeIndex = 0;
@@ -50,7 +51,11 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       getCuti();
       refreshData();

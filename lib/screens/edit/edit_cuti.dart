@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 class EditCuti extends StatefulWidget {
   final Map absen;
@@ -17,7 +19,10 @@ class EditCuti extends StatefulWidget {
   State<EditCuti> createState() => _EditCutiState();
 }
 
-class _EditCutiState extends State<EditCuti> {
+class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
+
+
+
   String selectedOption = '';
   // date
   DateTime? _mulaiTanggal;
@@ -31,6 +36,11 @@ class _EditCutiState extends State<EditCuti> {
   @override
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     selectedValue = widget.absen['type'];
     alasan.text = widget.absen['type_description'];
     if (widget.absen['start_date'] != null) {

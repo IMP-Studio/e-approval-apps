@@ -17,6 +17,7 @@ import 'package:imp_approval/screens/detail/detail_wfa.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 class HistoryAttendance extends StatefulWidget {
   const HistoryAttendance({super.key});
@@ -26,7 +27,7 @@ class HistoryAttendance extends StatefulWidget {
 }
 
 class _HistoryAttendanceState extends State<HistoryAttendance>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver{
   SharedPreferences? preferences;
   int activeIndex = 0;
   late TabController _tabController;
@@ -145,6 +146,12 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
   void initState() {
     // TODO: implement initState
     super.initState();
+
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
       _dataFuture = getAbsensiAll();

@@ -8,6 +8,7 @@ import 'package:imp_approval/screens/changePasswordOtp/verificationPassword.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -16,7 +17,17 @@ class ForgetPassword extends StatefulWidget {
   State<ForgetPassword> createState() => _ForgetPasswordState();
 }
 
-class _ForgetPasswordState extends State<ForgetPassword> {
+class _ForgetPasswordState extends State<ForgetPassword> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   TextEditingController email = TextEditingController();
 
   void forgetPasswordOtp() async {

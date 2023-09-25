@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
 class CreateStandup extends StatefulWidget {
   const CreateStandup({super.key});
@@ -18,11 +19,17 @@ class CreateStandup extends StatefulWidget {
   State<CreateStandup> createState() => _CreateStandupState();
 }
 
-class _CreateStandupState extends State<CreateStandup> {
+class _CreateStandupState extends State<CreateStandup> with WidgetsBindingObserver{
+  
   SharedPreferences? preferences;
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       _dataFuture = getProject();
     });

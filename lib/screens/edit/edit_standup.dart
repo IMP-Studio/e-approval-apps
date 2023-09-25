@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
 
 class EditStandUp extends StatefulWidget {
   final Map standup;
@@ -17,7 +18,8 @@ class EditStandUp extends StatefulWidget {
   State<EditStandUp> createState() => _EditStandUpState();
 }
 
-class _EditStandUpState extends State<EditStandUp> {
+class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
+
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -26,6 +28,11 @@ class _EditStandUpState extends State<EditStandUp> {
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       done.text = widget.standup['done'] ?? '';
       doing.text = widget.standup['doing'] ?? '';

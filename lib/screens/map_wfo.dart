@@ -16,6 +16,7 @@ import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:flutter/services.dart';
 
 class MapSample extends StatefulWidget {
   const MapSample({super.key});
@@ -24,7 +25,7 @@ class MapSample extends StatefulWidget {
   State<MapSample> createState() => MapSampleState();
 }
 
-class MapSampleState extends State<MapSample> {
+class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
   Position? _position;
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -48,6 +49,11 @@ class MapSampleState extends State<MapSample> {
   void initState() {
     super.initState();
     addCustomIcon();
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
     // This will execute after the widget is built.
     WidgetsBinding.instance.addPostFrameCallback((_) async {

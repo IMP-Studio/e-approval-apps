@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class EditPerjadin extends StatefulWidget {
   final Map absen;
@@ -18,7 +19,17 @@ class EditPerjadin extends StatefulWidget {
   State<EditPerjadin> createState() => _EditPerjadinState();
 }
 
-class _EditPerjadinState extends State<EditPerjadin> {
+class _EditPerjadinState extends State<EditPerjadin> with WidgetsBindingObserver{
+   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   DateTime? _tanggalKembali;
@@ -93,41 +104,45 @@ class _EditPerjadinState extends State<EditPerjadin> {
   }
 
   Future updatePresence() async {
-    if (_selectedDate == null ||
-        _selesaiTanggal == null ||
-        _pickedFile == null) {
-      print("Error: Required field missing.");
-      return;
+
+  String filePath = _pickedFile!.files.first.path!;
+  int idPerjadin = widget.absen['id'];
+  var uri = Uri.parse(
+      'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
+
+  var request = http.MultipartRequest('PUT', uri)
+    ..fields['user_id'] = widget.absen['user_id'].toString()
+    ..fields['start_date'] = formatDate(_selectedDate!)
+    ..fields['end_date'] = formatDate(_selesaiTanggal!)
+    ..fields['entry_date'] = formatDate(_tanggalKembali!)
+    ..fields['status'] = 'pending'
+    ..headers.addAll({
+      'Content-Type': 'multipart/form-data',
+      // Add other headers if required
+    })
+    ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+  try {
+    var response = await request.send();
+
+    print("Request Headers: ${request.headers}");
+    print("Request Fields: ${request.fields}");
+    print("File Path: $filePath");
+    print("Response Status Code: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      // Check for success status code
+      var responseData = await response.stream.bytesToString();
+      print(responseData);
+      return json.decode(responseData);
+    } else {
+      print("Error with status code: ${response.statusCode}");
     }
-
-    String filePath = _pickedFile!.files.first.path!;
-    int idPerjadin = widget.absen['id'];
-    var uri = Uri.parse(
-        'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
-
-    var request = http.MultipartRequest('PUT', uri)
-      ..fields['user_id'] = widget.absen['user_id'].toString()
-      ..fields['start_date'] = formatDate(_selectedDate!)
-      ..fields['end_date'] = formatDate(_selesaiTanggal!)
-      ..fields['entry_date'] = formatDate(_tanggalKembali!)
-      ..fields['status'] = 'pending'
-      ..files.add(await http.MultipartFile.fromPath('file', filePath));
-
-    try {
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        // Check for success status code
-        var responseData = await response.stream.bytesToString();
-        print(responseData);
-        return json.decode(responseData);
-      } else {
-        print("Error with status code: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error during file upload: $e");
-    }
+  } catch (e) {
+    print("Error during file upload: $e");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +276,8 @@ class _EditPerjadinState extends State<EditPerjadin> {
                 ),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
@@ -427,8 +443,8 @@ class _EditPerjadinState extends State<EditPerjadin> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 15),
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
@@ -475,6 +491,13 @@ class _EditPerjadinState extends State<EditPerjadin> {
                           width: 110,
                           child: ElevatedButton(
                             onPressed: () {
+                              print(
+                                _pickedFile?.files.first.name,
+                              );
+                              print(_selesaiTanggal);
+                              print(_selectedDate);
+                              print(_tanggalKembali);
+
                               updatePresence().then((value) {
                                 Navigator.pop(context); // Pop once
                                 Navigator.pop(context, 'refresh'); // Pop again

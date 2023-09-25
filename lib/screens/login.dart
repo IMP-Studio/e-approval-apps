@@ -9,6 +9,7 @@ import 'package:imp_approval/methods/api.dart';
 import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 // ignore: unused_import
 import 'dart:math';
 
@@ -20,7 +21,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+
   late AnimationController _controller;
   late Animation<double> _animation;
   late Animation<Offset> _positionAnimation;
@@ -217,14 +219,14 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (context) => MainLayout(),
       ));
     } else {
-     final snackBar = showSnackbarWarning(
+      final snackBar = showSnackbarWarning(
           "Fail..",
           response['message'],
-          kYelw,
+          kTextBlocker,
           Icon(
             LucideIcons.xCircle,
             size: 26.0,
-            color: kYelw,
+            color: kTextBlocker,
           ));
     }
   }
@@ -232,6 +234,11 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     _timer = Timer(Duration.zero, () {});
 
     _controller = AnimationController(
@@ -527,6 +534,9 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             InkWell(
                               onTap: () {
+                                FocusScope.of(context)
+                                    .requestFocus(FocusNode());
+
                                 loginUser();
                               },
                               child: Container(

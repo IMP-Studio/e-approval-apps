@@ -30,6 +30,8 @@ import 'package:imp_approval/screens/detail/detail_wfa.dart';
 import 'package:imp_approval/screens/create/create_wfa.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:ntp/ntp.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -46,16 +48,19 @@ enum AttendanceStatus {
   completed,
   pendingStatus,
   perjadinStatus,
+  leaveStatus,
   canReAttend,
   bolos,
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver  {
   AttendanceStatus _attendanceStatus = AttendanceStatus.loading;
   bool showCheckin = true;
   bool showAtributModalCheckin = true;
 
   bool showAtributModalCheckOut = true;
+
+  
 
   bool showModalWfa = false;
   String selectedOption = '';
@@ -72,6 +77,9 @@ class _HomePageState extends State<HomePage> {
 
   Future? _absensiAll;
   Future? _absensiToday;
+
+TimeOfDay? _currentTime;
+  String? _timeStatus;
 
   final List<String> genderItems = [
     'Kesehatan',
@@ -126,8 +134,7 @@ class _HomePageState extends State<HomePage> {
     print(response.body);
     return jsonDecode(response.body);
   }
-
-  bool isTimeOfDayBefore(TimeOfDay timeToCheck, TimeOfDay timeToCompare) {
+ bool isTimeOfDayBefore(TimeOfDay timeToCheck, TimeOfDay timeToCompare) {
     return (timeToCheck.hour < timeToCompare.hour) ||
         (timeToCheck.hour == timeToCompare.hour &&
             timeToCheck.minute < timeToCompare.minute);
@@ -160,6 +167,9 @@ class _HomePageState extends State<HomePage> {
           case 'perjadinStatus':
             _attendanceStatus = AttendanceStatus.perjadinStatus;
             break;
+          case 'leaveStatus':
+            _attendanceStatus = AttendanceStatus.leaveStatus;
+            break;
           case 'canReAttend':
             _attendanceStatus = AttendanceStatus.canReAttend;
             break;
@@ -190,6 +200,8 @@ class _HomePageState extends State<HomePage> {
         return _buildPendingButton();
       case AttendanceStatus.perjadinStatus:
         return _buildPerjadinButton();
+      case AttendanceStatus.leaveStatus:
+        return _buildLeaveButton();
       case AttendanceStatus.checkedIn:
         return _buildCheckOutButton();
       case AttendanceStatus.checkedOut:
@@ -360,13 +372,34 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCheckOutButton() {
-    DateTime now = DateTime.now();
-    TimeOfDay currentTime = TimeOfDay(hour: now.hour, minute: now.minute);
-    TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
+
+   if (isLoading) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey[300],
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onPressed: null,  // make sure it's non-interactive
+        child: Container(
+          width: double.infinity,
+          height: 48,  // or whatever height you want
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+   TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
 
-    bool isBeforeEveningLimit = isTimeOfDayBefore(currentTime, eveningLimit);
-    bool isAfterMorningLimit = isTimeOfDayAfter(currentTime, morningLimit);
+    bool isBeforeEveningLimit = isTimeOfDayBefore(_currentTime!, eveningLimit);
+    bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -450,10 +483,14 @@ class _HomePageState extends State<HomePage> {
                               height: MediaQuery.of(context).size.height * 0.02,
                             ),
                             OutlinedButton(
+                              
                               style: OutlinedButton.styleFrom(
+                                elevation: isBeforeEveningLimit
+                                    ? 0
+                                    : 3,
                                 backgroundColor: isBeforeEveningLimit
                                     ? Colors.transparent
-                                    : Colors.blue,
+                                    : kButton,
                                 foregroundColor: Colors.black,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius:
@@ -463,7 +500,7 @@ class _HomePageState extends State<HomePage> {
                                   width: 1,
                                   color: isBeforeEveningLimit
                                       ? Colors.black
-                                      : const Color(0xff4381ca),
+                                      : kButton,
                                 ),
 
                                 // Mengatur lebar tombol menjadi double.infinity
@@ -490,7 +527,9 @@ class _HomePageState extends State<HomePage> {
                                     fontSize:
                                         MediaQuery.of(context).size.width *
                                             0.034,
-                                    color: hitamText,
+                                    color: isBeforeEveningLimit
+                                      ? Colors.black
+                                      : Colors.white,
                                     fontWeight: FontWeight.w600,
                                   )),
                             ),
@@ -511,17 +550,40 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCheckedOutButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
+        backgroundColor: Colors.white,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        side: BorderSide(color: Colors.black, width: 1)
       ),
       child: Text(
         'Completed',
         style: GoogleFonts.inter(
-          color: whiteText,
-          fontSize: MediaQuery.of(context).size.width * 0.039,
+          color: hitamText,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onPressed: () {},
+    );
+  }
+
+  Widget _buildLeaveButton() {
+     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        side: BorderSide(color: Colors.black, width: 1)
+      ),
+      child: Text(
+        'Cuti',
+        style: GoogleFonts.inter(
+          color: hitamText,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -532,16 +594,17 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCompletedButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
+        elevation: 0,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        side: BorderSide(color: Colors.black, width: 1)
       ),
       child: Text(
         'Completed',
         style: GoogleFonts.inter(
-          color: whiteText,
+          color: hitamText,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -567,7 +630,55 @@ class _HomePageState extends State<HomePage> {
           fontWeight: FontWeight.w500,
         ),
       ),
-      onPressed: () {},
+      onPressed: () {
+        showModalBottomSheet<void>(
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15.0),
+              topRight: Radius.circular(15.0),
+            ),
+          ),
+          context: context,
+          builder: (BuildContext context) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: SizedBox(
+                height: _tinggimodal,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(top: 15, bottom: 10),
+                      width: 60,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.black12,
+                      ),
+                    ),
+                    if (showAtributModalCheckOut) _modalPendingAttribute(),
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            child: SvgPicture.asset(
+                              "assets/img/bolos.svg",
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              height: MediaQuery.of(context).size.width * 0.5,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -749,8 +860,16 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     refreshData();
+    WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  _fetchNTPTime();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (showModalWfa == 'true') {
@@ -758,6 +877,14 @@ class _HomePageState extends State<HomePage> {
           _tinggimodal = 420;
         });
       }
+    });
+  }
+
+  Future<void> _fetchNTPTime() async {
+    DateTime ntpTime = await NTP.now(lookUpAddress: 'id.pool.ntp.org');
+    setState(() {
+      _currentTime = TimeOfDay(hour: ntpTime.hour, minute: ntpTime.minute);
+      isLoading = false;
     });
   }
 
@@ -2324,6 +2451,53 @@ class _HomePageState extends State<HomePage> {
             ),
             Text(
               'Permintaan mu masih dalam status pending',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: const Color.fromRGBO(182, 182, 182, 1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _modalBolosAttribute() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 18.0, top: 16, bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Kamu',
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.039,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  ' Bolos',
+                  style: GoogleFonts.montserrat(
+                      fontSize: MediaQuery.of(context).size.width * 0.039,
+                      fontWeight: FontWeight.w500,
+                      color: kTextBlocker,
+                ),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Kamu sudah bolos hari ini, tolong untuk tidak melakukan lagi dihari berikutnya',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,

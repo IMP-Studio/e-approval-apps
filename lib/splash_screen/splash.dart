@@ -9,7 +9,22 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -219,6 +234,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).requestFocus(new FocusNode()); 
+  SystemChannels.textInput.invokeMethod('TextInput.hide'); 
+
     return Scaffold(
       body: SafeArea(
         child: Center(

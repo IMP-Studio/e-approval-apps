@@ -26,25 +26,27 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:ntp/ntp.dart';
 
-class FacePage extends StatefulWidget {
+class FacePagePerjadin extends StatefulWidget {
   final Map<String, dynamic> arguments;
 
-  const FacePage({Key? key, required this.arguments}) : super(key: key);
+  const FacePagePerjadin({Key? key, required this.arguments}) : super(key: key);
 
   @override
-  State<FacePage> createState() => _FacePageState();
+  State<FacePagePerjadin> createState() => _FacePagePerjadinState();
 }
 
-class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
+class _FacePagePerjadinState extends State<FacePagePerjadin> with WidgetsBindingObserver {
   List<int>? imageBytes;
   List<dynamic>? userFP;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     initializePage();
   }
 

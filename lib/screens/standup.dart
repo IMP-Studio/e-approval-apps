@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
 class StandUp extends StatefulWidget {
@@ -20,7 +21,7 @@ class StandUp extends StatefulWidget {
   State<StandUp> createState() => _StandUpState();
 }
 
-class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin {
+class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Future<List<dynamic>>? standUpData;
   late TabController _tabController;
   int activeIndex = 0;
@@ -50,6 +51,11 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     _tabController = TabController(length: 2, vsync: this);
     getUserData().then((_) {
       _dataFuture = getStandUpUser();

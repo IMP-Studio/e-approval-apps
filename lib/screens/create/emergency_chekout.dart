@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class Emergency extends StatefulWidget {
   const Emergency({super.key});
@@ -18,11 +19,17 @@ class Emergency extends StatefulWidget {
   State<Emergency> createState() => _EmergencyState();
 }
 
-class _EmergencyState extends State<Emergency> {
+class _EmergencyState extends State<Emergency> with WidgetsBindingObserver{
   SharedPreferences? preferences;
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
     getUserData().then((_) {});
   }
 

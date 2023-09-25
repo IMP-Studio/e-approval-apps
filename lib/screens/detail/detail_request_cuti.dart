@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
 class DetailRequestCuti extends StatefulWidget {
   final dynamic absen;
@@ -72,7 +73,17 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailRequestCutiState extends State<DetailRequestCuti> {
+class _DetailRequestCutiState extends State<DetailRequestCuti> with WidgetsBindingObserver{
+   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
     DateTime end = DateTime.parse(endDate);

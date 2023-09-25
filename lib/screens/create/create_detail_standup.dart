@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class CreateDetailStandup extends StatefulWidget {
@@ -17,7 +18,7 @@ class CreateDetailStandup extends StatefulWidget {
   State<CreateDetailStandup> createState() => _CreateDetailStandupState();
 }
 
-class _CreateDetailStandupState extends State<CreateDetailStandup> {
+class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsBindingObserver{
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -26,6 +27,11 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> {
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {});
   }
 

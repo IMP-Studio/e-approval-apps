@@ -3,6 +3,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
 
 class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});
@@ -11,7 +12,17 @@ class FaqScreen extends StatefulWidget {
   State<FaqScreen> createState() => _FaqScreenState();
 }
 
-class _FaqScreenState extends State<FaqScreen> {
+class _FaqScreenState extends State<FaqScreen> with WidgetsBindingObserver{
+    @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

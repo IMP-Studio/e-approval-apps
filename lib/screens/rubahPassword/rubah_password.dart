@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
 
 class RubahPassword extends StatefulWidget {
   const RubahPassword({super.key});
@@ -11,7 +12,17 @@ class RubahPassword extends StatefulWidget {
   State<RubahPassword> createState() => _RubahPasswordState();
 }
 
-class _RubahPasswordState extends State<RubahPassword> {
+class _RubahPasswordState extends State<RubahPassword> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   bool _isPasswordVisible = false;
 
   bool _konfirPasswordVisible = false;

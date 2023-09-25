@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 class DetailBolos extends StatefulWidget {
   final dynamic absen;
   DetailBolos({required this.absen});
@@ -72,7 +73,18 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailBolosState extends State<DetailBolos> {
+class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver{
+
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   Widget _category(BuildContext context) {
     if (widget.absen['category'] == 'telework') {
       return Text('Work From Anywhere',

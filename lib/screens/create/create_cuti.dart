@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
 
 class CreateCuti extends StatefulWidget {
   final Map profile;
@@ -17,7 +18,16 @@ class CreateCuti extends StatefulWidget {
   State<CreateCuti> createState() => _CreateCutiState();
 }
 
-class _CreateCutiState extends State<CreateCuti> {
+class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
   String selectedOption = '';
   // date
   DateTime? _mulaiTanggal;

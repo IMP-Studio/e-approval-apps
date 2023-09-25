@@ -13,7 +13,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imp_approval/screens/login.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/services.dart';
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
 
@@ -21,7 +21,7 @@ class SettingPage extends StatefulWidget {
   State<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
+class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
   @override
   SharedPreferences? preferences;
 
@@ -38,6 +38,11 @@ class _SettingPageState extends State<SettingPage> {
 
   void initState() {
     super.initState();
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
     });

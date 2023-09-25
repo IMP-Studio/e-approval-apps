@@ -39,13 +39,16 @@ class FacePage extends StatefulWidget {
 class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   List<int>? imageBytes;
   List<dynamic>? userFP;
+  bool _isLocationFetched = false; 
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     initializePage();
   }
 
@@ -54,16 +57,27 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       await getUserData();
       await fetchName();
       await fetchId();
-      await faceP();
+      
+      if (widget.profile['facepoint'] != null) {
+        data = jsonDecode(widget.profile['facepoint']);
+      }
+
       print('file guach : ${widget.arguments['file'].toString()}');
-      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-        _updateLocationAndAddress();
+
+      await _updateLocationAndAddress();
+      if (_isLocationFetched) { 
+          _start(); // Starting the camera once
+      }
+
+      _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+        await _updateLocationAndAddress();  // Just updating location in the timer
       });
-      _start();
+
     } catch (e) {
       print("Error in initializePage: $e");
     }
-  }
+}
+
 
   SharedPreferences? preferences;
 
@@ -78,13 +92,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     print(user_id);
     setState(() {});
   }
-
-  Future<void> faceP() async {
-    face = preferences?.getString('facepoint') ?? 'null';
-    print(face);
-    setState(() {});
-  }
-
   // Future<void> fetchFace() async {
   //   String? facepointString = preferences?.getString('facepoint') ?? 'MAHESA';
   //   if (facepointString != null) {
@@ -103,6 +110,8 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       print("Longitude: ${_position!.longitude}");
       print("Address: $_currentAddress");
     }
+
+    _isLocationFetched = true;
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -194,25 +203,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   final TextEditingController _name = TextEditingController(text: '');
 
-  Future<void> fetchData() async {
-    Map<String, dynamic> userData = await fetchUserFacePoint();
-    data = userData['facePoint'];
-    nama_lengkap = userData['name'];
-  }
-
-  Future<Map<String, dynamic>> fetchUserFacePoint() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://testing.impstudio.id/approvall/api/fetchPoint?id=$user_id'),
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load face point.');
-    }
-  }
-
   Timer? recognitionTimer;
 
   void onFaceDetected(String recognizedName) {
@@ -259,12 +249,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     await _camera!.initialize();
     await Future.delayed(const Duration(milliseconds: 500));
     loading = false;
-    tempDir = await getApplicationDocumentsDirectory();
-    String _embPath = tempDir!.path + '/emb.json';
-    jsonFile = File(_embPath);
-    if (jsonFile.existsSync()) {
-      data = json.decode(jsonFile.readAsStringSync());
-    }
 
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -399,7 +383,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       "longitude": _position!.longitude.toString(),
       "date": DateTime.now().toIso8601String(),
       "face_point": jsonData ?? 'sawarasenaii',
-      "status": 'pending',
+      "status":widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
     };
 
     request.fields.addAll(fields);
@@ -436,6 +420,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     }
 
     var response = await request.send();
+    print(request);
 
     // Handling the response from the server
     if (response.statusCode == 200) {
@@ -462,10 +447,9 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
                   final String nameFromArguments = nama_lengkap;
                   data[nameFromArguments] = e1;
-                  jsonFile.writeAsStringSync(json.encode(data));
 
                   print('Before storeAbsen()');
-                  await storeAbsen();
+                   storeAbsen();
                   print('After storeAbsen()');
 
                   if (_camera != null) {

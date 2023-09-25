@@ -18,7 +18,17 @@ class OTPPage extends StatefulWidget {
   State<OTPPage> createState() => _OTPPageState();
 }
 
-class _OTPPageState extends State<OTPPage> {
+class _OTPPageState extends State<OTPPage> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   final TextEditingController otpControllers = TextEditingController();
   final TextEditingController otpControllers2 = TextEditingController();
   final TextEditingController otpControllers3 = TextEditingController();

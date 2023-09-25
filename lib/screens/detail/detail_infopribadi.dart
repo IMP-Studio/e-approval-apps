@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class InformasiPribadi extends StatefulWidget {
   const InformasiPribadi({super.key});
@@ -14,7 +15,8 @@ class InformasiPribadi extends StatefulWidget {
   State<InformasiPribadi> createState() => _InformasiPribadiState();
 }
 
-class _InformasiPribadiState extends State<InformasiPribadi> {
+class _InformasiPribadiState extends State<InformasiPribadi> with WidgetsBindingObserver{
+
   SharedPreferences? preferences;
 
   bool isLoading = false;
@@ -30,6 +32,11 @@ class _InformasiPribadiState extends State<InformasiPribadi> {
 
   void initState() {
     super.initState();
+     WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
     });

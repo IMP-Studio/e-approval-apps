@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 
 class DetailWfo extends StatefulWidget {
   final dynamic absen;
@@ -14,7 +15,17 @@ class DetailWfo extends StatefulWidget {
   State<DetailWfo> createState() => _DetailWfoState();
 }
 
-class _DetailWfoState extends State<DetailWfo> {
+class _DetailWfoState extends State<DetailWfo> with WidgetsBindingObserver{
+   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   Widget _category(BuildContext context) {
     if (widget.absen['category'] == 'WFO') {
       return Text('Work From Office',

@@ -13,6 +13,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
 
 class DetailPerjadin extends StatefulWidget {
   final dynamic absen;
@@ -89,7 +90,17 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailPerjadinState extends State<DetailPerjadin> {
+class _DetailPerjadinState extends State<DetailPerjadin> with WidgetsBindingObserver{
+   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   Future<File?> downloadFile(String url, String filename) async {
     try {
       final response = await http.get(Uri.parse(url));

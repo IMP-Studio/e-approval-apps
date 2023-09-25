@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
 class CreateWfa extends StatefulWidget {
   const CreateWfa({super.key});
@@ -20,7 +21,7 @@ class CreateWfa extends StatefulWidget {
   State<CreateWfa> createState() => _CreateWfaState();
 }
 
-class _CreateWfaState extends State<CreateWfa> {
+class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
   TextEditingController descriptionController = TextEditingController();
   late Timer _timer; // Define the timer
   bool _isMounted = false;
@@ -66,7 +67,7 @@ class _CreateWfaState extends State<CreateWfa> {
     });
     final snackBar = SnackBar(
       margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.85),
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.95),
       content: StatefulBuilder(
         builder: (BuildContext context, setState) {
           return Stack(
@@ -178,6 +179,11 @@ class _CreateWfaState extends State<CreateWfa> {
 
   void initState() {
     super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
     _timer = Timer(Duration.zero, () {});
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
@@ -450,7 +456,7 @@ class _CreateWfaState extends State<CreateWfa> {
                                 return const Text(
                                     'Error occurred while fetching profile');
                               } else {
-                                var profileData = snapshot.data;
+                                 var profileData = snapshot.data['data'][0];
 
                                 return ElevatedButton(
                                   onPressed: () {
@@ -460,11 +466,11 @@ class _CreateWfaState extends State<CreateWfa> {
                                           "Opsi belum dipilih",
                                           kTextBlocker,
                                           Icon(
-                                            LucideIcons.checkCircle2,
+                                            LucideIcons.xCircle,
                                             size: 26.0,
                                             color: kTextBlocker,
                                           ));
-                                    } else if (selectedValue == 'other' &&
+                                    } else if (selectedValue == 'Lainnya' &&
                                         descriptionController.text.isEmpty) {
                                       showSnackbarWarning(
                                           "Fail...",

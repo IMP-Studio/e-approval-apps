@@ -10,6 +10,7 @@ import 'package:sizer/sizer.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imp_approval/methods/api.dart';
+import 'package:flutter/services.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -18,7 +19,17 @@ class ResetPassword extends StatefulWidget {
   State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class _ResetPasswordState extends State<ResetPassword> {
+class _ResetPasswordState extends State<ResetPassword> with WidgetsBindingObserver{
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
+
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 

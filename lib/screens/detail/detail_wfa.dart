@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class DetailWfa extends StatefulWidget {
   final dynamic absen;
@@ -72,7 +73,16 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailWfaState extends State<DetailWfa> {
+class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver{
+   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance!.addObserver(this);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+}
   Widget _category(BuildContext context) {
     if (widget.absen['category'] == 'telework') {
       return Text('Work From Anywhere',
