@@ -14,6 +14,10 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
+import 'package:open_file/open_file.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class DetailPerjadin extends StatefulWidget {
   final dynamic absen;
@@ -90,57 +94,86 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailPerjadinState extends State<DetailPerjadin> with WidgetsBindingObserver{
-   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+class _DetailPerjadinState extends State<DetailPerjadin>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+Future<File?> downloadFile(String url, String filename) async {
+  try {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final downloadsDirectory = Directory('/storage/emulated/0/Download');
+
+      // Ensure the directory exists
+      if (!await downloadsDirectory.exists()) {
+        await downloadsDirectory.create(recursive: true);
+      }
+
+      final file = File('${downloadsDirectory.path}/$filename');
+      print("Attempting to save file to: ${file.path}");  // This will print out the exact path where the file is being saved
+      
+      // Before writing to the file, let's check if the directory exists.
+      final parentDir = file.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true); // Ensuring the directory structure exists.
+      }
+
+      return file.writeAsBytes(response.bodyBytes);
+    }
+  } catch (e) {
+    print("Error downloading file: $e");
+  }
+  return null;
 }
 
-  Future<File?> downloadFile(String url, String filename) async {
-    try {
-      final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final directory =
-            await getApplicationDocumentsDirectory(); // Persistent storage
-        final file = File('${directory.path}/$filename');
 
-        return file.writeAsBytes(response.bodyBytes);
-      }
-    } catch (e) {
-      print("Error downloading file: $e");
-    }
-    return null;
-  }
+   Future<void> onDownloadButtonPressed() async {
+  final filess = widget.absen['file'].toString();
+  final url = 'https://testing.impstudio.id/approvall/storage/$filess';
 
-  Future<void> onDownloadButtonPressed() async {
-    final status = await Permission.storage.request(); // Request permission
-    if (status.isGranted) {
-      final url =
-          'https://testing.impstudio.id/approvall/storage/${widget.absen['file']}';
-      final downloadedFile = await downloadFile(url, widget.absen['file']);
+  if (filess.toLowerCase().endsWith(".pdf")) {
+    // Handle PDF files by downloading and then displaying
+    final downloadedFile = await downloadFile(url, filess);
 
-      if (downloadedFile != null && downloadedFile.existsSync()) {
-        print("File downloaded to ${downloadedFile.path}");
-      } else {
-        print("Error downloading or saving the file.");
-      }
+    if (downloadedFile != null && downloadedFile.existsSync()) {
+      print("File path: ${downloadedFile.path}");
+     Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => PDFViewerScreen(filePath: downloadedFile.path),
+  ),
+);
+
+
     } else {
-      print("Storage permission not granted");
+      print("Failed to fetch PDF file or file does not exist at expected path");
+      if (downloadedFile != null) {
+        print("Expected file path: ${downloadedFile.path}");
+      }
     }
   }
+}
+
+
+
+  
 
   String formatBytes(int bytes, int decimals) {
-    if (bytes <= 0) return "0 B";
-    const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    var i = (log(bytes) / log(1024)).floor();
-    return "${(bytes / pow(1024, i)).toStringAsFixed(decimals)} ${suffixes[i]}";
-  }
+  if (bytes <= 0) return "0 B";
+  const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  var i = (log(bytes) / log(1024)).floor();
+  return "${(bytes / pow(1024, i)).toStringAsFixed(decimals)} ${suffixes[i]}";
+}
 
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
@@ -212,20 +245,20 @@ void initState() {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -346,7 +379,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -446,61 +480,52 @@ void initState() {
                   ),
                   // pdf/img/word
                   OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      side: BorderSide(
-                        color: kBorder.withOpacity(0.5),
-                      ),
-                      fixedSize:
-                          Size(MediaQuery.of(context).size.width * 1, 50),
-                    ),
-                    onPressed: onDownloadButtonPressed,
-                    child: Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 10),
-                        ),
-                        Icon(
-                          LucideIcons.fileText,
-                          size: 24.0,
-                          color: kBorder.withOpacity(0.5),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                truncateFileName(
-                                    widget.absen['file'],
-                                    (MediaQuery.of(context).size.width * 0.1)
-                                        .toInt()),
-                                style: GoogleFonts.montserrat(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.03,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                "1.2MB",
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 6,
-                                  color: kTextgrey,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+  style: OutlinedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 15),
+    side: BorderSide(color: kBorder.withOpacity(0.5)),
+    fixedSize: Size(MediaQuery.of(context).size.width * 1, 50),
+  ),
+  onPressed: onDownloadButtonPressed,
+  child: Row(
+    children: [
+      const Padding(padding: EdgeInsets.only(left: 10)),
+      Icon(
+        LucideIcons.fileText,
+        size: 24.0,
+        color: kBorder.withOpacity(0.5),
+      ),
+      const SizedBox(width: 5),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              truncateFileName(widget.absen['file'], (MediaQuery.of(context).size.width * 0.1).toInt()),
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
+            Text(
+              "1.2MB",
+              style: GoogleFonts.montserrat(
+                fontSize: 6,
+                color: kTextgrey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
+),
+
 
                   // SizedBox(
                   //   height: MediaQuery.of(context).size.height * 0.02,
@@ -552,8 +577,21 @@ void initState() {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
-                                      return const Text(
-                                          'Error occurred while fetching presence');
+                                      return Shimmer.fromColors(
+                                      baseColor: kButton.withOpacity(0.8)!,
+                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor:
+                                              kButton.withOpacity(0.8),
+                                          side: BorderSide(
+                                            color: kButton.withOpacity(0.8)!,
+                                          ),
+                                        ),
+                                        onPressed: null, // disables the button
+                                        child: const Text("Edit"),
+                                      ),
+                                    );
                                     } else {
                                       return OutlinedButton(
                                         style: OutlinedButton.styleFrom(
@@ -615,6 +653,92 @@ void initState() {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class PDFViewerScreen extends StatefulWidget {
+  final String filePath;
+
+  PDFViewerScreen({required this.filePath});
+
+  @override
+  _PDFViewerScreenState createState() => _PDFViewerScreenState();
+}
+
+class _PDFViewerScreenState extends State<PDFViewerScreen> {
+  late PDFViewController _pdfViewController;
+  int _currentPage = 0;
+  int _totalPages = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    // Extracting the filename from the full file path
+    String fileName = widget.filePath.split('/').last;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF003366),
+        title: Text(
+          fileName,  // Display the name of the file here
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          PDFView(
+            filePath: widget.filePath,
+            onViewCreated: (PDFViewController pdfViewController) {
+              _pdfViewController = pdfViewController;
+            },
+            onPageChanged: (int? page, int? totalPages) {
+              if (page != null && totalPages != null) {
+                if (_totalPages == 0) {
+                  _totalPages = totalPages;
+                }
+                setState(() {
+                  _currentPage = page + 1;  // PDF's page index starts from 0
+                });
+              }
+            },
+            onRender: (pages) {
+              if (pages != null) {
+                setState(() {
+                  _totalPages = pages;
+                  _currentPage = 1;  // Set the initial page number
+                });
+              }
+            },
+          ),
+          Positioned(
+            bottom: 20.0,
+            left: 0.0,
+            right: 0.0,
+            child: Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Text(
+                  '$_currentPage/$_totalPages',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -53,14 +53,34 @@ enum AttendanceStatus {
   bolos,
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver  {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  bool _isRefreshing = false;
+
+Future<void> _refreshDataa() async {
+  setState(() {
+    _isRefreshing = true;
+  });
+
+  await refreshData(); // Ensure refreshData completes
+
+  setState(() {
+    _isRefreshing = false;
+  });
+}
+
+
+ Future<void> _refreshHome() async {
+  print("Refreshing home started"); // Debug line
+  await _refreshDataa();
+  print('Home page refreshed');
+}
+
+
   AttendanceStatus _attendanceStatus = AttendanceStatus.loading;
   bool showCheckin = true;
   bool showAtributModalCheckin = true;
 
   bool showAtributModalCheckOut = true;
-
-  
 
   bool showModalWfa = false;
   String selectedOption = '';
@@ -78,7 +98,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver  {
   Future? _absensiAll;
   Future? _absensiToday;
 
-TimeOfDay? _currentTime;
+  TimeOfDay? _currentTime;
   String? _timeStatus;
 
   final List<String> genderItems = [
@@ -134,7 +154,8 @@ TimeOfDay? _currentTime;
     print(response.body);
     return jsonDecode(response.body);
   }
- bool isTimeOfDayBefore(TimeOfDay timeToCheck, TimeOfDay timeToCompare) {
+
+  bool isTimeOfDayBefore(TimeOfDay timeToCheck, TimeOfDay timeToCompare) {
     return (timeToCheck.hour < timeToCompare.hour) ||
         (timeToCheck.hour == timeToCompare.hour &&
             timeToCheck.minute < timeToCompare.minute);
@@ -191,6 +212,10 @@ TimeOfDay? _currentTime;
   }
 
   Widget _buildButtonBasedOnStatus() {
+    if (_isRefreshing) {
+      return _buildShimmerButton();
+    }
+
     switch (_attendanceStatus) {
       case AttendanceStatus.loading:
         return _buildShimmerButton();
@@ -385,17 +410,17 @@ TimeOfDay? _currentTime;
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        onPressed: null,  // make sure it's non-interactive
+        onPressed: null,  
         child: Container(
           width: double.infinity,
-          height: 48,  // or whatever height you want
+          height: 48,  
           color: Colors.white,
         ),
       ),
     );
   }
 
-   TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
+    TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
 
     bool isBeforeEveningLimit = isTimeOfDayBefore(_currentTime!, eveningLimit);
@@ -483,11 +508,8 @@ TimeOfDay? _currentTime;
                               height: MediaQuery.of(context).size.height * 0.02,
                             ),
                             OutlinedButton(
-                              
                               style: OutlinedButton.styleFrom(
-                                elevation: isBeforeEveningLimit
-                                    ? 0
-                                    : 3,
+                                elevation: isBeforeEveningLimit ? 0 : 3,
                                 backgroundColor: isBeforeEveningLimit
                                     ? Colors.transparent
                                     : kButton,
@@ -528,8 +550,8 @@ TimeOfDay? _currentTime;
                                         MediaQuery.of(context).size.width *
                                             0.034,
                                     color: isBeforeEveningLimit
-                                      ? Colors.black
-                                      : Colors.white,
+                                        ? Colors.black
+                                        : Colors.white,
                                     fontWeight: FontWeight.w600,
                                   )),
                             ),
@@ -550,13 +572,12 @@ TimeOfDay? _currentTime;
   Widget _buildCheckedOutButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        side: BorderSide(color: Colors.black, width: 1)
-      ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          side: BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'Completed',
         style: GoogleFonts.inter(
@@ -570,15 +591,14 @@ TimeOfDay? _currentTime;
   }
 
   Widget _buildLeaveButton() {
-     return ElevatedButton(
+    return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        side: BorderSide(color: Colors.black, width: 1)
-      ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          side: BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'Cuti',
         style: GoogleFonts.inter(
@@ -594,13 +614,12 @@ TimeOfDay? _currentTime;
   Widget _buildCompletedButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        side: BorderSide(color: Colors.black, width: 1)
-      ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          side: BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'Completed',
         style: GoogleFonts.inter(
@@ -864,12 +883,12 @@ TimeOfDay? _currentTime;
 
     refreshData();
     WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
-  _fetchNTPTime();
+    _fetchNTPTime();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (showModalWfa == 'true') {
@@ -987,8 +1006,10 @@ TimeOfDay? _currentTime;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: Container(
+          child: RefreshIndicator(
+        onRefresh: _refreshHome,
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
@@ -1092,7 +1113,20 @@ TimeOfDay? _currentTime;
                           ),
                         );
                       } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
+                         return Container(
+                          padding: const EdgeInsets.only(
+                              top: 13, bottom: 13, left: 20, right: 30),
+                          width: double.infinity,
+                          child: Row(
+                            children: [
+                              shimmerContainer1(),
+                              const Spacer(),
+                              shimmerContainer2(),
+                              const Spacer(),
+                              shimmerContainer3(),
+                            ],
+                          ),
+                        );
                       } else if (!snapshot.hasData || snapshot.data == null) {
                         Container(
                           padding: const EdgeInsets.only(
@@ -1284,16 +1318,19 @@ TimeOfDay? _currentTime;
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
                             if (snapshot.hasError) {
-                              return const Text('Error ');
+                              return const Icon(
+                                LucideIcons.x,
+                                color: kTextoo,
+                              );
                             } else {
                               return Visibility(
-                                visible: snapshot.data?['data'][0]['permission'] ==
-                                              'head_of_tribe' ||
-                                          snapshot.data?['data'][0]['permission'] ==
-                                              'human_resource' ||
-                                          snapshot.data?['data'][0]['permission'] ==
-                                              'president'
-,
+                                  visible: snapshot.data?['data'][0]
+                                              ['permission'] ==
+                                          'head_of_tribe' ||
+                                      snapshot.data?['data'][0]['permission'] ==
+                                          'human_resource' ||
+                                      snapshot.data?['data'][0]['permission'] ==
+                                          'president',
                                   child: InkWell(
                                       onTap: () {
                                         Navigator.pushReplacement(
@@ -1322,25 +1359,458 @@ TimeOfDay? _currentTime;
               Column(
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height / 2.3,
-                    child: isLoading
-                        ? Column(
-                            children: [
-                              ListView.builder(
+                      height: MediaQuery.of(context).size.height / 2.3,
+                      child: FutureBuilder(
+                        future:
+                            getAbsensiAll(), // or getAbsensiToday() for the other one
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            // Show shimmer or a loading indicator
+                            return Column(
+                              children: [
+                                ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) {
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 20, left: 20),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 15),
+                                              width: double.infinity,
+                                              height: 95,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                      color: const Color(
+                                                              0xffC2C2C2)
+                                                          .withOpacity(0.30))),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  IntrinsicHeight(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 5,
+                                                              left: 10,
+                                                              right: 10),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 15,
+                                                                        bottom:
+                                                                            7,
+                                                                        right:
+                                                                            5),
+                                                                child:
+                                                                    Container(
+                                                                  width: 20,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    100, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    50, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const Spacer(),
+                                                          const VerticalDivider(
+                                                            color: Color(
+                                                                0xffE6E6E6),
+                                                            thickness: 1,
+                                                          ),
+                                                          const Spacer(),
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Container(
+                                                                width:
+                                                                    50, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    30, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  Container(
+                                                    color:
+                                                        const Color(0xffD9D9D9)
+                                                            .withOpacity(0.15),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              bottom: 10,
+                                                              top: 10,
+                                                              right: 10,
+                                                              left: 10),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                width:
+                                                                    40, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    60, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              ],
+                            );
+                          } else if (snapshot.hasError) {
+                            return Column(
+                              children: [
+                                ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) {
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 20, left: 20),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 15),
+                                              width: double.infinity,
+                                              height: 95,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                      color: const Color(
+                                                              0xffC2C2C2)
+                                                          .withOpacity(0.30))),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  IntrinsicHeight(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 5,
+                                                              left: 10,
+                                                              right: 10),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 15,
+                                                                        bottom:
+                                                                            7,
+                                                                        right:
+                                                                            5),
+                                                                child:
+                                                                    Container(
+                                                                  width: 20,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    100, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    50, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const Spacer(),
+                                                          const VerticalDivider(
+                                                            color: Color(
+                                                                0xffE6E6E6),
+                                                            thickness: 1,
+                                                          ),
+                                                          const Spacer(),
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Container(
+                                                                width:
+                                                                    50, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    30, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  Container(
+                                                    color:
+                                                        const Color(0xffD9D9D9)
+                                                            .withOpacity(0.15),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              bottom: 10,
+                                                              top: 10,
+                                                              right: 10,
+                                                              left: 10),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width
+                                                            height: 8.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                width:
+                                                                    40, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              Container(
+                                                                width:
+                                                                    60, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              ],
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data == null) {
+                            return Container(
+                              color: Colors.white,
+                            );
+                          } else {
+                            // Handle the case when you have data
+                            var limitedData =
+                                snapshot.data['data'].take(3).toList();
+                            return ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: 3,
+                                itemCount: limitedData.length,
                                 itemBuilder: (context, index) {
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.grey[300]!,
-                                    highlightColor: Colors.grey[100]!,
+                                  print(snapshot.data['data']);
+                                  print(limitedData[index]['entry_time']);
+                                  print(snapshot.data['data'][index]
+                                      ['entry_time']);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      String category = snapshot.data['data']
+                                              [index][
+                                          'category']; // Assuming your data has a 'category' key.
+
+                                      Widget detailPage;
+
+                                      switch (category) {
+                                        case 'WFO':
+                                          detailPage = DetailWfo(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                        case 'telework':
+                                          detailPage = DetailWfa(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                        case 'work_trip':
+                                          detailPage = DetailPerjadin(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                        case 'leave':
+                                          detailPage = DetailCuti(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                        case 'skip':
+                                          detailPage = DetailBolos(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                        default:
+                                          detailPage = DetailAbsensi(
+                                              absen: snapshot.data['data']
+                                                  [index]);
+                                          break;
+                                      }
+
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) => detailPage,
+                                      ));
+                                    },
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 20, left: 20),
+                                      padding: const EdgeInsets.only(
+                                          right: 20, left: 20),
                                       child: Column(
                                         children: [
                                           Container(
-                                            margin: const EdgeInsets.only(bottom: 15),
+                                            margin: const EdgeInsets.only(
+                                                bottom: 15),
                                             width: double.infinity,
                                             height: 95,
                                             decoration: BoxDecoration(
@@ -1348,7 +1818,8 @@ TimeOfDay? _currentTime;
                                                     BorderRadius.circular(8),
                                                 color: Colors.white,
                                                 border: Border.all(
-                                                    color: const Color(0xffC2C2C2)
+                                                    color: const Color(
+                                                            0xffC2C2C2)
                                                         .withOpacity(0.30))),
                                             child: Column(
                                               crossAxisAlignment:
@@ -1379,38 +1850,94 @@ TimeOfDay? _currentTime;
                                                                       bottom: 7,
                                                                       right: 5),
                                                               child: Container(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    vertical:
+                                                                        10),
+                                                                height: 2,
                                                                 width: 20,
-                                                                color: Colors
-                                                                    .grey[300],
+                                                                color: blueText,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              snapshot.data['data'][index]['category'] ==
+                                                                      'leave'
+                                                                  ? formatDateRange(
+                                                                      snapshot.data['data']
+                                                                              [index]
+                                                                          [
+                                                                          'start_date'],
+                                                                      snapshot.data['data']
+                                                                              [index]
+                                                                          [
+                                                                          'end_date'])
+                                                                  : DateFormat(
+                                                                          'dd MMMM yyyy')
+                                                                      .format(DateTime.parse(
+                                                                              snapshot.data['data'][index]['date']) ??
+                                                                          DateTime.now()),
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 10,
+                                                                color: blueText,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
                                                               ),
                                                             ),
                                                             const SizedBox(
                                                               height: 3,
                                                             ),
-                                                            Container(
-                                                              width:
-                                                                  100, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 3,
-                                                            ),
-                                                            Container(
-                                                              width:
-                                                                  50, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
+                                                            Row(
+                                                              children: [
+                                                                const SizedBox(
+                                                                  height: 2,
+                                                                ),
+                                                                Text(
+                                                                    calculateTotalHours(
+                                                                        snapshot.data['data'][index]
+                                                                            [
+                                                                            'entry_time'],
+                                                                        snapshot.data['data'][index]
+                                                                            [
+                                                                            'exit_time']),
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                    )),
+                                                                Text(
+                                                                    ' Total hours',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400,
+                                                                    )),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),
                                                         const Spacer(),
-                                                        const VerticalDivider(
-                                                          color:
-                                                              Color(0xffE6E6E6),
-                                                          thickness: 1,
+                                                        const Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  top: 10),
+                                                          child:
+                                                              VerticalDivider(
+                                                            color: Color(
+                                                                0xffE6E6E6),
+                                                            thickness: 1,
+                                                          ),
                                                         ),
                                                         const Spacer(),
                                                         Column(
@@ -1418,22 +1945,98 @@ TimeOfDay? _currentTime;
                                                               CrossAxisAlignment
                                                                   .end,
                                                           children: [
-                                                            Container(
-                                                              width:
-                                                                  50, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                top: 15,
+                                                                bottom: 7,
+                                                                left: 5,
+                                                              ),
+                                                              child: Container(
+                                                                height: 2,
+                                                                width: 20,
+                                                                color: blueText,
+                                                              ),
                                                             ),
-                                                            const SizedBox(
-                                                              height: 3,
-                                                            ),
                                                             Container(
-                                                              width:
-                                                                  30, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
+                                                              child: Row(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  Column(
+                                                                    children: [
+                                                                      Text(
+                                                                          'Check in',
+                                                                          style:
+                                                                              GoogleFonts.montserrat(
+                                                                            fontSize:
+                                                                                10,
+                                                                            color:
+                                                                                blueText,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          )),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            3,
+                                                                      ),
+                                                                      Text(
+                                                                          formatDateTime(snapshot.data['data'][index]
+                                                                              [
+                                                                              'entry_time']),
+                                                                          style:
+                                                                              GoogleFonts.montserrat(
+                                                                            fontSize:
+                                                                                11,
+                                                                            color:
+                                                                                Colors.black,
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                          )),
+                                                                    ],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                      width:
+                                                                          10),
+                                                                  Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .end,
+                                                                    children: [
+                                                                      Text(
+                                                                          'Check out',
+                                                                          style:
+                                                                              GoogleFonts.montserrat(
+                                                                            fontSize:
+                                                                                10,
+                                                                            color:
+                                                                                blueText,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          )),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            3,
+                                                                      ),
+                                                                      Text(
+                                                                          formatDateTime(snapshot.data['data'][index]
+                                                                              [
+                                                                              'exit_time']),
+                                                                          style:
+                                                                              GoogleFonts.montserrat(
+                                                                            fontSize:
+                                                                                11,
+                                                                            color:
+                                                                                Colors.black,
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                          )),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
                                                             ),
                                                           ],
                                                         ),
@@ -1443,15 +2046,19 @@ TimeOfDay? _currentTime;
                                                 ),
                                                 const Spacer(),
                                                 Container(
-                                                  color: const Color(0xffD9D9D9)
-                                                      .withOpacity(0.15),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0xffD9D9D9)
+                                                            .withOpacity(0.15),
+                                                  ),
                                                   child: Padding(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                            bottom: 10,
-                                                            top: 10,
-                                                            right: 10,
-                                                            left: 10),
+                                                      bottom: 10,
+                                                      top: 10,
+                                                      right: 10,
+                                                      left: 10,
+                                                    ),
                                                     child: Row(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -1460,31 +2067,86 @@ TimeOfDay? _currentTime;
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Container(
-                                                          width:
-                                                              50, // Arbitrary width
-                                                          height: 8.0,
-                                                          color:
-                                                              Colors.grey[300],
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              categoryText(snapshot
+                                                                          .data[
+                                                                      'data'][index]
+                                                                  ['category']),
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 8,
+                                                                color: const Color(
+                                                                    0xffB6B6B6),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                         Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
                                                           children: [
-                                                            Container(
-                                                              width:
-                                                                  40, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
+                                                            Text(
+                                                              statusText(snapshot
+                                                                          .data[
+                                                                      'data'][index]
+                                                                  ['status']),
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 8,
+                                                                color: const Color(
+                                                                    0xffB6B6B6),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
                                                             ),
                                                             const SizedBox(
                                                               width: 5,
                                                             ),
-                                                            Container(
-                                                              width:
-                                                                  60, // Arbitrary width
-                                                              height: 8.0,
-                                                              color: Colors
-                                                                  .grey[300],
+                                                            Text(
+                                                              permissionText(
+                                                                  snapshot.data[
+                                                                              'data']
+                                                                          [
+                                                                          index]
+                                                                      [
+                                                                      'status'],
+                                                                  snapshot.data[
+                                                                              'data']
+                                                                          [
+                                                                          index]
+                                                                      [
+                                                                      'category'],
+                                                                  snapshot.data[
+                                                                              'data']
+                                                                          [
+                                                                          index]
+                                                                      [
+                                                                      'someKey']),
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 8,
+                                                                color: const Color(
+                                                                    0xffB6B6B6),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
                                                             ),
                                                           ],
                                                         )
@@ -1499,624 +2161,16 @@ TimeOfDay? _currentTime;
                                       ),
                                     ),
                                   );
-                                },
-                              )
-                            ],
-                          )
-                        : FutureBuilder(
-                            future: getAbsensiAll(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                if (snapshot.data?['data'] == null ||
-                                    snapshot.data['data'].isEmpty) {
-                                  return Center(
-                                    child: Container(
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                }
-                                var limitedData =
-                                    snapshot.data['data'].take(3).toList();
-                                return ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: limitedData.length,
-                                    itemBuilder: (context, index) {
-                                      print(snapshot.data['data']);
-                                      print(limitedData[index]['entry_time']);
-                                      print(snapshot.data['data'][index]
-                                          ['entry_time']);
-                                      return GestureDetector(
-                                        onTap: () {
-                                          String category = snapshot
-                                                  .data['data'][index][
-                                              'category']; // Assuming your data has a 'category' key.
-
-                                          Widget detailPage;
-
-                                          switch (category) {
-                                            case 'WFO':
-                                              detailPage = DetailWfo(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                            case 'telework':
-                                              detailPage = DetailWfa(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                            case 'work_trip':
-                                              detailPage = DetailPerjadin(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                            case 'leave':
-                                              detailPage = DetailCuti(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                            case 'skip':
-                                              detailPage = DetailBolos(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                            default:
-                                              detailPage = DetailAbsensi(
-                                                  absen: snapshot.data['data']
-                                                      [index]);
-                                              break;
-                                          }
-
-                                          Navigator.of(context)
-                                              .push(MaterialPageRoute(
-                                            builder: (context) => detailPage,
-                                          ));
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 20, left: 20),
-                                          child: Column(
-                                            children: [
-                                              Container(
-                                                margin:
-                                                    const EdgeInsets.only(bottom: 15),
-                                                width: double.infinity,
-                                                height: 95,
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    color: Colors.white,
-                                                    border: Border.all(
-                                                        color: const Color(0xffC2C2C2)
-                                                            .withOpacity(
-                                                                0.30))),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    IntrinsicHeight(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 5,
-                                                                left: 10,
-                                                                right: 10),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      top: 15,
-                                                                      bottom: 7,
-                                                                      right: 5),
-                                                                  child:
-                                                                      Container(
-                                                                    padding: const EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            10),
-                                                                    height: 2,
-                                                                    width: 20,
-                                                                    color:
-                                                                        blueText,
-                                                                  ),
-                                                                ),
-                                                                Text(
-                                                                  snapshot.data['data'][index]['category'] ==
-                                                                          'leave'
-                                                                      ? formatDateRange(
-                                                                          snapshot.data['data'][index]
-                                                                              [
-                                                                              'start_date'],
-                                                                          snapshot.data['data'][index]
-                                                                              [
-                                                                              'end_date'])
-                                                                      : DateFormat(
-                                                                              'dd MMMM yyyy')
-                                                                          .format(DateTime.parse(snapshot.data['data'][index]['date']) ??
-                                                                              DateTime.now()),
-                                                                  style: GoogleFonts
-                                                                      .montserrat(
-                                                                    fontSize:
-                                                                        10,
-                                                                    color:
-                                                                        blueText,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: 3,
-                                                                ),
-                                                                Row(
-                                                                  children: [
-                                                                    const SizedBox(
-                                                                      height: 2,
-                                                                    ),
-                                                                    Text(
-                                                                        calculateTotalHours(
-                                                                            snapshot.data['data'][index][
-                                                                                'entry_time'],
-                                                                            snapshot.data['data'][index][
-                                                                                'exit_time']),
-                                                                        style: GoogleFonts
-                                                                            .montserrat(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              Colors.black,
-                                                                          fontWeight:
-                                                                              FontWeight.w700,
-                                                                        )),
-                                                                    Text(
-                                                                        ' Total hours',
-                                                                        style: GoogleFonts
-                                                                            .montserrat(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              Colors.black,
-                                                                          fontWeight:
-                                                                              FontWeight.w400,
-                                                                        )),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const Spacer(),
-                                                            const Padding(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                          .only(
-                                                                      top: 10),
-                                                              child:
-                                                                  VerticalDivider(
-                                                                color: Color(
-                                                                    0xffE6E6E6),
-                                                                thickness: 1,
-                                                              ),
-                                                            ),
-                                                            const Spacer(),
-                                                            Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .end,
-                                                              children: [
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                    top: 15,
-                                                                    bottom: 7,
-                                                                    left: 5,
-                                                                  ),
-                                                                  child:
-                                                                      Container(
-                                                                    height: 2,
-                                                                    width: 20,
-                                                                    color:
-                                                                        blueText,
-                                                                  ),
-                                                                ),
-                                                                Container(
-                                                                  child: Row(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .end,
-                                                                    children: [
-                                                                      Column(
-                                                                        children: [
-                                                                          Text(
-                                                                              'Check in',
-                                                                              style: GoogleFonts.montserrat(
-                                                                                fontSize: 10,
-                                                                                color: blueText,
-                                                                                fontWeight: FontWeight.w600,
-                                                                              )),
-                                                                          const SizedBox(
-                                                                            height:
-                                                                                3,
-                                                                          ),
-                                                                          Text(
-                                                                              formatDateTime(snapshot.data['data'][index]['entry_time']),
-                                                                              style: GoogleFonts.montserrat(
-                                                                                fontSize: 11,
-                                                                                color: Colors.black,
-                                                                                fontWeight: FontWeight.w500,
-                                                                              )),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                          width:
-                                                                              10),
-                                                                      Column(
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.end,
-                                                                        children: [
-                                                                          Text(
-                                                                              'Check out',
-                                                                              style: GoogleFonts.montserrat(
-                                                                                fontSize: 10,
-                                                                                color: blueText,
-                                                                                fontWeight: FontWeight.w600,
-                                                                              )),
-                                                                          const SizedBox(
-                                                                            height:
-                                                                                3,
-                                                                          ),
-                                                                          Text(
-                                                                              formatDateTime(snapshot.data['data'][index]['exit_time']),
-                                                                              style: GoogleFonts.montserrat(
-                                                                                fontSize: 11,
-                                                                                color: Colors.black,
-                                                                                fontWeight: FontWeight.w500,
-                                                                              )),
-                                                                        ],
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const Spacer(),
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xffD9D9D9)
-                                                            .withOpacity(0.15),
-                                                      ),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                          bottom: 10,
-                                                          top: 10,
-                                                          right: 10,
-                                                          left: 10,
-                                                        ),
-                                                        child: Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Row(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .center,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  categoryText(snapshot
-                                                                              .data['data']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'category']),
-                                                                  style: GoogleFonts
-                                                                      .montserrat(
-                                                                    fontSize: 8,
-                                                                    color: const Color(
-                                                                        0xffB6B6B6),
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Row(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .center,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .end,
-                                                              children: [
-                                                                Text(
-                                                                  statusText(snapshot
-                                                                              .data['data']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'status']),
-                                                                  style: GoogleFonts
-                                                                      .montserrat(
-                                                                    fontSize: 8,
-                                                                    color: const Color(
-                                                                        0xffB6B6B6),
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 5,
-                                                                ),
-                                                                Text(
-                                                                  permissionText(
-                                                                      snapshot.data['data']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'status'],
-                                                                      snapshot.data['data']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'category'],
-                                                                      snapshot.data['data']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'someKey']),
-                                                                  style: GoogleFonts
-                                                                      .montserrat(
-                                                                    fontSize: 8,
-                                                                    color: const Color(
-                                                                        0xffB6B6B6),
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    });
-                              } else {
-                                return Column(
-                                  children: [
-                                    ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: 3,
-                                      itemBuilder: (context, index) {
-                                        return Shimmer.fromColors(
-                                          baseColor: Colors.grey[300]!,
-                                          highlightColor: Colors.grey[100]!,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 20, left: 20),
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                      bottom: 15),
-                                                  width: double.infinity,
-                                                  height: 95,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      color: Colors.white,
-                                                      border: Border.all(
-                                                          color:
-                                                              const Color(0xffC2C2C2)
-                                                                  .withOpacity(
-                                                                      0.30))),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      IntrinsicHeight(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 5,
-                                                                  left: 10,
-                                                                  right: 10),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom:
-                                                                            7,
-                                                                        right:
-                                                                            5),
-                                                                    child:
-                                                                        Container(
-                                                                      width: 20,
-                                                                      color: Colors
-                                                                              .grey[
-                                                                          300],
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 3,
-                                                                  ),
-                                                                  Container(
-                                                                    width:
-                                                                        100, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 3,
-                                                                  ),
-                                                                  Container(
-                                                                    width:
-                                                                        50, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              const Spacer(),
-                                                              const VerticalDivider(
-                                                                color: Color(
-                                                                    0xffE6E6E6),
-                                                                thickness: 1,
-                                                              ),
-                                                              const Spacer(),
-                                                              Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .end,
-                                                                children: [
-                                                                  Container(
-                                                                    width:
-                                                                        50, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 3,
-                                                                  ),
-                                                                  Container(
-                                                                    width:
-                                                                        30, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const Spacer(),
-                                                      Container(
-                                                        color: const Color(0xffD9D9D9)
-                                                            .withOpacity(0.15),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  bottom: 10,
-                                                                  top: 10,
-                                                                  right: 10,
-                                                                  left: 10),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  Container(
-                                                                    width:
-                                                                        40, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    width: 5,
-                                                                  ),
-                                                                  Container(
-                                                                    width:
-                                                                        60, // Arbitrary width
-                                                                    height: 8.0,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        300],
-                                                                  ),
-                                                                ],
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  ],
-                                );
-                              }
-                            }),
-                  ),
+                                });
+                          }
+                        },
+                      )),
                 ],
               ),
               // button check in  \\
               Padding(
-                padding:
-                    const EdgeInsets.only(right: 30, left: 30, bottom: 7.5, top: 7.5),
+                padding: const EdgeInsets.only(
+                    right: 30, left: 30, bottom: 7.5, top: 7.5),
                 child: Container(
                     width: double.infinity,
                     height: 34,
@@ -2127,7 +2181,8 @@ TimeOfDay? _currentTime;
                           color: Colors.black.withOpacity(0.25),
                           blurRadius: 4.0,
                           spreadRadius: 0.0, // Set to 0 for no spread
-                          offset: const Offset(1, 1), // changes position of shadow
+                          offset:
+                              const Offset(1, 1), // changes position of shadow
                         ),
                       ],
                       color: kButton,
@@ -2486,10 +2541,10 @@ TimeOfDay? _currentTime;
                 Text(
                   ' Bolos',
                   style: GoogleFonts.montserrat(
-                      fontSize: MediaQuery.of(context).size.width * 0.039,
-                      fontWeight: FontWeight.w500,
-                      color: kTextBlocker,
-                ),
+                    fontSize: MediaQuery.of(context).size.width * 0.039,
+                    fontWeight: FontWeight.w500,
+                    color: kTextBlocker,
+                  ),
                 )
               ],
             ),
@@ -2850,7 +2905,8 @@ TimeOfDay? _currentTime;
                 ),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 18, horizontal: 10),
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(

@@ -383,7 +383,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       "longitude": _position!.longitude.toString(),
       "date": DateTime.now().toIso8601String(),
       "face_point": jsonData ?? 'sawarasenaii',
-      "status":widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
+      "status": widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
     };
 
     request.fields.addAll(fields);

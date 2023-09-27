@@ -43,6 +43,9 @@ dependencies:
   network_info_plus: ^4.0.2
   ntp: ^2.0.0
   path: ^1.8.3
+  open_file: ^3.3.2
+  url_launcher: ^6.1.14
+  webview_flutter: ^4.2.4
 
 dev_dependencies:
   flutter_test:

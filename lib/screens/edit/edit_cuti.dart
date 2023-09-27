@@ -64,6 +64,15 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
     'exclusive',
     'emergency',
   ];
+  
+
+
+Map<String, String> translations = {
+  'yearly': 'Tahunan',
+  'exclusive': 'Khusus',
+  'emergency' : 'Darurat'
+};
+
 
   String? selectedValue;
 
@@ -299,7 +308,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
                     .map((item) => DropdownMenuItem<String>(
                           value: item, // <-- Set item value here
                           child: Text(
-                            item,
+                            translations[item] ?? item,
                             style: const TextStyle(
                               fontSize: 14,
                             ),
@@ -320,7 +329,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
                 selectedItemBuilder: (BuildContext context) {
                   return jenisItems.map<Widget>((String item) {
                     return Text(
-                      item,
+                      translations[item] ?? item,
                       style: GoogleFonts.montserrat(fontSize: 14),
                     );
                   }).toList();

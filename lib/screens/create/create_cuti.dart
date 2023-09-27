@@ -75,7 +75,7 @@ void initState() {
           "end_date": formatDate(_selesaiTanggal!),
           "entry_date": formatDate(_tanggalMasuknya!),
           "type_description": alasan.text,
-          "status": 'pending',
+          "status": widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
         });
 
     print(response.body);

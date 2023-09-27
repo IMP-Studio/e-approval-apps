@@ -552,8 +552,21 @@ void initState() {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
-                                      return const Text(
-                                          'Error occurred while fetching presence');
+                                      return Shimmer.fromColors(
+                                      baseColor: kButton.withOpacity(0.8)!,
+                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor:
+                                              kButton.withOpacity(0.8),
+                                          side: BorderSide(
+                                            color: kButton.withOpacity(0.8)!,
+                                          ),
+                                        ),
+                                        onPressed: null, // disables the button
+                                        child: const Text("Edit"),
+                                      ),
+                                    );
                                     } else {
                                       return OutlinedButton(
                                         style: OutlinedButton.styleFrom(

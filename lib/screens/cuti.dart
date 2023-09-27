@@ -20,7 +20,8 @@ class CutiScreen extends StatefulWidget {
   State<CutiScreen> createState() => _CutiScreenState();
 }
 
-class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _CutiScreenState extends State<CutiScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   DateTime today = DateTime.now();
   int activeIndex = 0;
@@ -51,16 +52,20 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
   @override
   void initState() {
     super.initState();
-      WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     getUserData().then((_) {
-      getCuti();
-      refreshData();
-      getProfil();
-      startTimer();
+      getCuti().then((_) {
+        setState(() {
+          processCutiData();
+          refreshData();
+          getProfil();
+          startTimer();
+        });
+      });
     });
 
     _tabController = TabController(length: 2, vsync: this);
@@ -73,7 +78,6 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
       }
     });
 
-    // Default to the first tab and fetch/refresh data
     activeIndex = 1;
 
     refreshData();
@@ -108,6 +112,29 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
 
     return jsonDecode(response.body);
   }
+
+  Map<DateTime, String> leaveDays = {};
+
+Future processCutiData() async {
+    final response = await getCuti();
+    List leaves = response['data'];
+    
+    for (var leave in leaves) {
+        if (leave['status'] == "allowed") { // Only process data with the status 'allowed'
+            DateTime startDate = DateTime.parse(leave['start_date']).toLocal();
+            DateTime endDate = DateTime.parse(leave['end_date']).toLocal();
+            String type = leave['type'];
+
+            for (var day = startDate; day.isBefore(endDate.add(Duration(days: 1))); day = day.add(Duration(days: 1))) {
+                leaveDays[day] = type;
+            }
+        }
+    }
+    setState(() {});
+    print(leaveDays); 
+}
+
+
 
   Future<Map<String, dynamic>> getProfil() async {
     int userId = preferences?.getInt('user_id') ?? 0;
@@ -300,7 +327,6 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          
           child: Column(
             children: [
               Container(
@@ -419,6 +445,51 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
                   child: Column(
                     children: [
                       TableCalendar(
+                      calendarBuilders: CalendarBuilders(
+        defaultBuilder: (context, date, _) {
+      final formattedDate = DateTime(date.year, date.month, date.day);
+    final eventType = leaveDays[formattedDate];
+
+    print("Formatted Date: $formattedDate, EventType: $eventType");
+
+            BoxDecoration decoration;
+
+            switch (eventType) {
+                case 'yearly':
+                    decoration = BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                    );
+                    break;
+                case 'exclusive':
+                    decoration = BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                    );
+                    break;
+                case 'emergency':
+                    decoration = BoxDecoration(
+                        color: Colors.yellow,
+                        shape: BoxShape.circle,
+                    );
+                    break;
+                default:
+                    decoration = BoxDecoration();
+                    break;
+            }
+
+            return Container(
+                decoration: decoration,
+                alignment: Alignment.center,
+                child: Text('${date.day}', style: GoogleFonts.getFont('Montserrat',
+                              textStyle: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  )),),
+            );
+        },
+    ),
+
                         // locale: "en_US",
                         rowHeight: 25,
                         focusedDay: today,
@@ -452,7 +523,8 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
                               fontSize: 10, color: Colors.white),
                           todayDecoration: const BoxDecoration(
                               shape: BoxShape.circle, color: kTextoo),
-                          tablePadding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          tablePadding:
+                              const EdgeInsets.symmetric(horizontal: 10.0),
                           cellMargin: const EdgeInsets.all(4),
                           weekendTextStyle: GoogleFonts.getFont('Montserrat',
                               textStyle: const TextStyle(
@@ -611,137 +683,136 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
               Container(
                 height: MediaQuery.of(context).size.height / 2.2,
                 child: isLoading
-                    ?  ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30.0),
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.25),
-                                            spreadRadius: 0,
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 1))
-                                      ],
-                                    ),
-                                    child: Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            height: 40.0,
-                                            decoration: BoxDecoration(
-                                                color: Colors.grey[300],
-                                                borderRadius: const BorderRadius.only(
-                                                    topRight:
-                                                        Radius.circular(8.0),
-                                                    topLeft:
-                                                        Radius.circular(8.0))),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15.0,
-                                                      vertical: 10.0),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        60, // Arbitrary width for status text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const Spacer(),
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width:
-                                                            50, // Arbitrary width for date text
-                                                        height: 10.0,
-                                                        color: Colors.grey[300],
-                                                      ),
-                                                      const SizedBox(width: 5.0),
-                                                      Container(
-                                                        width:
-                                                            5, // Arbitrary width for '-' text
-                                                        height: 10.0,
-                                                        color: Colors.grey[300],
-                                                      ),
-                                                      const SizedBox(width: 5.0),
-                                                      Container(
-                                                        width:
-                                                            50, // Arbitrary width for date text
-                                                        height: 10.0,
-                                                        color: Colors.grey[300],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                    ? ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: 3,
+                        itemBuilder: (context, index) {
+                          return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30.0),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black.withOpacity(0.25),
+                                          spreadRadius: 0,
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 1))
+                                    ],
+                                  ),
+                                  child: Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 40.0,
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                      topRight:
+                                                          Radius.circular(8.0),
+                                                      topLeft: Radius.circular(
+                                                          8.0))),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 15.0,
+                                                vertical: 10.0),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width:
+                                                      60, // Arbitrary width for status text
+                                                  height: 10.0,
+                                                  color: Colors.grey[300],
+                                                ),
+                                                const Spacer(),
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      width:
+                                                          50, // Arbitrary width for date text
+                                                      height: 10.0,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                    const SizedBox(width: 5.0),
+                                                    Container(
+                                                      width:
+                                                          5, // Arbitrary width for '-' text
+                                                      height: 10.0,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                    const SizedBox(width: 5.0),
+                                                    Container(
+                                                      width:
+                                                          50, // Arbitrary width for date text
+                                                      height: 10.0,
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          Container(
-                                            width: double.infinity,
-                                            height: 70.0,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[300],
-                                              borderRadius: const BorderRadius.only(
-                                                  bottomRight:
-                                                      Radius.circular(8.0),
-                                                  bottomLeft:
-                                                      Radius.circular(8.0)),
+                                        ),
+                                        Container(
+                                          width: double.infinity,
+                                          height: 70.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    bottomRight:
+                                                        Radius.circular(8.0),
+                                                    bottomLeft:
+                                                        Radius.circular(8.0)),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10.0,
+                                                horizontal: 15.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width:
+                                                      40, // Arbitrary width for 'Alasan' text
+                                                  height: 10.0,
+                                                  color: Colors.grey[300],
+                                                ),
+                                                const SizedBox(height: 5.0),
+                                                Container(
+                                                  width: double
+                                                      .infinity, // Max width for description text
+                                                  height: 10.0,
+                                                  color: Colors.grey[300],
+                                                ),
+                                                const SizedBox(height: 5.0),
+                                                Container(
+                                                  width: double
+                                                      .infinity, // Max width for description text
+                                                  height: 10.0,
+                                                  color: Colors.grey[300],
+                                                ),
+                                              ],
                                             ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10.0,
-                                                      horizontal: 15.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        40, // Arbitrary width for 'Alasan' text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const SizedBox(height: 5.0),
-                                                  Container(
-                                                    width: double
-                                                        .infinity, // Max width for description text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const SizedBox(height: 5.0),
-                                                  Container(
-                                                    width: double
-                                                        .infinity, // Max width for description text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                ));
-                          },
-                        )
+                                ),
+                              ));
+                        },
+                      )
                     : FutureBuilder(
                         future: _cutiFuture,
                         builder: (context, snapshot) {
@@ -780,7 +851,8 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 30.0),
                                         child: Container(
-                                          margin: const EdgeInsets.only(bottom: 10),
+                                          margin:
+                                              const EdgeInsets.only(bottom: 10),
                                           decoration: BoxDecoration(boxShadow: [
                                             BoxShadow(
                                                 color: Colors.black
@@ -956,137 +1028,152 @@ class _CutiScreenState extends State<CutiScreen> with TickerProviderStateMixin, 
                                       ));
                                 });
                           } else {
-                            return  ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30.0),
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.25),
-                                            spreadRadius: 0,
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 1))
-                                      ],
-                                    ),
-                                    child: Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            height: 40.0,
-                                            decoration: BoxDecoration(
-                                                color: Colors.grey[300],
-                                                borderRadius: const BorderRadius.only(
-                                                    topRight:
-                                                        Radius.circular(8.0),
-                                                    topLeft:
-                                                        Radius.circular(8.0))),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                            return ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 3,
+                              itemBuilder: (context, index) {
+                                return Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30.0),
+                                      child: Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.25),
+                                                spreadRadius: 0,
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 1))
+                                          ],
+                                        ),
+                                        child: Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                height: 40.0,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    8.0),
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    8.0))),
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 15.0,
                                                       vertical: 10.0),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        60, // Arbitrary width for status text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const Spacer(),
-                                                  Row(
+                                                  child: Row(
                                                     children: [
                                                       Container(
                                                         width:
-                                                            50, // Arbitrary width for date text
+                                                            60, // Arbitrary width for status text
                                                         height: 10.0,
                                                         color: Colors.grey[300],
                                                       ),
-                                                      const SizedBox(width: 5.0),
+                                                      const Spacer(),
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width for date text
+                                                            height: 10.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5.0),
+                                                          Container(
+                                                            width:
+                                                                5, // Arbitrary width for '-' text
+                                                            height: 10.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5.0),
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width for date text
+                                                            height: 10.0,
+                                                            color: Colors
+                                                                .grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: double.infinity,
+                                                height: 70.0,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[300],
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  8.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 15.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
                                                       Container(
                                                         width:
-                                                            5, // Arbitrary width for '-' text
+                                                            40, // Arbitrary width for 'Alasan' text
                                                         height: 10.0,
                                                         color: Colors.grey[300],
                                                       ),
-                                                      const SizedBox(width: 5.0),
+                                                      const SizedBox(
+                                                          height: 5.0),
                                                       Container(
-                                                        width:
-                                                            50, // Arbitrary width for date text
+                                                        width: double
+                                                            .infinity, // Max width for description text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 5.0),
+                                                      Container(
+                                                        width: double
+                                                            .infinity, // Max width for description text
                                                         height: 10.0,
                                                         color: Colors.grey[300],
                                                       ),
                                                     ],
                                                   ),
-                                                ],
-                                              ),
-                                            ),
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          Container(
-                                            width: double.infinity,
-                                            height: 70.0,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[300],
-                                              borderRadius: const BorderRadius.only(
-                                                  bottomRight:
-                                                      Radius.circular(8.0),
-                                                  bottomLeft:
-                                                      Radius.circular(8.0)),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10.0,
-                                                      horizontal: 15.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        40, // Arbitrary width for 'Alasan' text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const SizedBox(height: 5.0),
-                                                  Container(
-                                                    width: double
-                                                        .infinity, // Max width for description text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                  const SizedBox(height: 5.0),
-                                                  Container(
-                                                    width: double
-                                                        .infinity, // Max width for description text
-                                                    height: 10.0,
-                                                    color: Colors.grey[300],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ));
-                          },
-                        );
+                                    ));
+                              },
+                            );
                           }
                         }),
               ),

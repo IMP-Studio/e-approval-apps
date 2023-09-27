@@ -156,24 +156,24 @@ void initState() {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
           textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+              const Color(0xffCA4343); 
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
           textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+              const Color(0xffFFC52D); 
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
           textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+              const Color(0xffFFC52D); 
           text = 'Pending';
           break;
         case 'allowed':
-          containerColor = kGreenAllow; // Assuming kGreenAllow is green
-          textColor = kGreen; // Your green color for text
+          containerColor = kGreenAllow; 
+          textColor = kGreen; 
           text = 'Allowed';
           break;
         default:
@@ -465,8 +465,21 @@ void initState() {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
-                                      return const Text(
-                                          'Error occurred while fetching presence');
+                                      return Shimmer.fromColors(
+                                      baseColor: kButton.withOpacity(0.8)!,
+                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor:
+                                              kButton.withOpacity(0.8),
+                                          side: BorderSide(
+                                            color: kButton.withOpacity(0.8)!,
+                                          ),
+                                        ),
+                                        onPressed: null, // disables the button
+                                        child: const Text("Edit"),
+                                      ),
+                                    );
                                     } else {
                                       return OutlinedButton(
                                         style: OutlinedButton.styleFrom(
