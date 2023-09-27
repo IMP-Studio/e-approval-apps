@@ -67,7 +67,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
     });
     final snackBar = SnackBar(
       margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.95),
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.9),
       content: StatefulBuilder(
         builder: (BuildContext context, setState) {
           return Stack(

@@ -21,12 +21,154 @@ class StandUp extends StatefulWidget {
   State<StandUp> createState() => _StandUpState();
 }
 
-class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _StandUpState extends State<StandUp>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Future<List<dynamic>>? standUpData;
   late TabController _tabController;
   int activeIndex = 0;
   bool isButtonVisible = true;
   Future<List<dynamic>>? _dataFuture;
+
+  late Timer _timer; // Define the timer
+  bool _isMounted = false;
+  bool _isSnackbarVisible = false;
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isMounted = true;
+  }
+
+  void showSnackbarWarning(String message, String submessage,
+      Color backgroundColor, Icon customIcon) {
+    if (_isSnackbarVisible) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    }
+
+    _isSnackbarVisible = true;
+
+    int secondsRemaining = 3; // Set the initial duration to 10 seconds
+    _timer.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!_isMounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (secondsRemaining == 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _isSnackbarVisible = false;
+        timer.cancel();
+      } else {
+        setState(() {
+          secondsRemaining--;
+        });
+      }
+    });
+    final snackBar = SnackBar(
+      margin:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.8),
+      content: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [customIcon],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  child: Text(
+                                    message,
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        textStyle: TextStyle(
+                                            color: kBlck,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w600)),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2),
+                              ),
+                              Text(
+                                submessage,
+                                style: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 10,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              Container(
+                width: 5,
+                height: 49,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      duration: Duration(seconds: 10),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void hideButton() {
     if (isButtonVisible) {
       setState(() {
@@ -51,11 +193,12 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, 
   @override
   void initState() {
     super.initState();
-      WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    _timer = Timer(Duration.zero, () {});
     _tabController = TabController(length: 2, vsync: this);
     getUserData().then((_) {
       _dataFuture = getStandUpUser();
@@ -67,6 +210,8 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, 
   @override
   void dispose() {
     _tabController.dispose();
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    _isMounted = false;
     super.dispose();
   }
 
@@ -352,7 +497,7 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, 
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   top: 15,
                                                                   bottom: 7,
                                                                   right: 5),
@@ -814,37 +959,45 @@ class _StandUpState extends State<StandUp> with SingleTickerProviderStateMixin, 
                               ),
                             );
                           } else if (responseStatus == 'pendingStatus') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    "Your request is still pending. Wait for a moment for a response."),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                            final snackBar = showSnackbarWarning(
+                                "Wait for a moment...",
+                                "Your request is still pending.",
+                                kYelw,
+                                Icon(
+                                  LucideIcons.alertCircle,
+                                  size: 26.0,
+                                  color: kYelw,
+                                ));
                           } else if (responseStatus == 'Leave') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    "Kamu sedang cuti, nikmati liburan mu sejenak"),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                            final snackBar = showSnackbarWarning(
+                                "Kamu sedang cuti",
+                                "Nikmati liburanmu sejenak.",
+                                kYelw,
+                                Icon(
+                                  LucideIcons.alertCircle,
+                                  size: 26.0,
+                                  color: kYelw,
+                                ));
                           } else if (responseStatus == 'Bolos') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    "Kamu sedang bolos, tolong jangan diulangi lagi"),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                            final snackBar = showSnackbarWarning(
+                                "Kamu sedang bolos",
+                                "Tolong jangan diulangi lagi.",
+                                kTextBlocker,
+                                Icon(
+                                  LucideIcons.xCircle,
+                                  size: 26.0,
+                                  color: kTextBlocker,
+                                ));
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    "Please mark your presence before submitting a stand-up."),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                            final SnackBar = showSnackbarWarning(
+                                "Wait...",
+                                "Absen terlebih dahulu sebelum melakukan stand up.",
+                                kYelw,
+                                Icon(
+                                  LucideIcons.alertCircle,
+                                  size: 26.0,
+                                  color: kYelw,
+                                ));
                           }
                         },
                         child: Icon(LucideIcons.users),
