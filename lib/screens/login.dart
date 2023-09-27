@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen>
     });
     final snackBar = SnackBar(
       margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.85),
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.9),
       content: StatefulBuilder(
         builder: (BuildContext context, setState) {
           return Stack(
