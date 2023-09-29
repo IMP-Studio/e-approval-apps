@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/cuti.dart';
+import 'package:imp_approval/screens/detail/detail_syarat_cuti_darurat.dart';
+import 'package:imp_approval/screens/detail/detail_syarat_cuti_khusus.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,16 +20,17 @@ class CreateCuti extends StatefulWidget {
   State<CreateCuti> createState() => _CreateCutiState();
 }
 
-class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver{
+class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
   String selectedOption = '';
   // date
   DateTime? _mulaiTanggal;
@@ -48,13 +51,54 @@ void initState() {
     'Khusus',
     'Darurat',
   ];
+
+  final List<String> kepentinganCuti = [
+    'Menikah',
+    'Menikahkan anaknya',
+    'Mengkhitankan anaknya',
+    'Membaptiskan anaknya',
+    'Istri melahirkan',
+    'Melahirkan',
+    'Keguguran',
+    'Melakukan ibadah haji',
+    'Umroh',
+  ];
+
+  final List<String> daruratCuti = [
+    'Suami/Istri, Orangtua/Mertua/Anak/Menantu meninggal dunia',
+    'Saudara dalam satu rumah meninggal dunia',
+    'Merawat anggota keluarga karyawan yang sakit',
+    'Merawat anak karyawan yang sakit dengan ketentuan anak berusia maksimal 6 (enam) tahun',
+  ];
+
   final List<String> valueItem = [
     'yearly',
     'exclusive',
     'emergency',
   ];
 
+  final List<String> valuekepentinganCuti = [
+    'menikah',
+    'menikahkan anaknya',
+    'mengkhitankan anaknya',
+    'membaptiskan anaknya',
+    'istri melahirkan',
+    'melahirkan',
+    'keguguran',
+    'melakukan ibadah haji',
+    'umroh',
+  ];
+
+  final List<String> valuedaruratCuti = [
+    'Suami/Istri, Orangtua/Mertua/Anak/Menantu meninggal dunia',
+    'Saudara dalam satu rumah meninggal dunia',
+    'Merawat anggota keluarga karyawan yang sakit',
+    'Merawat anak karyawan yang sakit dengan ketentuan anak berusia maksimal 6 (enam) tahun',
+  ];
+
   String? selectedValue;
+  bool isKhususSelected = false;
+  bool isDaruratSelected = false;
 
   Future storeCuti() async {
     if (_mulaiTanggal == null || _selesaiTanggal == null) {
@@ -135,12 +179,215 @@ void initState() {
     }
   }
 
+    String truncateText(String text, int maxLength) {
+    if (text.length <= maxLength) {
+      return text;
+    } else {
+      return text.substring(0, maxLength - 3) + ' ...';
+    }
+  }
+
+  Widget _selectedkhusus() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10), // Add some padding
+        Row(
+          children: [
+            Text(
+              'Kepentingan Cuti',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10), // Add some padding
+        DropdownButtonFormField<String>(
+          isExpanded: true,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          hint: Text(
+            'Pilih kepentingan cuti',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              color: kTextgrey,
+            ),
+          ),
+          items: List.generate(kepentinganCuti.length, (index) {
+            return DropdownMenuItem<String>(
+              value: valuekepentinganCuti[index],
+              child: Text(kepentinganCuti[index],
+                  style: GoogleFonts.getFont('Montserrat', fontSize: 14)),
+            );
+          }),
+          validator: (value) {
+            if (value == null) {
+              return 'Pilih kepentingan cuti.';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            setState(() {
+              selectedValue = value!;
+            });
+          },
+          selectedItemBuilder: (BuildContext context) {
+            return kepentinganCuti.map<Widget>((String item) {
+              return Text(
+                item,
+                style: GoogleFonts.montserrat(fontSize: 14),
+              );
+            }).toList();
+          },
+          icon: const Icon(
+            LucideIcons.arrowDownCircle,
+            color: Color(0xffB6B6B6),
+            size: 17,
+          ),
+        ),
+        const SizedBox(height: 5), // Add some padding
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SyaratCutiKhusus(),
+                    ));
+              },
+              child: Text(
+                '*Syarat & Ketentuan berlaku.',
+                style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: kTextUnselected,
+                    decoration: TextDecoration.underline),
+              ),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _selecteddarurat() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10), // Add some padding
+        Row(
+          children: [
+            Text(
+              'Darurat Cuti',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10), // Add some padding
+        DropdownButtonFormField<String>(
+          isExpanded: true,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          hint: Text(
+            'Pilih darurat cuti',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              color: kTextgrey,
+            ),
+          ),
+          items: List.generate(daruratCuti.length, (index) {
+            return DropdownMenuItem<String>(
+              value: valuedaruratCuti[index],
+              child: Text(daruratCuti[index],
+                  style: GoogleFonts.getFont('Montserrat', fontSize: 14)),
+            );
+          }),
+          validator: (value) {
+            if (value == null) {
+              return 'Pilih darurat cuti.';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            setState(() {
+              selectedValue = value!;
+            });
+          },
+          selectedItemBuilder: (BuildContext context) {
+            return daruratCuti.map<Widget>((String item) {
+              return Text(truncateText(item, 40),
+                style: GoogleFonts.montserrat(fontSize: 14),
+              );
+            }).toList();
+          },
+          icon: const Icon(
+            LucideIcons.arrowDownCircle,
+            color: Color(0xffB6B6B6),
+            size: 17,
+          ),
+        ),
+        const SizedBox(height: 5), // Add some padding
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SyaratCutiDarurat(),
+                    ));
+              },
+              child: Text(
+                '*Syarat & Ketentuan berlaku.',
+                style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: kTextUnselected,
+                    decoration: TextDecoration.underline),
+              ),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -253,55 +500,64 @@ void initState() {
                 ],
               ),
               const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-             DropdownButtonFormField<String>(
-  isExpanded: true,
-  decoration: InputDecoration(
-    contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-  ),
-  hint: Text(
-    'Pilih jenis cuti',
-    style: GoogleFonts.montserrat(
-      fontSize: 14,
-      color: kTextgrey,
-    ),
-  ),
-  items: List.generate(jenisItems.length, (index) {
-    return DropdownMenuItem<String>(
-      value: valueItem[index], // Use value from valueItem based on the index.
-      child: Text(
-        jenisItems[index],
-        style: const TextStyle(
-          fontSize: 14,
-        ),
-      ),
-    );
-  }),
-  validator: (value) {
-    if (value == null) {
-      return 'Pilih jenis cuti.';
-    }
-    return null;
-  },
-  onChanged: (value) {
-    setState(() {
-      selectedValue = value!;
-    });
-  },
-  selectedItemBuilder: (BuildContext context) {
-    return jenisItems.map<Widget>((String item) {
-      return Text(
-        item,
-        style: GoogleFonts.montserrat(fontSize: 14),
-      );
-    }).toList();
-  },
-  icon: const Icon(LucideIcons.arrowDownCircle,
-      color: Color(0xffB6B6B6), size: 17),
-),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                decoration: InputDecoration(
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                hint: Text(
+                  'Pilih jenis cuti',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    color: kTextgrey,
+                  ),
+                ),
+                items: List.generate(jenisItems.length, (index) {
+                  return DropdownMenuItem<String>(
+                    value: valueItem[
+                        index], // Use value from valueItem based on the index.
+                    child: Text(
+                      jenisItems[index],
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  );
+                }),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Pilih jenis cuti.';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    selectedValue = value!;
 
+                    isKhususSelected = selectedValue == 'exclusive';
+                    isDaruratSelected = selectedValue == 'emergency';
+                  });
+                },
+                selectedItemBuilder: (BuildContext context) {
+                  return jenisItems.map<Widget>((String item) {
+                    return Text(
+                      item,
+                      style: GoogleFonts.montserrat(fontSize: 14),
+                    );
+                  }).toList();
+                },
+                icon: const Icon(LucideIcons.arrowDownCircle,
+                    color: Color(0xffB6B6B6), size: 17),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              if (isKhususSelected) _selectedkhusus(),
+              if (isDaruratSelected) _selecteddarurat(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -416,8 +672,8 @@ void initState() {
                   const Padding(padding: EdgeInsets.only(top: 10)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 15),
                       primary: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
