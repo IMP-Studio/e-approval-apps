@@ -71,8 +71,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
       }
     });
     final snackBar = SnackBar(
-      margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.8),
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.8),
       content: StatefulBuilder(
         builder: (BuildContext context, setState) {
           return Stack(
@@ -199,6 +198,10 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
     });
   }
 
+  Future<void> refreshUserData() async {
+    await getUserData();
+  }
+
   Widget build(BuildContext context) {
     TextEditingController _validpassController = TextEditingController();
     bool validasilogout = true;
@@ -320,6 +323,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
         elevation: 0,
       ),
       body: SafeArea(
+          child: RefreshIndicator(
+        onRefresh: refreshUserData,
         child: ListView(
           children: [
             Column(
@@ -683,7 +688,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

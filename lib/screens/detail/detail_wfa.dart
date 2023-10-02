@@ -73,16 +73,17 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver{
-   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
   Widget _category(BuildContext context) {
     if (widget.absen['category'] == 'telework') {
       return Text('Work From Anywhere',
@@ -140,20 +141,20 @@ void initState() {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -274,7 +275,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -361,11 +363,11 @@ void initState() {
                       ),
                     ),
                   ),
-                   Visibility(
+                  Visibility(
                     visible: widget.absen['category_description'] != null,
                     child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.028,
-                  ),
+                      height: MediaQuery.of(context).size.height * 0.028,
+                    ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,11 +392,9 @@ void initState() {
                           )),
                     ],
                   ),
-
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.04,
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -553,20 +553,22 @@ void initState() {
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
                                       return Shimmer.fromColors(
-                                      baseColor: kButton.withOpacity(0.8)!,
-                                      highlightColor: kButton.withOpacity(0.5)!,
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor:
-                                              kButton.withOpacity(0.8),
-                                          side: BorderSide(
-                                            color: kButton.withOpacity(0.8)!,
+                                        baseColor: kButton.withOpacity(0.8)!,
+                                        highlightColor:
+                                            kButton.withOpacity(0.5)!,
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor:
+                                                kButton.withOpacity(0.8),
+                                            side: BorderSide(
+                                              color: kButton.withOpacity(0.8)!,
+                                            ),
                                           ),
+                                          onPressed:
+                                              null, // disables the button
+                                          child: const Text("Edit"),
                                         ),
-                                        onPressed: null, // disables the button
-                                        child: const Text("Edit"),
-                                      ),
-                                    );
+                                      );
                                     } else {
                                       return OutlinedButton(
                                         style: OutlinedButton.styleFrom(

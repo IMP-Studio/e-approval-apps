@@ -56,25 +56,23 @@ enum AttendanceStatus {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isRefreshing = false;
 
-Future<void> _refreshDataa() async {
-  setState(() {
-    _isRefreshing = true;
-  });
+  Future<void> _refreshDataa() async {
+    setState(() {
+      _isRefreshing = true;
+    });
 
-  await refreshData(); // Ensure refreshData completes
+    await refreshData(); // Ensure refreshData completes
 
-  setState(() {
-    _isRefreshing = false;
-  });
-}
+    setState(() {
+      _isRefreshing = false;
+    });
+  }
 
-
- Future<void> _refreshHome() async {
-  print("Refreshing home started"); // Debug line
-  await _refreshDataa();
-  print('Home page refreshed');
-}
-
+  Future<void> _refreshHome() async {
+    print("Refreshing home started"); // Debug line
+    await _refreshDataa();
+    print('Home page refreshed');
+  }
 
   AttendanceStatus _attendanceStatus = AttendanceStatus.loading;
   bool showCheckin = true;
@@ -397,28 +395,27 @@ Future<void> _refreshDataa() async {
   }
 
   Widget _buildCheckOutButton() {
-
-   if (isLoading) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[300],
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+    if (isLoading) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey[300],
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          onPressed: null,
+          child: Container(
+            width: double.infinity,
+            height: 48,
+            color: Colors.white,
           ),
         ),
-        onPressed: null,  
-        child: Container(
-          width: double.infinity,
-          height: 48,  
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
+      );
+    }
 
     TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
@@ -1113,7 +1110,7 @@ Future<void> _refreshDataa() async {
                           ),
                         );
                       } else if (snapshot.hasError) {
-                         return Container(
+                        return Container(
                           padding: const EdgeInsets.only(
                               top: 13, bottom: 13, left: 20, right: 30),
                           width: double.infinity,

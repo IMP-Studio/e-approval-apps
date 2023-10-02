@@ -73,16 +73,16 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver{
-    @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
@@ -155,25 +155,22 @@ void initState() {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); 
+          textColor = const Color(0xffCA4343);
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); 
+          textColor = const Color(0xffFFC52D);
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); 
+          textColor = const Color(0xffFFC52D);
           text = 'Pending';
           break;
         case 'allowed':
-          containerColor = kGreenAllow; 
-          textColor = kGreen; 
+          containerColor = kGreenAllow;
+          textColor = kGreen;
           text = 'Allowed';
           break;
         default:
@@ -289,7 +286,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -466,20 +464,22 @@ void initState() {
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
                                       return Shimmer.fromColors(
-                                      baseColor: kButton.withOpacity(0.8)!,
-                                      highlightColor: kButton.withOpacity(0.5)!,
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor:
-                                              kButton.withOpacity(0.8),
-                                          side: BorderSide(
-                                            color: kButton.withOpacity(0.8)!,
+                                        baseColor: kButton.withOpacity(0.8)!,
+                                        highlightColor:
+                                            kButton.withOpacity(0.5)!,
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor:
+                                                kButton.withOpacity(0.8),
+                                            side: BorderSide(
+                                              color: kButton.withOpacity(0.8)!,
+                                            ),
                                           ),
+                                          onPressed:
+                                              null, // disables the button
+                                          child: const Text("Edit"),
                                         ),
-                                        onPressed: null, // disables the button
-                                        child: const Text("Edit"),
-                                      ),
-                                    );
+                                      );
                                     } else {
                                       return OutlinedButton(
                                         style: OutlinedButton.styleFrom(

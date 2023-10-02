@@ -18,7 +18,8 @@ class CreateDetailStandup extends StatefulWidget {
   State<CreateDetailStandup> createState() => _CreateDetailStandupState();
 }
 
-class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsBindingObserver{
+class _CreateDetailStandupState extends State<CreateDetailStandup>
+    with WidgetsBindingObserver {
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -27,11 +28,11 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsB
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     getUserData().then((_) {});
   }
 
@@ -60,7 +61,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsB
           "done": done.text,
           "doing": doing.text,
           "blocker": blocker.text,
-          "project_id": widget.project['id'].toString(),
+          "project_id": widget.project['projectid'].toString(),
         });
 
     print(response.body);
@@ -231,7 +232,8 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsB
                                       'Project',
                                       textAlign: TextAlign.left,
                                       style: GoogleFonts.montserrat(
-                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                        color:
+                                            const Color.fromARGB(255, 0, 0, 0),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -248,10 +250,11 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsB
                                       alignment: WrapAlignment.start,
                                       children: [
                                         Text(
-                                          widget.project['project'],
+                                          widget.project['projectname'],
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
-                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                            color: const Color.fromARGB(
+                                                255, 0, 0, 0),
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -562,7 +565,8 @@ class _CreateDetailStandupState extends State<CreateDetailStandup> with WidgetsB
                                 print('Done: ${done.text}');
                                 print('Doing: ${doing.text}');
                                 print('Blocker: ${blocker.text}');
-                                print('Project ID: ${widget.project['id']}');
+                                print(
+                                    'Project ID: ${widget.project['projectid']}');
                                 storeStandUp().then((_) {
                                   Navigator.push(
                                       context,

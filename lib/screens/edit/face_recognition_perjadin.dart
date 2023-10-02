@@ -35,22 +35,23 @@ class FacePagePerjadin extends StatefulWidget {
   State<FacePagePerjadin> createState() => _FacePagePerjadinState();
 }
 
-class _FacePagePerjadinState extends State<FacePagePerjadin> with WidgetsBindingObserver {
+class _FacePagePerjadinState extends State<FacePagePerjadin>
+    with WidgetsBindingObserver {
   List<int>? imageBytes;
   List<dynamic>? userFP;
 
   @override
   void initState() {
     super.initState();
-      WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     initializePage();
   }
 
-Future<void> initializePage() async {
+  Future<void> initializePage() async {
     try {
       await getUserData();
       await fetchName();
@@ -59,13 +60,12 @@ Future<void> initializePage() async {
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
         _updateLocationAndAddress();
       });
-      await _updateLocationAndAddress(); 
+      await _updateLocationAndAddress();
       _start(); // then start the camera
     } catch (e) {
       print("Error in initializePage: $e");
     }
-}
-
+  }
 
   SharedPreferences? preferences;
 
@@ -82,10 +82,9 @@ Future<void> initializePage() async {
   }
 
   Future<DateTime> getNtpTime() async {
-  DateTime ntpDateTime = await NTP.now();
-  return ntpDateTime;
-}
-
+    DateTime ntpDateTime = await NTP.now();
+    return ntpDateTime;
+  }
 
   Future<void> _updateLocationAndAddress() async {
     _position = await _getCurrentLocation();
@@ -378,8 +377,8 @@ Future<void> initializePage() async {
     DateTime combinedDateTime =
         DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     String jsonData = json.encode(data);
-      DateTime currentTime = await getNtpTime();
-  String date = currentTime.toIso8601String();
+    DateTime currentTime = await getNtpTime();
+    String date = currentTime.toIso8601String();
 
     var uri =
         Uri.parse('https://testing.impstudio.id/approvall/api/presence/store');

@@ -119,7 +119,9 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "end_date": formatDate(_selesaiTanggal!),
           "entry_date": formatDate(_tanggalMasuknya!),
           "type_description": alasan.text,
-          "status": widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
+          "status": widget.profile['permission'] == 'ordinary_employee'
+              ? 'pending'
+              : 'allow_HT',
         });
 
     print(response.body);
@@ -179,7 +181,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
     }
   }
 
-    String truncateText(String text, int maxLength) {
+  String truncateText(String text, int maxLength) {
     if (text.length <= maxLength) {
       return text;
     } else {
@@ -345,7 +347,8 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           },
           selectedItemBuilder: (BuildContext context) {
             return daruratCuti.map<Widget>((String item) {
-              return Text(truncateText(item, 40),
+              return Text(
+                truncateText(item, 40),
                 style: GoogleFonts.montserrat(fontSize: 14),
               );
             }).toList();

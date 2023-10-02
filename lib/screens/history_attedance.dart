@@ -34,22 +34,40 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
   DateTime date = DateTime.now();
   bool isButtonVisible = true;
 
-  String? startDate;
-  String? endDate;
+  DateTime? startDate;
+  DateTime? endDate;
   String? type;
 
   Future? _dataFuture;
 
   onStartDateSelected(DateTime date) {
     setState(() {
-      startDate = date.toIso8601String();
+      startDate = date;
     });
   }
 
   onEndDateSelected(DateTime date) {
     setState(() {
-      endDate = date.toIso8601String();
+      endDate = date;
     });
+  }
+
+  void onActiveIndexChanged(int activeIndex) {
+    String selectedType;
+    switch (activeIndex) {
+      case 0:
+        selectedType = 'WFO,telework,work_trip,skip,leave';
+        break;
+      case 1:
+        selectedType = 'telework';
+        break;
+      case 2:
+        selectedType = 'work_trip';
+        break;
+      default:
+        selectedType = ''; // or whatever default you'd like
+    }
+    onTypeSelected(selectedType);
   }
 
   onTypeSelected(String selectedType) {
@@ -64,7 +82,8 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
   }
 
   bool isLoading = false;
-  Future<void> getUserData() async {
+
+  Future<bool> getUserData() async {
     setState(() {
       isLoading = true;
     });
@@ -72,6 +91,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     setState(() {
       isLoading = false;
     });
+    return true; // Indicate that user data was fetched successfully.
   }
 
   void hideButton() {
@@ -104,58 +124,60 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
   }
 
   Future getAbsensiAll(
-      {String? startDate, String? endDate, String? type}) async {
+      {DateTime? startDate, DateTime? endDate, int? activeIndex}) async {
     int userId = preferences?.getInt('user_id') ?? 0;
 
-    print("Inside getAbsensiAll method"); // Add this line
+    // Determine type based on activeIndex
+    String? _type;
+    switch (activeIndex) {
+      case 1:
+        _type = 'WFA';
+        break;
+      case 2:
+        _type = 'PERJADIN';
+        break;
+      case 0:
+      default:
+        _type = '';
+        break;
+    }
 
     String urlj =
         'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed,pending,rejected&scope=self';
 
-    if (startDate != null) {
-      urlj += '&start_date=$startDate';
+    // Check if either startDate or endDate is provided and handle accordingly
+    if (startDate != null || endDate != null) {
+      DateTime _startDate = startDate ?? DateTime.now();
+      DateTime _endDate = endDate ?? DateTime.now();
+      urlj += '&start_date=${formatDate(_startDate)}';
+      urlj += '&end_date=${formatDate(_endDate)}';
     }
 
-    if (endDate != null) {
-      urlj += '&end_date=$endDate';
+    if (_type != null) {
+      urlj += '&type=$_type';
     }
-
-    if (type != null) {
-      urlj += '&type=$type';
-    }
-
-    print("Constructed URL: $urlj"); // This will print the URL
 
     var response = await http.get(Uri.parse(urlj));
+    print("Constructed URL: $urlj");
+
     print(response.body);
     return jsonDecode(response.body);
   }
 
-Future<void> _refreshContent({DateTime? startDate, DateTime? endDate, int? activeIndex}) async {
-    String? type;
-    if(activeIndex != null) {
-      switch(activeIndex) {
-        case 0:
-          type = 'WFO,telework,work_trip,skip,leave';
-          break;
-        case 1:
-          type = 'telework';
-          break;
-        case 2:
-          type = 'work_trip';
-          break;
-      }
-    }
+  Future<void> _refreshContent(
+      {DateTime? startDate, DateTime? endDate, int? activeIndex}) async {
+    print(
+        "Filter NYA BISA GA YAAAAA: $startDate to $endDate and index: $activeIndex");
 
     setState(() {
       _dataFuture = getAbsensiAll(
-        startDate: startDate != null ? formatDate(startDate) : null,
-        endDate: endDate != null ? formatDate(endDate) : null,
-        type: type
-      );
+          startDate: startDate, // Passing as it is, can be null or has a value.
+          endDate: endDate, // Passing as it is, can be null or has a value.
+          activeIndex:
+              activeIndex // Passing activeIndex to determine the type within getAbsensiAll
+          );
     });
-}
-
+  }
 
   void startTimer() {
     // Start a timer to hide the button after 4 seconds of inactivity
@@ -163,27 +185,28 @@ Future<void> _refreshContent({DateTime? startDate, DateTime? endDate, int? activ
     Future.delayed(duration, hideButton);
   }
 
-  Future<void> _refreshData() async {
-    await getUserData().then((_) {
-      _dataFuture = getAbsensiAll();
-    });
-  }
-
+  @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
-    WidgetsBinding.instance!.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    _refreshData();
+
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
-      setState(() {});
+      _refreshContent(activeIndex: _tabController.index);
     });
-    startTimer();
+
+    // Adjusted sequence
+    getUserData().then((success) {
+      if (success) {
+        _dataFuture = getAbsensiAll();
+        _refreshContent();
+        startTimer();
+      }
+    });
   }
 
   String calculateTotalHours(String entryTime, String exitTime) {
@@ -201,10 +224,12 @@ Future<void> _refreshContent({DateTime? startDate, DateTime? endDate, int? activ
       return 'Error';
     }
   }
-void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
-    _refreshContent(startDate: startDate, endDate: endDate, activeIndex: activeIndex);
-}
 
+  void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
+    print("onApplyFilter called!");
+    _refreshContent(
+        startDate: startDate, endDate: endDate, activeIndex: activeIndex);
+  }
 
   String formatDateTime(String? dateTimeStr) {
     if (dateTimeStr == null || dateTimeStr.isEmpty) {
@@ -307,10 +332,7 @@ void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
           onDateSelected: (selectedDate) {
             print("Selected date: $selectedDate");
           },
-          onApplyFilter: (startDate, endDate, activeIndex) {
-            print(
-                "Filter applied with dates: $startDate to $endDate and index: $activeIndex");
-          },
+          onApplyFilter: onApplyFilter, // Changed here
           tabController: _tabController,
         );
       },
@@ -334,7 +356,9 @@ void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: 7,
-                              separatorBuilder: (context, index) => SizedBox(height: 10,),
+                              separatorBuilder: (context, index) => SizedBox(
+                                height: 10,
+                              ),
                               itemBuilder: (context, index) {
                                 return Shimmer.fromColors(
                                   baseColor: Colors.grey[300]!,
@@ -512,7 +536,9 @@ void onApplyFilter(DateTime? startDate, DateTime? endDate, int activeIndex) {
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: 7,
-                              separatorBuilder: (context, index) => SizedBox(height: 10,),
+                              separatorBuilder: (context, index) => SizedBox(
+                                height: 10,
+                              ),
                               itemBuilder: (context, index) {
                                 return Shimmer.fromColors(
                                   baseColor: Colors.grey[300]!,
@@ -1666,12 +1692,16 @@ class _DatePickerModalState extends State<DatePickerModal> {
                           ),
                         ),
                       ),
-                     onPressed: () {
-  print("Selected Start Date: $selectedDate1");
-  print("Selected End Date: $selectedDate2");
-  print("Active Index: $activeIndex");
-  widget.onApplyFilter(selectedDate1, selectedDate2, activeIndex);
-},
+                      onPressed: () {
+                        print("Selected Start Date: $selectedDate1");
+                        print("Selected End Date: $selectedDate2");
+                        print("Active Index: $activeIndex");
+
+                        Navigator.pop(context); // Close the modal first
+
+                        widget.onApplyFilter(selectedDate1, selectedDate2,
+                            activeIndex); // Then inform the parent
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1880,7 +1910,7 @@ class _DatePickerModalState extends State<DatePickerModal> {
 
   String _getButtonText(DateTime? selectedDate) {
     return selectedDate != null
-        ? "${selectedDate.year}/${selectedDate.month}/${selectedDate.day}"
+        ? DateFormat('y/M/d').format(selectedDate)
         : 'Year/Month/Day';
   }
 }

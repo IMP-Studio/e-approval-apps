@@ -19,16 +19,16 @@ class Emergency extends StatefulWidget {
   State<Emergency> createState() => _EmergencyState();
 }
 
-class _EmergencyState extends State<Emergency> with WidgetsBindingObserver{
+class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
   SharedPreferences? preferences;
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     getUserData().then((_) {});
   }

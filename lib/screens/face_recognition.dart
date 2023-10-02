@@ -39,16 +39,16 @@ class FacePage extends StatefulWidget {
 class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   List<int>? imageBytes;
   List<dynamic>? userFP;
-  bool _isLocationFetched = false; 
+  bool _isLocationFetched = false;
 
   @override
   void initState() {
     super.initState();
-      WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     initializePage();
   }
 
@@ -57,7 +57,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       await getUserData();
       await fetchName();
       await fetchId();
-      
+
       if (widget.profile['facepoint'] != null) {
         data = jsonDecode(widget.profile['facepoint']);
       }
@@ -65,19 +65,17 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       print('file guach : ${widget.arguments['file'].toString()}');
 
       await _updateLocationAndAddress();
-      if (_isLocationFetched) { 
-          _start(); // Starting the camera once
+      if (_isLocationFetched) {
+        _start(); // Starting the camera once
       }
 
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        await _updateLocationAndAddress();  // Just updating location in the timer
+        await _updateLocationAndAddress(); // Just updating location in the timer
       });
-
     } catch (e) {
       print("Error in initializePage: $e");
     }
-}
-
+  }
 
   SharedPreferences? preferences;
 
@@ -192,6 +190,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   late String nama_lengkap;
   late String face;
   late int user_id;
+  bool isStoringFace = false;
 
   bool faceRecognized = false;
 
@@ -205,28 +204,57 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   Timer? recognitionTimer;
 
+  Future<void> _storeAndNavigate() async {
+    if (isStoringFace) {
+      return;
+    }
+
+    isStoringFace = true;
+
+    try {
+      print('Button pressed');
+      final String nameFromArguments = nama_lengkap;
+      data[nameFromArguments] = e1;
+
+      print('Before storeAbsen()');
+      storeAbsen();
+      print('After storeAbsen()');
+
+      if (_camera != null) {
+        print('Stopping camera and disposing...');
+        await _camera!.stopImageStream();
+        await _camera!.dispose();
+
+        _camera = null;
+        _timer.cancel();
+      }
+
+      print('Before navigation');
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainLayout()),
+        );
+      }
+      print('After navigation');
+    } catch (error) {
+      print('Error: $error');
+    } finally {
+      isStoringFace = false;
+      recognitionTimer?.cancel(); // Ensure the timer doesn't fire again
+      recognitionTimer = null;
+    }
+  }
+
   void onFaceDetected(String recognizedName) {
+    if (isStoringFace) {
+      return;
+    }
+
     if (recognizedName.isNotEmpty) {
       if (recognitionTimer == null) {
         faceRecognized = true;
         recognitionTimer = Timer(const Duration(seconds: 5), () async {
-          if (faceRecognized) {
-            storeAbsen();
-            if (_camera != null) {
-              await _camera!.stopImageStream();
-              await Future.delayed(const Duration(milliseconds: 400));
-              await _camera!.dispose();
-              await Future.delayed(const Duration(milliseconds: 400));
-              _camera = null;
-              _timer.cancel();
-            }
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => MainLayout()),
-              );
-            }
-          }
-          recognitionTimer = null;
+          await _storeAndNavigate();
         });
       }
     } else {
@@ -383,7 +411,9 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       "longitude": _position!.longitude.toString(),
       "date": DateTime.now().toIso8601String(),
       "face_point": jsonData ?? 'sawarasenaii',
-      "status": widget.profile['permission'] == 'ordinary_employee' ? 'pending' : 'allow_HT',
+      "status": widget.profile['permission'] == 'ordinary_employee'
+          ? 'pending'
+          : 'allow_HT',
     };
 
     request.fields.addAll(fields);
@@ -442,43 +472,23 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       floatingActionButton: widget.profile['facepoint'] == null
           ? FloatingActionButton(
               onPressed: () async {
-                try {
-                  print('Button pressed');
-
-                  final String nameFromArguments = nama_lengkap;
-                  data[nameFromArguments] = e1;
-
-                  print('Before storeAbsen()');
-                   storeAbsen();
-                  print('After storeAbsen()');
-
-                  if (_camera != null) {
-                    print('Stopping camera');
-                    await _camera!.stopImageStream();
-                    await Future.delayed(const Duration(milliseconds: 400));
-                    await _camera!.dispose();
-                    await Future.delayed(const Duration(milliseconds: 400));
-                    _camera = null;
-                    _timer.cancel();
-                  }
-
-                  print('Before navigation');
-                  if (mounted) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => MainLayout()),
-                    );
-                  }
-                  print('After navigation');
-                } catch (error) {
-                  print('Error: $error');
+                if (!_faceFound) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'No face detected. Ensure your face is in view.')),
+                  );
+                  return;
                 }
+
+                await _storeAndNavigate();
               },
               child: const Icon(Icons.photo_camera_outlined))
           : Container(
               color: Colors.transparent,
             ),
       appBar: AppBar(
-        backgroundColor: Colors.white, // Menghilangkan background color
+        backgroundColor: Colors.white,
         leading: IconButton(
           color: Colors.black,
           onPressed: () async {

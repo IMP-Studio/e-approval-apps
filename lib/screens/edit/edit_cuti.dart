@@ -19,10 +19,7 @@ class EditCuti extends StatefulWidget {
   State<EditCuti> createState() => _EditCutiState();
 }
 
-class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
-
-
-
+class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
   String selectedOption = '';
   // date
   DateTime? _mulaiTanggal;
@@ -36,11 +33,11 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
   @override
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     selectedValue = widget.absen['type'];
     alasan.text = widget.absen['type_description'];
     if (widget.absen['start_date'] != null) {
@@ -64,15 +61,12 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver{
     'exclusive',
     'emergency',
   ];
-  
 
-
-Map<String, String> translations = {
-  'yearly': 'Tahunan',
-  'exclusive': 'Khusus',
-  'emergency' : 'Darurat'
-};
-
+  Map<String, String> translations = {
+    'yearly': 'Tahunan',
+    'exclusive': 'Khusus',
+    'emergency': 'Darurat'
+  };
 
   String? selectedValue;
 
@@ -174,7 +168,7 @@ Map<String, String> translations = {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
           shadowColor: Colors.transparent,
@@ -451,8 +445,8 @@ Map<String, String> translations = {
                   const Padding(padding: EdgeInsets.only(top: 10)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 15),
                       primary: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(

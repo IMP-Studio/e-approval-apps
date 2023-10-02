@@ -21,7 +21,7 @@ class CreateWfa extends StatefulWidget {
   State<CreateWfa> createState() => _CreateWfaState();
 }
 
-class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
+class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
   TextEditingController descriptionController = TextEditingController();
   late Timer _timer; // Define the timer
   bool _isMounted = false;
@@ -66,8 +66,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
       }
     });
     final snackBar = SnackBar(
-      margin:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.9),
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.9),
       content: StatefulBuilder(
         builder: (BuildContext context, setState) {
           return Stack(
@@ -179,11 +178,11 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     _timer = Timer(Duration.zero, () {});
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
@@ -456,7 +455,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver{
                                 return const Text(
                                     'Error occurred while fetching profile');
                               } else {
-                                 var profileData = snapshot.data['data'][0];
+                                var profileData = snapshot.data['data'][0];
 
                                 return ElevatedButton(
                                   onPressed: () {

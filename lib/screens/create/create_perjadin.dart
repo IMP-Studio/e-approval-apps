@@ -19,7 +19,8 @@ class CreatePerjadin extends StatefulWidget {
   State<CreatePerjadin> createState() => _CreatePerjadinState();
 }
 
-class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObserver{
+class _CreatePerjadinState extends State<CreatePerjadin>
+    with WidgetsBindingObserver {
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   DateTime? _tanggalKembali;
@@ -27,11 +28,11 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     getUserData().then((_) {
       print(preferences?.getInt('user_id'));
       getProfil();
@@ -61,7 +62,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
     return jsonDecode(response.body);
   }
 
-  Future<void> _pickFile() async {   
+  Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'xls', 'xlsx', 'doc', 'docx'],
@@ -75,8 +76,6 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
       // User canceled the picker
     }
   }
-
-
 
   Future<void> _selectDate() async {
     DateTime? newDate = await showDatePicker(
@@ -255,7 +254,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                 ),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
@@ -421,8 +421,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 15),
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
@@ -478,7 +478,7 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                                       'Error occurred while fetching profile');
                                 } else {
                                   var profileData = snapshot.data['data'][0];
-                                  
+
                                   return ElevatedButton(
                                     onPressed: () {
                                       setState(() {
@@ -491,7 +491,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                                         };
 
                                         print(facePageArgs);
-                                        print('Muka : ${profileData['facepoint']}');
+                                        print(
+                                            'Muka : ${profileData['facepoint']}');
                                         print(
                                             'Category: ${facePageArgs['category']}');
                                         print(
@@ -513,8 +514,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
                                       backgroundColor: kButton,
                                       shadowColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
@@ -542,7 +543,8 @@ class _CreatePerjadinState extends State<CreatePerjadin> with WidgetsBindingObse
                                       color: kButton,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 19),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 19),
                                   ),
                                 );
                               }

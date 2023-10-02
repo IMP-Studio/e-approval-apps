@@ -19,24 +19,26 @@ class EditPerjadin extends StatefulWidget {
   State<EditPerjadin> createState() => _EditPerjadinState();
 }
 
-class _EditPerjadinState extends State<EditPerjadin> with WidgetsBindingObserver{
-   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+class _EditPerjadinState extends State<EditPerjadin>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   DateTime? _tanggalKembali;
   FilePickerResult? _pickedFile;
 
-  String formatDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
+  String? formatDate(DateTime? date) {
+    if (date == null) return null;
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   TextEditingController mulai_work = TextEditingController();
@@ -104,45 +106,57 @@ void initState() {
   }
 
   Future updatePresence() async {
+    String? filePath = _pickedFile?.files.first.path;
+    int idPerjadin = widget.absen['id'];
+    var uri = Uri.parse(
+        'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
 
-  String filePath = _pickedFile!.files.first.path!;
-  int idPerjadin = widget.absen['id'];
-  var uri = Uri.parse(
-      'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
+    var request = http.MultipartRequest('PUT', uri)
+      ..fields['user_id'] = widget.absen['user_id'].toString()
+      ..fields['status'] = 'pending'
+      ..headers.addAll({
+        'Content-Type': 'multipart/form-data',
+      });
 
-  var request = http.MultipartRequest('PUT', uri)
-    ..fields['user_id'] = widget.absen['user_id'].toString()
-    ..fields['start_date'] = formatDate(_selectedDate!)
-    ..fields['end_date'] = formatDate(_selesaiTanggal!)
-    ..fields['entry_date'] = formatDate(_tanggalKembali!)
-    ..fields['status'] = 'pending'
-    ..headers.addAll({
-      'Content-Type': 'multipart/form-data',
-      // Add other headers if required
-    })
-    ..files.add(await http.MultipartFile.fromPath('file', filePath));
-
-  try {
-    var response = await request.send();
-
-    print("Request Headers: ${request.headers}");
-    print("Request Fields: ${request.fields}");
-    print("File Path: $filePath");
-    print("Response Status Code: ${response.statusCode}");
-
-    if (response.statusCode == 200) {
-      // Check for success status code
-      var responseData = await response.stream.bytesToString();
-      print(responseData);
-      return json.decode(responseData);
-    } else {
-      print("Error with status code: ${response.statusCode}");
+    // Add dates to the request only if they're not null
+    if (_selectedDate != null) {
+      request.fields['start_date'] = formatDate(_selectedDate)!;
     }
-  } catch (e) {
-    print("Error during file upload: $e");
-  }
-}
+    if (_selesaiTanggal != null) {
+      request.fields['end_date'] = formatDate(_selesaiTanggal)!;
+    }
+    if (_tanggalKembali != null) {
+      request.fields['entry_date'] = formatDate(_tanggalKembali)!;
+    }
 
+    // Add file to the request only if it's not null
+    if (filePath != null) {
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
+    }
+
+    try {
+      var response = await request.send();
+
+      print("Request Headers: ${request.headers}");
+      print("Request Fields: ${request.fields}");
+      if (filePath != null) {
+        print("File Path: $filePath");
+      }
+      print("Response Status Code: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        print(responseData);
+        return json.decode(responseData);
+      } else {
+        print("Error with status code: ${response.statusCode}");
+        var responseData = await response.stream.bytesToString();
+        print("Error Details: $responseData");
+      }
+    } catch (e) {
+      print("Error during request execution: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

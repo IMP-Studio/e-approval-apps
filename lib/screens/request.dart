@@ -59,7 +59,8 @@ class _RequestScreenState extends State<RequestScreen> {
 
     String specificParams;
     if (widget.profile['permission'] == 'head_of_tribe') {
-      specificParams = '&status=pending,rejected,allowed&permission=ordinary_employee';
+      specificParams =
+          '&status=pending,rejected,allowed&permission=ordinary_employee';
     } else if (widget.profile['permission'] == 'human_resource') {
       specificParams =
           '&status=allow_HT,rejected,allowed&permission=head_of_tribe,ordinary_employee';
@@ -376,7 +377,7 @@ class _RequestScreenState extends State<RequestScreen> {
                         );
                       }
                       var limitedData = snapshot.data['data'].toList();
-                         
+
                       return Column(
                         children: <Widget>[
                           GFAccordion(
@@ -454,9 +455,13 @@ class _RequestScreenState extends State<RequestScreen> {
                                           shrinkWrap: true,
                                           itemCount: limitedData.length,
                                           itemBuilder: (context, index) {
-                                             String currentStatus = snapshot.data['data'][index]['status'] ?? '';
+                                            String currentStatus =
+                                                snapshot.data['data'][index]
+                                                        ['status'] ??
+                                                    '';
 
-    Widget statusWidget = getStatusRow(currentStatus);
+                                            Widget statusWidget =
+                                                getStatusRow(currentStatus);
                                             print(snapshot.data['data']);
                                             print(limitedData[index]
                                                 ['entry_time']);
@@ -477,11 +482,10 @@ class _RequestScreenState extends State<RequestScreen> {
 
                                                 switch (category) {
                                                   case 'WFO':
-                                                    detailPage =
-                                                        DetailWfo(
-                                                            absen: snapshot
-                                                                    .data[
-                                                                'data'][index]);
+                                                    detailPage = DetailWfo(
+                                                        absen: snapshot
+                                                                .data['data']
+                                                            [index]);
                                                     break;
                                                   case 'telework':
                                                     detailPage =
@@ -644,7 +648,9 @@ class _RequestScreenState extends State<RequestScreen> {
                                                     Column(
                                                       children: [
                                                         Container(
-                                                          padding: EdgeInsets.symmetric(vertical: 10),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 10),
                                                           child: Column(
                                                             children: [
                                                               Row(
@@ -767,7 +773,6 @@ class _RequestScreenState extends State<RequestScreen> {
                       );
                     }
                   }),
-
             ],
           ),
         ),

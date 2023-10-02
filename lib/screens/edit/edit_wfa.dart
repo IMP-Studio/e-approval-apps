@@ -20,14 +20,14 @@ class EditWfa extends StatefulWidget {
   State<EditWfa> createState() => _EditWfaState();
 }
 
-class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver{
+class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   @override
   void initState() {
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     super.initState();
     _timer = Timer(Duration.zero, () {});
     selectedValue = widget.absen['telework_category'];
@@ -191,26 +191,31 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver{
 
   String? selectedValue;
 
-Future updateWfa() async {
-  int idWfa = widget.absen['id'];
+  Future updateWfa() async {
+    int idWfa = widget.absen['id'];
 
-  if (selectedValue == 'other' && (descriptionController.text == null || descriptionController.text.isEmpty)) {
-    print('Error: Description is required for "other" category.');
-    return; // Or you can show an alert dialog or a snackbar to inform the user.
+    if (selectedValue == 'other' &&
+        (descriptionController.text == null ||
+            descriptionController.text.isEmpty)) {
+      print('Error: Description is required for "other" category.');
+      return; // Or you can show an alert dialog or a snackbar to inform the user.
+    }
+
+    final response = await http.put(
+        Uri.parse(
+            'https://testing.impstudio.id/approvall/api/presence/update/$idWfa'),
+        body: {
+          "user_id": widget.absen['user_id'].toString(),
+          "telework_category": selectedValue,
+          "category_description":
+              (selectedValue != 'other' ? null : descriptionController.text) ??
+                  "",
+          "status": 'pending',
+        });
+
+    print(response.body);
+    return json.decode(response.body);
   }
-
-  final response = await http.put(
-      Uri.parse('https://testing.impstudio.id/approvall/api/presence/update/$idWfa'),
-      body: {
-        "user_id": widget.absen['user_id'].toString(),
-        "telework_category": selectedValue,
-        "category_description": (selectedValue != 'other' ? null : descriptionController.text) ?? "",
-        "status": 'pending',
-      });
-
-  print(response.body);
-  return json.decode(response.body);
-}
 
   Widget _inputdeskripsi() {
     return Column(

@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+
 class DetailBolos extends StatefulWidget {
   final dynamic absen;
   DetailBolos({required this.absen});
@@ -73,17 +74,16 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver{
-
+class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   Widget _category(BuildContext context) {
     if (widget.absen['category'] == 'telework') {
@@ -142,20 +142,20 @@ void initState() {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -279,7 +279,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 13),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -327,7 +328,8 @@ void initState() {
                             alignment: Alignment.center,
                             width: MediaQuery.of(context).size.width * 0.16,
                             decoration: BoxDecoration(
-                                border: Border.all(width: 0.8, color: Color(0xffCA4343)),
+                                border: Border.all(
+                                    width: 0.8, color: Color(0xffCA4343)),
                                 color: Color(0xffF9DCDC),
                                 borderRadius: BorderRadius.circular(
                                     MediaQuery.of(context).size.width * 0.030)),
@@ -345,7 +347,6 @@ void initState() {
                     ],
                   ),
                 ),
-                
               ],
             ),
             Container(
@@ -354,62 +355,58 @@ void initState() {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                   SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.05,
-                    ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                   Container(
-                    child:  SvgPicture.asset(
-                            "assets/img/bolos.svg",
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            height: MediaQuery.of(context).size.width * 0.7,
-                            fit: BoxFit.cover,
-                          ),
+                    child: SvgPicture.asset(
+                      "assets/img/bolos.svg",
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      height: MediaQuery.of(context).size.width * 0.7,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.03,
-                    ),
-                   Container(
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Sayang sekali kamu ',
-                          style: GoogleFonts.montserrat(
+                    height: MediaQuery.of(context).size.height * 0.03,
+                  ),
+                  Container(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Sayang sekali kamu ',
+                        style: GoogleFonts.montserrat(
+                          fontSize: MediaQuery.of(context).size.width * 0.039,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Bolos',
+                        style: GoogleFonts.montserrat(
+                          fontSize: MediaQuery.of(context).size.width * 0.039,
+                          color: Color(0xffCA4343),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    ],
+                  )),
+                  Container(
+                      margin: EdgeInsets.only(top: 1.5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Tidak ada keterangan.',
+                            style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
                             ),
-                        ),
-                        Text(
-                          'Bolos',
-                          style: GoogleFonts.montserrat(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.039,
-                              color: Color(0xffCA4343),
-                              fontWeight: FontWeight.w600,
-                            ),
-                        )
-                      ],
-                    )
-                  ),
-                   Container(
-                    margin: EdgeInsets.only(top: 1.5),
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Tidak ada keterangan.',
-                          style: GoogleFonts.montserrat(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.039,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                        ),
-                      ],
-                    )
-                  ),
+                          ),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -417,32 +414,28 @@ void initState() {
               height: MediaQuery.of(context).size.width * 0.03,
             ),
             Container(
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Detail waktu : ',
-                          style: GoogleFonts.montserrat(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
-                              color: Color(0xff727272),
-                              fontWeight: FontWeight.w600,
-                            ),
-                        ),
-                        Text(
-                          DateFormat('EEEE, dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen['date']) ??
-                                  DateTime.now()),
-                          style: GoogleFonts.montserrat(
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
-                              color: Color(0xff727272),
-                              fontWeight: FontWeight.w600,
-                            ),
-                        )
-                      ],
-                    )
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Detail waktu : ',
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.028,
+                    color: Color(0xff727272),
+                    fontWeight: FontWeight.w600,
                   ),
+                ),
+                Text(
+                  DateFormat('EEEE, dd MMMM yyyy').format(
+                      DateTime.parse(widget.absen['date']) ?? DateTime.now()),
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.028,
+                    color: Color(0xff727272),
+                    fontWeight: FontWeight.w600,
+                  ),
+                )
+              ],
+            )),
           ],
         ),
       ),

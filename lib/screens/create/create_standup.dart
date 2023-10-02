@@ -394,7 +394,7 @@ class _CreateStandupState extends State<CreateStandup>
                                                           style: GoogleFonts
                                                               .montserrat(
                                                             color: const Color
-                                                                .fromARGB(
+                                                                    .fromARGB(
                                                                 255, 0, 0, 0),
                                                             fontSize: 15,
                                                             fontWeight:

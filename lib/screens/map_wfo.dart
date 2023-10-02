@@ -25,7 +25,7 @@ class MapSample extends StatefulWidget {
   State<MapSample> createState() => MapSampleState();
 }
 
-class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
+class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   Position? _position;
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -38,6 +38,9 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
   Set<Marker> _markers = {};
   Position? lastPosition;
   bool canCheckIn = false;
+ bool isWithinGeofence = false;
+bool wifiConnectedToOffice = false;
+
 
   BitmapDescriptor markerIconImp = BitmapDescriptor.defaultMarker;
   BitmapDescriptor? userIcon;
@@ -49,11 +52,11 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
   void initState() {
     super.initState();
     addCustomIcon();
-      WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     // This will execute after the widget is built.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -65,14 +68,14 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
         _updateLocationAndAddress();
       });
 
-    connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-   if (result == ConnectivityResult.wifi) {
-      updateCheckInStatus();
-   }
-});
+      connectivitySubscription = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) {
+        if (result == ConnectivityResult.wifi) {
+          updateCheckInStatus();
+        }
+      });
 
-
-      
       setState(() {
         _markers.add(
           Marker(
@@ -82,7 +85,6 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
           ),
         );
       });
-
     });
   }
 
@@ -138,7 +140,7 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
     return json.decode(response.body);
   }
 
- Future<void> _updateLocationAndAddress() async {
+  Future<void> _updateLocationAndAddress() async {
     Position? tempPosition = await _getCurrentLocation();
     if (tempPosition != null &&
         (lastPosition == null ||
@@ -162,7 +164,6 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
       updateCheckInStatus();
     }
   }
-
 
   double distanceBetween(Position position1, Position position2) {
     return Geolocator.distanceBetween(
@@ -230,9 +231,6 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
     return 12742 * asin(sqrt(a)) * 1000;
   }
 
-
-
-
   bool _isWithinGeofence() {
     double distance = _calculateDistance();
     if (distance <= 8) {
@@ -243,41 +241,62 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver{
     }
   }
 
-Future<String?> getCurrentWifiName() async {
+  Future<String?> getCurrentWifiName() async {
     String? wifiName;
     try {
-        wifiName = await NetworkInfo().getWifiName();
-        if (wifiName != null) {
-            wifiName = wifiName.replaceAll('"', '').trim().toLowerCase();  // removing the quotes
-        }
+      wifiName = await NetworkInfo().getWifiName();
+      if (wifiName != null) {
+        wifiName = wifiName
+            .replaceAll('"', '')
+            .trim()
+            .toLowerCase(); // removing the quotes
+      }
     } catch (e) {
-        print("Error fetching WiFi Name: $e");
+      print("Error fetching WiFi Name: $e");
     }
     print("WiFi Name: $wifiName");
     return wifiName;
-}
+  }
 
+  Future<String?> getCurrentBSSID() async {
+    String? bssid;
+    try {
+      bssid = await (NetworkInfo().getWifiBSSID());
+    } catch (e) {
+      print("Error fetching BSSID: $e");
+    }
+    print("BSSID: $bssid");
+    return bssid;
+  }
 
-
-
-
-  void updateCheckInStatus() async {
+ void updateCheckInStatus() async {
     print("Executing updateCheckInStatus");
-    bool isWithinGeofence = _isWithinGeofence();
+
+    isWithinGeofence = _isWithinGeofence();
     print("Is Within Geofence: $isWithinGeofence");
-    
+
     String? wifiName = await getCurrentWifiName();
-    
-    if (wifiName == null) {
-        setState(() {
-            canCheckIn = false;
-        });
-        print("Can Check In: $canCheckIn");
-        return;
+    String? wifiBSSID = await getCurrentBSSID(); // Get the BSSID
+
+    const List<String> ACCEPTED_BSSIDS = [
+      "cc:b1:82:79:c1:64",
+      "cc:b1:82:79:c1:60",
+    ];
+
+    wifiConnectedToOffice = (wifiName == 'impstudio-5g' ||
+              wifiName == 'impstudio-2.4g' ||
+              wifiName == 'teras kolaborasi');
+
+    if (wifiName == null || !ACCEPTED_BSSIDS.contains(wifiBSSID)) {
+      setState(() {
+        canCheckIn = false;
+      });
+      print("Can Check In: $canCheckIn");
+      return;
     }
 
     setState(() {
-        canCheckIn = isWithinGeofence && (wifiName == 'impstudio-5g' || wifiName == 'impstudio-2.4g' || wifiName == 'teras kolaborasi');
+      canCheckIn = isWithinGeofence && wifiConnectedToOffice;
     });
 
     print("Can Check In: $canCheckIn");
@@ -372,19 +391,19 @@ Future<String?> getCurrentWifiName() async {
                           Visibility(
                             visible: _currentAddress != null,
                             child: Container(
-                            width: 220,
-                            child: Text(
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              "$_currentAddress",
-                              style: GoogleFonts.montserrat(
-                                color: greyText,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.027,
-                                fontWeight: FontWeight.w500,
+                              width: 220,
+                              child: Text(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                "$_currentAddress",
+                                style: GoogleFonts.montserrat(
+                                  color: greyText,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.027,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
                           ),
                         ],
                       ),
@@ -707,6 +726,45 @@ Future<String?> getCurrentWifiName() async {
       );
     }
 
+     Widget _failedgetwifi() {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Padding(padding: EdgeInsets.only(left: 25, right: 25)),
+          Image.asset(
+            "assets/gif/icon_failedwifi.gif",
+            width: MediaQuery.of(context).size.width * 0.3,
+          ),
+          Padding(
+              padding: EdgeInsets.symmetric(
+                  vertical: MediaQuery.of(context).size.height * 0.02)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Belum tersambung ke WIFI Kantor',
+                style: GoogleFonts.montserrat(
+                  color: Colors.black,
+                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),    
+            ],
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
+          ),
+          Text("Tolong sambungkan perangkat ke WIFI Kantor",
+              style: GoogleFonts.montserrat(
+                color: greyText,
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+                fontWeight: FontWeight.w500,
+              )),
+        ],
+      );
+    }
+
     // jika gagal
     Widget _failedgetlocation() {
       return Column(
@@ -778,7 +836,8 @@ Future<String?> getCurrentWifiName() async {
                   markers: {
                     Marker(
                       markerId: const MarkerId("1"),
-                      position: const LatLng(-6.332835026352704, 106.86452087283757),
+                      position:
+                          const LatLng(-6.332835026352704, 106.86452087283757),
                       icon: markerIconImp,
                     ),
                     if (userIcon != null && _position != null)
@@ -855,14 +914,15 @@ Future<String?> getCurrentWifiName() async {
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Container(
-                padding: const EdgeInsets.only(right: 25, left: 25),
-                width: double.infinity,
-                color: Colors.white,
-                child:
-                    canCheckIn ? _getlocation() : _failedgetlocation()
-              ),
+                  padding: const EdgeInsets.only(right: 25, left: 25),
+                  width: double.infinity,
+                  color: Colors.white,
+child: canCheckIn 
+    ? _getlocation() 
+    : (!isWithinGeofence ? _failedgetlocation() : _failedgetwifi())
             ),
           ),
+          )
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,

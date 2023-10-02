@@ -18,8 +18,8 @@ class DetailStandUp extends StatefulWidget {
   State<DetailStandUp> createState() => _DetailStandUpState();
 }
 
-class _DetailStandUpState extends State<DetailStandUp> with WidgetsBindingObserver {
-  
+class _DetailStandUpState extends State<DetailStandUp>
+    with WidgetsBindingObserver {
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -28,11 +28,11 @@ class _DetailStandUpState extends State<DetailStandUp> with WidgetsBindingObserv
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     getUserData().then((_) {
       done.text = widget.standup['done'] ?? '';
       doing.text = widget.standup['doing'] ?? '';
@@ -238,7 +238,8 @@ class _DetailStandUpState extends State<DetailStandUp> with WidgetsBindingObserv
                                       'Project',
                                       textAlign: TextAlign.left,
                                       style: GoogleFonts.montserrat(
-                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                        color:
+                                            const Color.fromARGB(255, 0, 0, 0),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -258,7 +259,8 @@ class _DetailStandUpState extends State<DetailStandUp> with WidgetsBindingObserv
                                           widget.standup['project'],
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
-                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                            color: const Color.fromARGB(
+                                                255, 0, 0, 0),
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
                                           ),

@@ -73,16 +73,17 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailRequestCutiState extends State<DetailRequestCuti> with WidgetsBindingObserver{
-   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+class _DetailRequestCutiState extends State<DetailRequestCuti>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
@@ -155,20 +156,20 @@ void initState() {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allow_HT':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -289,7 +290,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -418,7 +420,6 @@ void initState() {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.01,
                   ),
-                  
                 ],
               ),
             ),

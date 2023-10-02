@@ -18,8 +18,7 @@ class EditStandUp extends StatefulWidget {
   State<EditStandUp> createState() => _EditStandUpState();
 }
 
-class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
-
+class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
   @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
@@ -28,11 +27,11 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
 
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     getUserData().then((_) {
       done.text = widget.standup['done'] ?? '';
       doing.text = widget.standup['doing'] ?? '';
@@ -75,7 +74,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
     return json.decode(response.body);
   }
 
-    Future destroyStandUp() async {
+  Future destroyStandUp() async {
     String url = 'https://testing.impstudio.id/approvall/api/standup/delete/' +
         widget.standup['id'].toString();
 
@@ -247,7 +246,8 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
                                       'Project',
                                       textAlign: TextAlign.left,
                                       style: GoogleFonts.montserrat(
-                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                        color:
+                                            const Color.fromARGB(255, 0, 0, 0),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -267,7 +267,8 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
                                           widget.standup['project'],
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
-                                            color: const Color.fromARGB(255, 0, 0, 0),
+                                            color: const Color.fromARGB(
+                                                255, 0, 0, 0),
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -550,13 +551,13 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
                                 ),
                               ),
                               onPressed: () {
-                                  destroyStandUp().then((value) {
-                                    setState(() {
-                                      Navigator.pop(context, 'refresh');
-                                    });
-                                    // scaffold an asli nanti gua coba0
+                                destroyStandUp().then((value) {
+                                  setState(() {
+                                    Navigator.pop(context, 'refresh');
                                   });
-                                },
+                                  // scaffold an asli nanti gua coba0
+                                });
+                              },
                               child: Text(
                                 'Delete',
                                 style: GoogleFonts.inter(
@@ -585,8 +586,8 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver{
                                 print('Project ID: ${widget.standup['id']}');
                                 updateStandUp().then((value) {
                                   setState(() {
-                                      Navigator.pop(context, 'refresh');
-                                    });
+                                    Navigator.pop(context, 'refresh');
+                                  });
                                 });
                               },
                               child: Text(
