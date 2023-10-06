@@ -5,6 +5,7 @@ import 'package:imp_approval/screens/create/emergency_chekout.dart';
 import 'package:imp_approval/screens/cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
+import 'package:imp_approval/screens/detail/detail_resume_history.dart';
 import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:imp_approval/screens/home.dart';
 import 'package:imp_approval/screens/detail/detail_infoapp.dart';

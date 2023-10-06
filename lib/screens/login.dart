@@ -121,8 +121,7 @@ class _LoginScreenState extends State<LoginScreen>
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
-                              Text(
-                                submessage,
+                              Text(truncateText(submessage, 48),
                                 style: GoogleFonts.getFont(
                                   'Montserrat',
                                   color: Colors.black,
@@ -253,326 +252,336 @@ class _LoginScreenState extends State<LoginScreen>
     _controller.forward(); // Start the animation when the widget is initialized
   }
 
+    String truncateText(String text, int maxLength) {
+    if (text.length <= maxLength) {
+      return text;
+    } else {
+      return text.substring(0, maxLength - 3) + '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xff246DC1),
-              const Color(0xff246DC1).withOpacity(0.5),
-            ],
+      body: SingleChildScrollView(
+        child: Container(
+            child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xff246DC1),
+                const Color(0xff246DC1).withOpacity(0.5),
+              ],
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Menengahkan vertikal
-          children: [
-            Expanded(
-              child: SlideTransition(
-                position: _positionAnimation,
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Container(
-                    margin: EdgeInsets.only(top: 30),
-                    width: 300,
-                    child: Image.asset('assets/img/imp-logo.png'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // Menengahkan vertikal
+            children: [
+              Expanded(
+                child: SlideTransition(
+                  position: _positionAnimation,
+                  child: FadeTransition(
+                    opacity: _animation,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 30),
+                      width: 300,
+                      child: Image.asset('assets/img/imp-logo.png'),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.only(top: 20),
-              child: SlideTransition(
-                position: _positionAnimation,
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding:
-                            EdgeInsets.only(right: 30, left: 30, bottom: 10),
-                        decoration: const BoxDecoration(
-                          color: kBackground,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(35.0)),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(top: 20),
-                              width: 55,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: 30, top: 30),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Welcome to ',
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.067,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Approvel!',
-                                          style: GoogleFonts.montserrat(
-                                            color: kTextoo,
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.067,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.005,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Masuk ',
-                                          style: GoogleFonts.montserrat(
-                                            color: kTextoo,
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.034,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        Text(
-                                          'menggunakan akun mu!',
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.034,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('E-mail',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.034,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                            ),
-                            SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.005,
-                            ),
-
-                            TextFormField(
-                              controller: email,
-                              style: GoogleFonts.montserrat(
-                                color: kText,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.039,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                hintText: 'Enter Your Email',
-                                hintStyle: GoogleFonts.montserrat(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.028,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                filled: true,
-                                fillColor: Colors.transparent,
-                                prefixIcon: const Align(
-                                  widthFactor: 3,
-                                  heightFactor: 1.0,
-                                  child: Icon(
-                                    Icons.email_outlined,
-                                    color: kIcon,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                    color: kBorder,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: kInput,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.024),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('Password',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.034,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                            ),
-                            SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.005,
-                            ),
-
-                            TextFormField(
-                              controller: password,
-                              obscureText: true,
-                              style: GoogleFonts.montserrat(
-                                color: kText,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.039,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                hintText: 'Password',
-                                hintStyle: GoogleFonts.montserrat(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.028,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                filled: true,
-                                fillColor: Colors.transparent,
-                                prefixIcon: const Align(
-                                  widthFactor: 3,
-                                  heightFactor: 1.0,
-                                  child: Icon(
-                                    Icons.lock,
-                                    color: kIcon,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                    color: kBorder,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: kInput,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ForgetPassword(),
-                                      ),
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15),
-                                    child: Text("Lupa password ?",
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.034,
-                                          fontWeight: FontWeight.w400,
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.03,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                FocusScope.of(context)
-                                    .requestFocus(FocusNode());
-
-                                loginUser();
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(bottom: 40),
-                                width: double.infinity,
-                                height: 40,
+              Container(
+                padding: EdgeInsets.only(top: 20),
+                child: SlideTransition(
+                  position: _positionAnimation,
+                  child: FadeTransition(
+                    opacity: _animation,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding:
+                              EdgeInsets.only(right: 30, left: 30, bottom: 10),
+                          decoration: const BoxDecoration(
+                            color: kBackground,
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(35.0)),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(top: 20),
+                                width: 55,
+                                height: 5,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: kButton,
+                                  color: Colors.black12,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    "Login to Approvel",
-                                    textAlign: TextAlign.center,
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(bottom: 30, top: 30),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Welcome to ',
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.067,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Approvel!',
+                                            style: GoogleFonts.montserrat(
+                                              color: kTextoo,
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.067,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.005,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Masuk ',
+                                            style: GoogleFonts.montserrat(
+                                              color: kTextoo,
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.034,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            'menggunakan akun mu!',
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.034,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('E-mail',
                                     style: GoogleFonts.montserrat(
                                       fontSize:
                                           MediaQuery.of(context).size.width *
-                                              0.039,
-                                      fontWeight: FontWeight.w700,
-                                      color: kBackground,
+                                              0.034,
+                                      fontWeight: FontWeight.w600,
+                                    )),
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.005,
+                              ),
+      
+                              TextFormField(
+                                controller: email,
+                                style: GoogleFonts.montserrat(
+                                  color: kText,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.039,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter Your Email',
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width * 0.028,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.transparent,
+                                  prefixIcon: const Align(
+                                    widthFactor: 3,
+                                    heightFactor: 1.0,
+                                    child: Icon(
+                                      Icons.email_outlined,
+                                      color: kIcon,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: kBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    borderSide: const BorderSide(
+                                      color: kInput,
+                                      width: 1,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+      
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.024),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('Password',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.034,
+                                      fontWeight: FontWeight.w600,
+                                    )),
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.005,
+                              ),
+      
+                              TextFormField(
+                                controller: password,
+                                obscureText: true,
+                                style: GoogleFonts.montserrat(
+                                  color: kText,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.039,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                keyboardType: TextInputType.visiblePassword,
+                                decoration: InputDecoration(
+                                  hintText: 'Password',
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width * 0.028,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.transparent,
+                                  prefixIcon: const Align(
+                                    widthFactor: 3,
+                                    heightFactor: 1.0,
+                                    child: Icon(
+                                      Icons.lock,
+                                      color: kIcon,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: kBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    borderSide: const BorderSide(
+                                      color: kInput,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ForgetPassword(),
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15),
+                                      child: Text("Lupa password ?",
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w400,
+                                          )),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.03,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  FocusScope.of(context)
+                                      .requestFocus(FocusNode());
+      
+                                  loginUser();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 40),
+                                  width: double.infinity,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: kButton,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Login to Approvel",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.039,
+                                        fontWeight: FontWeight.w700,
+                                        color: kBackground,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      )),
+            ],
+          ),
+        )),
+      ),
     );
   }
 }

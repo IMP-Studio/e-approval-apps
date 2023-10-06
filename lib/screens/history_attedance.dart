@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/detail/detail_absensi.dart';
 import 'package:imp_approval/screens/detail/detail_bolos.dart';
+import 'package:imp_approval/screens/detail/detail_resume_history.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -402,7 +403,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .only(
+                                                                    .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
@@ -582,7 +583,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .only(
+                                                                    .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
@@ -824,14 +825,14 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .only(
+                                                                    .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
                                                             child: Container(
                                                               padding:
                                                                   const EdgeInsets
-                                                                          .symmetric(
+                                                                      .symmetric(
                                                                       vertical:
                                                                           10),
                                                               height: 2,
@@ -1186,7 +1187,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                             Padding(
                                                               padding:
                                                                   const EdgeInsets
-                                                                          .only(
+                                                                      .only(
                                                                       top: 15,
                                                                       bottom: 7,
                                                                       right: 5),
@@ -1424,6 +1425,70 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                       )
                     ],
                   ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailHistoryResume(),
+                              ));
+                        },
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          width: 140.0,
+                          height: 40.0,
+                          decoration: BoxDecoration(
+                              color: kTextoo,
+                              borderRadius: BorderRadius.circular(25.0),
+                              boxShadow: [
+                                BoxShadow(
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                    color: Colors.black.withOpacity(0.25),
+                                    offset: Offset(0, 2))
+                              ]),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: Text(
+                                  "Lihat Resume",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      color: Colors.white,
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.034,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              Spacer(),
+                              Container(
+                                height: 45,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                    color: kTextooAgakGelap,
+                                    borderRadius: BorderRadius.circular(25.0)),
+                                child: Icon(
+                                  LucideIcons.clipboard,
+                                  color: Colors.white,
+                                  size:
+                                      MediaQuery.of(context).size.width * 0.054,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
                 ),
                 _jadwalContainer(),
                 const SizedBox(
