@@ -244,25 +244,24 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       recognitionTimer = null;
     }
   }
-
-  void onFaceDetected(String recognizedName) {
+void onFaceDetected(String recognizedName) {
     if (isStoringFace) {
       return;
     }
 
-    if (recognizedName.isNotEmpty) {
-      if (recognitionTimer == null) {
-        faceRecognized = true;
-        recognitionTimer = Timer(const Duration(seconds: 5), () async {
-          await _storeAndNavigate();
-        });
-      }
-    } else {
+    // If face is recognized, and the recognitionTimer isn't active, set it.
+    if (recognizedName.isNotEmpty && recognitionTimer == null) {
+      faceRecognized = true;
+      recognitionTimer = Timer(const Duration(seconds: 5), () async {
+        await _storeAndNavigate();
+      });
+    } else if (recognizedName.isEmpty) {
       faceRecognized = false;
       recognitionTimer?.cancel();
       recognitionTimer = null;
     }
-  }
+}
+
 
   void initialCamera() async {
     CameraDescription description =
@@ -471,19 +470,27 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       resizeToAvoidBottomInset: false,
       floatingActionButton: widget.profile['facepoint'] == null
           ? FloatingActionButton(
-              onPressed: () async {
-                if (!_faceFound) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'No face detected. Ensure your face is in view.')),
-                  );
-                  return;
-                }
+    onPressed: () async {
+        if (recognitionTimer != null) {
+            // If the timer is active, cancel it to prevent duplicate action
+            recognitionTimer?.cancel();
+            recognitionTimer = null;
+        }
 
-                await _storeAndNavigate();
-              },
-              child: const Icon(Icons.photo_camera_outlined))
+        if (!_faceFound) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                        'No face detected. Ensure your face is in view.')),
+            );
+            return;
+        }
+
+        await _storeAndNavigate();
+    },
+    child: const Icon(Icons.photo_camera_outlined)
+)
+
           : Container(
               color: Colors.transparent,
             ),

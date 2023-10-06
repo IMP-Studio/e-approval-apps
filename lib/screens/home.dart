@@ -417,11 +417,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
-    TimeOfDay morningLimit = const TimeOfDay(hour: 8, minute: 30);
+    TimeOfDay? _currentTime;
+
+    TimeOfDay morningLimit = const TimeOfDay(hour: 0, minute: 1);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
 
-    bool isBeforeEveningLimit = isTimeOfDayBefore(_currentTime!, eveningLimit);
-    bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
+ bool isBeforeEveningLimit = isTimeOfDayBefore(_currentTime!, eveningLimit);
+  bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
+
+  bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -2430,35 +2434,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // modal chekcin atribut
   Widget _modalCheckinAtribut() {
     return Align(
-      alignment: Alignment.topLeft,
+      alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(left: 18.0, top: 16, bottom: 10),
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Welcome to',
+                  'Attendance with',
                   style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                 ),
                 Text(
                   ' Approval!',
                   style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                       color: const Color.fromRGBO(67, 129, 202, 1)),
                 ),
               ],
             ),
             Text(
-              'Choose your type of Check In',
+              'Pilih jenis check-in',
               style: GoogleFonts.montserrat(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: const Color.fromRGBO(182, 182, 182, 1),
               ),
@@ -2473,7 +2479,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.only(left: 18.0, top: 16, bottom: 10),
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -2484,7 +2490,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 Text(
                   'Waiting',
                   style: GoogleFonts.montserrat(
-                    fontSize: MediaQuery.of(context).size.width * 0.039,
+                    fontSize: MediaQuery.of(context).size.width * 0.049,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
@@ -2492,7 +2498,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 Text(
                   ' Approval',
                   style: GoogleFonts.montserrat(
-                      fontSize: MediaQuery.of(context).size.width * 0.039,
+                      fontSize: MediaQuery.of(context).size.width * 0.049,
                       fontWeight: FontWeight.w500,
                       color: const Color.fromRGBO(67, 129, 202, 1)),
                 ),
@@ -2504,7 +2510,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             Text(
               'Permintaan mu masih dalam status pending',
               style: GoogleFonts.montserrat(
-                fontSize: 12,
+                fontSize: MediaQuery.of(context).size.width * 0.034,
                 fontWeight: FontWeight.w400,
                 color: const Color.fromRGBO(182, 182, 182, 1),
               ),

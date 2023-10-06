@@ -38,9 +38,8 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   Set<Marker> _markers = {};
   Position? lastPosition;
   bool canCheckIn = false;
- bool isWithinGeofence = false;
-bool wifiConnectedToOffice = false;
-
+  bool isWithinGeofence = false;
+  bool wifiConnectedToOffice = false;
 
   BitmapDescriptor markerIconImp = BitmapDescriptor.defaultMarker;
   BitmapDescriptor? userIcon;
@@ -269,7 +268,7 @@ bool wifiConnectedToOffice = false;
     return bssid;
   }
 
- void updateCheckInStatus() async {
+  void updateCheckInStatus() async {
     print("Executing updateCheckInStatus");
 
     isWithinGeofence = _isWithinGeofence();
@@ -284,8 +283,8 @@ bool wifiConnectedToOffice = false;
     ];
 
     wifiConnectedToOffice = (wifiName == 'impstudio-5g' ||
-              wifiName == 'impstudio-2.4g' ||
-              wifiName == 'teras kolaborasi');
+        wifiName == 'impstudio-2.4g' ||
+        wifiName == 'teras kolaborasi');
 
     if (wifiName == null || !ACCEPTED_BSSIDS.contains(wifiBSSID)) {
       setState(() {
@@ -300,9 +299,7 @@ bool wifiConnectedToOffice = false;
     });
 
     print("Can Check In: $canCheckIn");
-}
-
-
+  }
 
   void addCustomIcon() async {
     markerIconImp = await BitmapDescriptor.fromAssetImage(
@@ -726,7 +723,7 @@ bool wifiConnectedToOffice = false;
       );
     }
 
-     Widget _failedgetwifi() {
+    Widget _failedgetwifi() {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -749,7 +746,7 @@ bool wifiConnectedToOffice = false;
                   fontSize: MediaQuery.of(context).size.width * 0.04,
                   fontWeight: FontWeight.w600,
                 ),
-              ),    
+              ),
             ],
           ),
           SizedBox(
@@ -917,11 +914,12 @@ bool wifiConnectedToOffice = false;
                   padding: const EdgeInsets.only(right: 25, left: 25),
                   width: double.infinity,
                   color: Colors.white,
-child: canCheckIn 
-    ? _getlocation() 
-    : (!isWithinGeofence ? _failedgetlocation() : _failedgetwifi())
+                  child: canCheckIn
+                      ? _getlocation()
+                      : (!isWithinGeofence
+                          ? _failedgetlocation()
+                          : _failedgetwifi())),
             ),
-          ),
           )
         ],
       ),

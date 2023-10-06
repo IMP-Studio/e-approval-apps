@@ -123,6 +123,7 @@ void initState() {
           } else {
             String name = snapshot.data!.getString('nama_lengkap') ?? 'Guest';
             String divisi = snapshot.data!.getString('divisi') ?? 'Guest';
+            String avatar = snapshot.data!.getString('avatar') ?? 'default';
             return Row(
               children: [
                 CircleAvatar(
