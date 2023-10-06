@@ -33,6 +33,7 @@ const Color kYelwPending = Color.fromARGB(203, 255, 239, 198);
 const Color kGreen = Color.fromARGB(255, 94, 202, 67);
 const Color kGreenAllow = Color.fromARGB(255, 220, 255, 211);
 const Color kRedreject = Color.fromARGB(255, 249, 220, 220);
+const Color kTextUngu = Color.fromARGB(255, 121, 87, 192);
 
 // KHUSUS PROFILE PAGE
 
@@ -40,16 +41,14 @@ const Color blueText = Color(0xff4381CA);
 const Color hitamText = Colors.black;
 const Color whiteText = Colors.white;
 const Color greyText = Color(0xff727272);
-                            final dayColor = Colors.black;
+final dayColor = Colors.black;
 
 //DETAIL ABSENSI
 
-
-
 List<IconData> listOfIcons = [
- LucideIcons.home,
- LucideIcons.briefcase,
- LucideIcons.calendar,
- LucideIcons.history,
- LucideIcons.settings,
+  LucideIcons.home,
+  LucideIcons.briefcase,
+  LucideIcons.calendar,
+  LucideIcons.history,
+  LucideIcons.settings,
 ];
