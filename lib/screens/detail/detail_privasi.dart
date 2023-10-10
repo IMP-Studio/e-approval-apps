@@ -191,7 +191,7 @@ class _PrivasiPageState extends State<PrivasiPage> with WidgetsBindingObserver{
                     child: Text("Lupa password",
                         style: GoogleFonts.montserrat(
                           fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextgrey,
+                          color: kTextBlocker,
                           fontWeight: FontWeight.w400,
                         )),
                   ),

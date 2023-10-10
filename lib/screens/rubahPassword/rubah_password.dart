@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
+import 'package:imp_approval/methods/api.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RubahPassword extends StatefulWidget {
   const RubahPassword({super.key});
@@ -26,6 +29,49 @@ void initState() {
   bool _isPasswordVisible = false;
 
   bool _konfirPasswordVisible = false;
+  bool validateOldPassPopUp = true;
+
+  
+  final TextEditingController newpassword = TextEditingController();
+  final TextEditingController confirmPassword = TextEditingController();
+  final TextEditingController validateOldPass = TextEditingController();
+
+  void changePassword() async {
+    final preferences = await SharedPreferences.getInstance();
+    final userId = preferences.getInt('user_id');
+
+    print('$userId');
+
+      final data = {
+      'user_id': userId.toString(),
+      'new_password': newpassword.text.toString(),
+      'new_password_confirmation': confirmPassword.text.toString(),
+      'validate': validateOldPass.text.toString(),
+    };
+
+    final result = await API().postRequest(route: '/resetPasswordWithoutOtp', data: data);
+
+    print(result.body);
+    final response = jsonDecode(result.body);
+    if (response['status'] == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text(response['message']),
+        ),
+      );
+      Navigator.of(context).pop();
+    }
+    else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text(response['message'].toString()),
+        ),
+      );
+    }
+
+  }
 
   Widget _modalvalidasipass(BuildContext context) {
     return CupertinoAlertDialog(
@@ -46,7 +92,17 @@ void initState() {
                   fontWeight: FontWeight.w600,
                 ))),
         CupertinoDialogAction(
-            onPressed: () {},
+            onPressed: () {
+                if (validateOldPassPopUp) {
+                changePassword();
+                   setState(() {
+                    validateOldPassPopUp = false;
+                  });
+                  Navigator.pop(context);
+                }else {
+                  Navigator.pop(context);
+                }
+            },
             child: Text("Kirim",
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
@@ -64,6 +120,7 @@ void initState() {
               )),
           SizedBox(height: 10),
           CupertinoTextField(
+            controller: validateOldPass,
             obscureText: true, // Gunakan status _isPasswordVisible
             style: GoogleFonts.montserrat(
               fontSize: 16,
@@ -145,6 +202,7 @@ void initState() {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: newpassword,
                               obscureText:
                                   !_isPasswordVisible, // Gunakan status _isPasswordVisible
                               style: GoogleFonts.montserrat(
@@ -211,6 +269,7 @@ void initState() {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: confirmPassword,
                               obscureText: !_konfirPasswordVisible,
                               style: GoogleFonts.montserrat(
                                 fontSize: 16,
@@ -258,7 +317,9 @@ void initState() {
                   Container(
                     width: 120,
                     child: ElevatedButton(
-                      onPressed: () {
+                    onPressed: () {
+                    validateOldPassPopUp = true;
+                        if (validateOldPassPopUp)
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
