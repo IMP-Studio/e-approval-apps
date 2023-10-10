@@ -205,62 +205,75 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   Timer? recognitionTimer;
 
   Future<void> _storeAndNavigate() async {
-    if (isStoringFace) {
-      return;
-    }
-
-    isStoringFace = true;
-
-    try {
-      print('Button pressed');
-      final String nameFromArguments = nama_lengkap;
-      data[nameFromArguments] = e1;
-
-      print('Before storeAbsen()');
-      storeAbsen();
-      print('After storeAbsen()');
-
-      if (_camera != null) {
-        print('Stopping camera and disposing...');
-        await _camera!.stopImageStream();
-        await _camera!.dispose();
-
-        _camera = null;
-        _timer.cancel();
-      }
-
-      print('Before navigation');
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainLayout()),
-        );
-      }
-      print('After navigation');
-    } catch (error) {
-      print('Error: $error');
-    } finally {
-      isStoringFace = false;
-      recognitionTimer?.cancel(); // Ensure the timer doesn't fire again
-      recognitionTimer = null;
-    }
+  // Check if a storing process is ongoing, if yes, return immediately
+  if (isStoringFace) {
+    return;
   }
-void onFaceDetected(String recognizedName) {
-    if (isStoringFace) {
-      return;
+
+  // Set the flag to indicate a storing process is starting
+  isStoringFace = true;
+
+  try {
+    print('Button pressed');
+    final String nameFromArguments = nama_lengkap;
+    data[nameFromArguments] = e1;
+
+    print('Before storeAbsen()');
+    
+    // Assuming storeAbsen() returns a Future, we need to await it to ensure it completes
+    await storeAbsen(); 
+
+    print('After storeAbsen()');
+
+    if (_camera != null) {
+      print('Stopping camera and disposing...');
+      await _camera!.stopImageStream();
+      await _camera!.dispose();
+
+      _camera = null;
+      _timer.cancel();
     }
 
-    // If face is recognized, and the recognitionTimer isn't active, set it.
-    if (recognizedName.isNotEmpty && recognitionTimer == null) {
-      faceRecognized = true;
-      recognitionTimer = Timer(const Duration(seconds: 5), () async {
-        await _storeAndNavigate();
-      });
-    } else if (recognizedName.isEmpty) {
-      faceRecognized = false;
-      recognitionTimer?.cancel();
-      recognitionTimer = null;
+    print('Before navigation');
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MainLayout()),
+      );
     }
+    print('After navigation');
+  } catch (error) {
+    print('Error: $error');
+  } finally {
+    // Reset the flag once the storing process completes
+    isStoringFace = false;
+    
+    // Cancel any ongoing recognitionTimer
+    recognitionTimer?.cancel(); 
+    recognitionTimer = null;
+  }
 }
+
+
+void onFaceDetected(String recognizedName) {
+  if (isStoringFace) {
+    return;
+  }
+
+  // If face is recognized and there's no active timer, set the timer
+  if (recognizedName.isNotEmpty && recognitionTimer == null) {
+    faceRecognized = true;
+    recognitionTimer = Timer(const Duration(seconds: 7), () async {
+      await _storeAndNavigate();
+    });
+  } 
+  // If recognizedName is empty or not a valid name, cancel any ongoing timer
+  else if (recognizedName.isEmpty || recognizedName == "TIDAK DIKENALI") {
+    faceRecognized = false;
+    recognitionTimer?.cancel();
+    recognitionTimer = null;
+  }
+}
+
 
 
   void initialCamera() async {

@@ -512,14 +512,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
-                              Text(
-                                "1.2MB",
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 6,
-                                  color: kTextgrey,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                             
                             ],
                           ),
                         ),

@@ -63,6 +63,7 @@ class _CutiScreenState extends State<CutiScreen>
         setState(() {
           processCutiData();
           refreshData();
+
           getProfil();
           startTimer();
         });
@@ -91,6 +92,32 @@ class _CutiScreenState extends State<CutiScreen>
         refreshData();
       });
     }
+  }
+
+  Future getLeaveDays() async {
+    int userId = preferences?.getInt('user_id') ?? 0;
+
+    final String baseUrl =
+        'https://testing.impstudio.id/approvall/api/leave/days?id=$userId';
+
+    var response = await http.get(Uri.parse(baseUrl));
+    print("Final API URL: $baseUrl");
+    print("API Response: ${response.body}");
+
+    return jsonDecode(response.body);
+  }
+
+  Future getLeaveYearlyDays() async {
+    int userId = preferences?.getInt('user_id') ?? 0;
+
+    final String baseUrl =
+        'https://testing.impstudio.id/approvall/api/leave/yearly/days?id=$userId';
+
+    var response = await http.get(Uri.parse(baseUrl));
+    print("Final API URL: $baseUrl");
+    print("API Response: ${response.body}");
+
+    return jsonDecode(response.body);
   }
 
   Future getCuti({String? jenisCuti}) async {
@@ -160,26 +187,31 @@ class _CutiScreenState extends State<CutiScreen>
   }
 
   Future? _cutiFuture;
+  Future? _cutiDays;
+  Future? _cutiYearlyDays;
 
   Future<void> refreshData() async {
     String jenisCuti = "";
 
     switch (activeIndex) {
       case 0:
-        jenisCuti = "exclusive";
+        jenisCuti = "2";
         break;
       case 1:
-        jenisCuti = "emergency";
+        jenisCuti = "3";
         break;
       case 2:
-        jenisCuti = "yearly";
+        jenisCuti = "1";
         break;
     }
 
     setState(() {
       isLoading = true;
-      _cutiFuture = getCuti(jenisCuti: jenisCuti); // set the future here
+      _cutiFuture = getCuti(jenisCuti: jenisCuti);
+      
     });
+              _cutiDays = getLeaveDays();
+              _cutiYearlyDays = getLeaveYearlyDays();
 
     final data = await _cutiFuture;
 
@@ -190,6 +222,7 @@ class _CutiScreenState extends State<CutiScreen>
 
   Future<void> refreshContent() async {
     await refreshData();
+     
   }
 
   String truncateText(String text, int maxLength) {
@@ -198,6 +231,58 @@ class _CutiScreenState extends State<CutiScreen>
     } else {
       return text.substring(0, maxLength - 3) + ' ...selengkapnya';
     }
+  }
+
+  Widget shimmerLayout() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ...List.generate(
+            3,
+            (index) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 3.5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.grey[400]!),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey[300],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 7),
+                      Container(
+                        color: Colors.grey,
+                        height: MediaQuery.of(context).size.width * 0.028,
+                        width: 80,
+                      ),
+                      SizedBox(height: 7),
+                      Container(
+                        color: Colors.grey,
+                        height: 1,
+                        width: double.infinity,
+                      ),
+                      SizedBox(height: 7),
+                      Container(
+                        color: Colors.grey,
+                        height: MediaQuery.of(context).size.width * 0.044,
+                        width: 40,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildContent() {
@@ -437,246 +522,302 @@ class _CutiScreenState extends State<CutiScreen>
                   height: 20.0,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      //CONTAINER START
-                      Expanded(
-                          child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: kTextoo),
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                spreadRadius: 0,
-                                blurRadius: 1,
-                                offset: const Offset(0, 1),
-                              )
-                            ]),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 7,
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: FutureBuilder(
+                      future: _cutiDays,
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return shimmerLayout();
+                        } else if (snapshot.hasData) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // CONTAINER START
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(width: 1, color: kTextoo),
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.25),
+                                        spreadRadius: 0,
+                                        blurRadius: 1,
+                                        offset: const Offset(0, 1),
+                                      )
+                                    ],
                                   ),
-                                  Text(
-                                    "Tahunan",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.028,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Text(
+                                              "Tahunan",
+                                              style: GoogleFonts.getFont(
+                                                  'Montserrat',
+                                                  textStyle: TextStyle(
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.028,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: kTextoo)),
+                                            ),
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Divider(
+                                              color: kTextoo,
+                                              thickness: 1,
+                                              height: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 7),
+                                          alignment: Alignment.center,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Align(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: Text(
+                                                  snapshot.data['data']['yearly'].toString() ?? '0',
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.044,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: Text(
+                                                  "/12",
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.028,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
+                                                ),
+                                              ),
+                                            ],
+                                          )),
+                                    ],
                                   ),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Divider(
-                                    color: kTextoo,
-                                    thickness: 1,
-                                    height: 1,
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 7),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "12",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.044,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
-                                  ),
-                                  Text(
-                                    "/12",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.028,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      )),
 
-                      const SizedBox(
-                        width: 7.0,
-                      ),
-
-                      Expanded(
-                          child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1, color: kTextoo),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                spreadRadius: 0,
-                                blurRadius: 1,
-                                offset: const Offset(0, 1),
-                              )
-                            ]),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Text(
-                                    "Khusus",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.028,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
-                                  ),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Divider(
-                                    color: kTextoo,
-                                    thickness: 1,
-                                    height: 1,
-                                  ),
-                                ],
+                              const SizedBox(
+                                width: 7.0,
                               ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 7),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "5",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.044,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      )),
 
-                      const SizedBox(
-                        width: 7.0,
-                      ),
-
-                      Expanded(
-                          child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: kTextoo),
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                spreadRadius: 0,
-                                blurRadius: 1,
-                                offset: const Offset(0, 1),
-                              )
-                            ]),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 7,
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(width: 1, color: kTextoo),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.25),
+                                        spreadRadius: 0,
+                                        blurRadius: 1,
+                                        offset: const Offset(0, 1),
+                                      )
+                                    ],
                                   ),
-                                  Text(
-                                    "Darurat",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.028,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Text(
+                                              "Khusus",
+                                              style: GoogleFonts.getFont(
+                                                  'Montserrat',
+                                                  textStyle: TextStyle(
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.028,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: kTextoo)),
+                                            ),
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Divider(
+                                              color: kTextoo,
+                                              thickness: 1,
+                                              height: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 7),
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              snapshot.data['data']['exclusive'].toString() ?? '0',
+                                              style: GoogleFonts.getFont(
+                                                  'Montserrat',
+                                                  textStyle: TextStyle(
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.044,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: kTextoo)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Divider(
-                                    color: kTextoo,
-                                    thickness: 1,
-                                    height: 1,
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 7),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "12",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.044,
-                                            fontWeight: FontWeight.w500,
-                                            color: kTextoo)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ))
 
-                      //CONTAINER END
-                    ],
-                  ),
-                ),
+                              const SizedBox(
+                                width: 7.0,
+                              ),
+
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border:
+                                        Border.all(width: 1, color: kTextoo),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.25),
+                                        spreadRadius: 0,
+                                        blurRadius: 1,
+                                        offset: const Offset(0, 1),
+                                      )
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Text(
+                                              "Darurat",
+                                              style: GoogleFonts.getFont(
+                                                  'Montserrat',
+                                                  textStyle: TextStyle(
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.028,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: kTextoo)),
+                                            ),
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Divider(
+                                              color: kTextoo,
+                                              thickness: 1,
+                                              height: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 7),
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              snapshot.data['data']['emergency'].toString() ?? '0',
+                                              style: GoogleFonts.getFont(
+                                                  'Montserrat',
+                                                  textStyle: TextStyle(
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.044,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: kTextoo)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return shimmerLayout(); // Replace with your error widget.
+                        }
+                      },
+                    )),
                 const SizedBox(
                   height: 20.0,
                 ),
@@ -1453,13 +1594,18 @@ class _CutiScreenState extends State<CutiScreen>
           ),
         ),
         floatingActionButton: isButtonVisible
-            ? FutureBuilder<Map<String, dynamic>>(
-                future: getProfil(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Stack(
-                      children: [
-                        Container(
+            ? FutureBuilder<List>(
+  // Wait for both futures to complete
+  future: Future.wait([getProfil(), _cutiYearlyDays ?? Future.value(null) ]),
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      // Assuming getProfil returns a map and _cutiYearlyDays returns a single value or another map
+      final profileData = snapshot.data![0]['data']?.first;
+      final yearlyDaysData = snapshot.data![1];
+
+      return Stack(
+        children: [
+          Container(
                           alignment: Alignment.centerLeft,
                           width: 140.0,
                           height: 55.0,
@@ -1477,32 +1623,36 @@ class _CutiScreenState extends State<CutiScreen>
                             ),
                           ),
                         ),
-                        Positioned(
-                          right: 0,
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateCuti(
-                                      profile: snapshot.data?['data']?.first,
-                                    ),
-                                  ));
-                            },
-                            child: const Icon(Icons.add),
-                            backgroundColor: kTextooAgakGelap,
-                            elevation: 0,
-                          ),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return Container(
-                      color: Colors.transparent,
-                    );
-                  }
-                },
-              )
+          Positioned(
+            right: 0,
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateCuti(
+                        profile: profileData,
+                        yearly: yearlyDaysData,
+                      ),
+                    ));
+              },
+              child: const Icon(Icons.add),
+              backgroundColor: kTextooAgakGelap,
+              elevation: 0,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Container(
+        color: Colors.transparent,
+      );
+    }
+  },
+)
+            
+            
+            
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),

@@ -192,10 +192,13 @@ class _LoginScreenState extends State<LoginScreen>
       await preferences.setString(
           'nama_lengkap', response['user']['nama_lengkap']);
       await preferences.setString('divisi', response['user']['divisi']);
+      await preferences.setInt('divisi_id', response['user']['divisi_id']);
       await preferences.setString('posisi', response['user']['posisi']);
+      await preferences.setInt('posisi_id', response['user']['posisi_id']);
       await preferences.setInt('is_active', response['user']['is_active']);
       await preferences.setString('email', response['user']['email']);
       await preferences.setString('role', response['user']['role']);
+      await preferences.setString('avatar', response['user']['avatar'] ?? 'default') ;
       await preferences.setString('first_name', response['user']['first_name']);
       await preferences.setString('last_name', response['user']['last_name']);
       await preferences.setString('gender', response['user']['gender']);
@@ -344,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen>
                                             ),
                                           ),
                                           Text(
-                                            'Approvel!',
+                                            'Approval!',
                                             style: GoogleFonts.montserrat(
                                               color: kTextoo,
                                               fontSize: MediaQuery.of(context)

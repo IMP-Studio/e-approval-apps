@@ -1,29 +1,186 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
-import 'package:imp_approval/screens/cuti.dart';
-import 'package:imp_approval/screens/detail/detail_syarat_cuti_darurat.dart';
 import 'package:imp_approval/screens/detail/detail_syarat_cuti_khusus.dart';
+import 'package:imp_approval/screens/detail/detail_syarat_cuti_darurat.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CreateCuti extends StatefulWidget {
   final Map profile;
-  const CreateCuti({super.key, required this.profile});
+  final Map yearly;
+  const CreateCuti({super.key, required this.profile, required this.yearly});
 
   @override
   State<CreateCuti> createState() => _CreateCutiState();
 }
 
 class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
+  SharedPreferences? preferences;
+
+  late Timer _timer; // Define the timer
+  bool _isMounted = false;
+  bool _isSnackbarVisible = false;
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    _isMounted = false;
+    super.dispose();
+  }
+
+  void showSnackbarWarning(String message, String submessage,
+      Color backgroundColor, Icon customIcon) {
+    if (_isSnackbarVisible) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    }
+
+    _isSnackbarVisible = true;
+
+    int secondsRemaining = 3; // Set the initial duration to 10 seconds
+    _timer.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!_isMounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (secondsRemaining == 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _isSnackbarVisible = false;
+        timer.cancel();
+      } else {
+        setState(() {
+          secondsRemaining--;
+        });
+      }
+    });
+    final snackBar = SnackBar(
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.9),
+      content: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [customIcon],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  child: Text(
+                                    message,
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        textStyle: TextStyle(
+                                            color: kBlck,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w600)),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2),
+                              ),
+                              Text(
+                                submessage,
+                                style: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 10,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              Container(
+                width: 5,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      duration: Duration(seconds: 10),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   void initState() {
     super.initState();
+    _timer = Timer(Duration.zero, () {});
+
+    getUserData().then((_) {
+      fetchData();
+    });
     WidgetsBinding.instance!.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -31,11 +188,45 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
     ]);
   }
 
+  bool isLoading = false;
+  Future<void> getUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    preferences = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  String? selectedSubtitue;
+  String? selectedValueType;
+  String? selectedValueExclusive;
+  String? selectedValueEmergency;
+
+  TextEditingController subtitueCont = TextEditingController();
+
   String selectedOption = '';
   // date
   DateTime? _mulaiTanggal;
   DateTime? _selesaiTanggal;
   DateTime? _tanggalMasuknya;
+
+  FilePickerResult? _pickedFile;
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _pickedFile = result;
+      });
+    } else {
+      // User canceled the picker
+    }
+  }
 
   String formatDate(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);
@@ -44,61 +235,65 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   TextEditingController mulai_cuti = TextEditingController();
   TextEditingController akhir_cuti = TextEditingController();
   TextEditingController tanggal_masuk = TextEditingController();
-  TextEditingController alasan = TextEditingController();
 
-  final List<String> jenisItems = [
-    'Tahunan',
-    'Khusus',
-    'Darurat',
-  ];
+  Future<List<Map<String, dynamic>>> fetchLeaveOptions() async {
+    final response = await http.get(
+        Uri.parse('https://testing.impstudio.id/approvall/api/leave/option'));
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse['message'] == 'Success') {
+        return List<Map<String, dynamic>>.from(parsedResponse['data']);
+      } else {
+        throw Exception(parsedResponse['message']);
+      }
+    } else {
+      throw Exception('Failed to load leave options');
+    }
+  }
 
-  final List<String> kepentinganCuti = [
-    'Menikah',
-    'Menikahkan anaknya',
-    'Mengkhitankan anaknya',
-    'Membaptiskan anaknya',
-    'Istri melahirkan',
-    'Melahirkan',
-    'Keguguran',
-    'Melakukan ibadah haji',
-    'Umroh',
-  ];
+  Future<List<Map<String, dynamic>>> fetchSubtitue() async {
+    int divisionId = preferences?.getInt('division_id') ?? 0;
 
-  final List<String> daruratCuti = [
-    'Suami/Istri, Orangtua/Mertua/Anak/Menantu meninggal dunia',
-    'Saudara dalam satu rumah meninggal dunia',
-    'Merawat anggota keluarga karyawan yang sakit',
-    'Merawat anak karyawan yang sakit dengan ketentuan anak berusia maksimal 6 (enam) tahun',
-  ];
+    final response = await http.get(Uri.parse(
+        'https://testing.impstudio.id/approvall/api/user?division=$divisionId'));
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse['message'] == 'Success') {
+        return List<Map<String, dynamic>>.from(parsedResponse['data']);
+      } else {
+        throw Exception(parsedResponse['message']);
+      }
+    } else {
+      throw Exception('Failed to load leave options');
+    }
+  }
 
-  final List<String> valueItem = [
-    'yearly',
-    'exclusive',
-    'emergency',
-  ];
+  Future<void> fetchData() async {
+    List<Map<String, dynamic>> fetchedData = await fetchLeaveOptions();
+    List<Map<String, dynamic>> fetchedData2 = await fetchSubtitue();
+    setState(() {
+      leaveOptions = fetchedData;
+      subtitue = fetchedData2;
+    });
+  }
 
-  final List<String> valuekepentinganCuti = [
-    'menikah',
-    'menikahkan anaknya',
-    'mengkhitankan anaknya',
-    'membaptiskan anaknya',
-    'istri melahirkan',
-    'melahirkan',
-    'keguguran',
-    'melakukan ibadah haji',
-    'umroh',
-  ];
+  Future<List<Map<String, dynamic>>> getSearchSuggestions(
+      String pattern) async {
+    // Convert the search pattern to lowercase for case-insensitive search
+    String lowerCasePattern = pattern.toLowerCase();
 
-  final List<String> valuedaruratCuti = [
-    'Suami/Istri, Orangtua/Mertua/Anak/Menantu meninggal dunia',
-    'Saudara dalam satu rumah meninggal dunia',
-    'Merawat anggota keluarga karyawan yang sakit',
-    'Merawat anak karyawan yang sakit dengan ketentuan anak berusia maksimal 6 (enam) tahun',
-  ];
+    // Filter the list based on the lowercase pattern
+    return subtitue
+        .where((user) => user['name'].toLowerCase().contains(lowerCasePattern))
+        .toList();
+  }
 
-  String? selectedValue;
+  List<Map<String, dynamic>> leaveOptions = [];
+  List<Map<String, dynamic>> subtitue = [];
+
   bool isKhususSelected = false;
   bool isDaruratSelected = false;
+  String? selectedValue;
 
   Future storeCuti() async {
     if (_mulaiTanggal == null || _selesaiTanggal == null) {
@@ -106,26 +301,49 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       return;
     }
 
-    final response = await http.post(
-        Uri.parse('https://testing.impstudio.id/approvall/api/leave/store'),
-        body: {
-          "user_id": widget.profile['user_id'].toString(),
-          "type": selectedValue,
-          "submission_date": DateTime.now().toIso8601String(),
-          "total_leave_days":
-              (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1)
-                  .toString(),
-          "start_date": formatDate(_mulaiTanggal!),
-          "end_date": formatDate(_selesaiTanggal!),
-          "entry_date": formatDate(_tanggalMasuknya!),
-          "type_description": alasan.text,
-          "status": widget.profile['permission'] == 'ordinary_employee'
-              ? 'pending'
-              : 'allow_HT',
-        });
+    var uri =
+        Uri.parse('https://testing.impstudio.id/approvall/api/leave/store');
 
-    print(response.body);
-    return json.decode(response.body);
+    // Determine the correct selected value based on leave type
+    String? leaveDetailId;
+    if (selectedValueType == 'exclusive') {
+      leaveDetailId = selectedValueExclusive;
+    } else if (selectedValueType == 'emergency') {
+      leaveDetailId = selectedValueEmergency;
+    } else if (selectedValue == "yearly") {
+      final yearlyOption =
+          leaveOptions.firstWhere((option) => option['type_leave'] == 'yearly');
+      leaveDetailId = yearlyOption['id'].toString();
+      _pickedFile = null;
+    } else {
+      leaveDetailId = selectedValue;
+    }
+    http.MultipartRequest request = new http.MultipartRequest('POST', uri)
+      ..fields['user_id'] = widget.profile['user_id'].toString()
+      ..fields['leave_detail_id'] = (leaveDetailId != null
+              ? int.parse(leaveDetailId).toString()
+              : null) ??
+          ""
+      ..fields['submission_date'] = DateTime.now().toIso8601String()
+      ..fields['total_leave_days'] =
+          (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()
+      ..fields['start_date'] = formatDate(_mulaiTanggal!)
+      ..fields['end_date'] = formatDate(_selesaiTanggal!)
+      ..fields['entry_date'] = formatDate(_tanggalMasuknya!);
+
+    if (_pickedFile != null && _pickedFile!.files.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        _pickedFile!.files.first.path!,
+      ));
+    }
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   int computeTotalCuti() {
@@ -189,15 +407,71 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
     }
   }
 
+  Widget _shimmerSelect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!, // Base color for the shimmer effect
+      highlightColor:
+          Colors.grey[100]!, // Highlight color for the shimmer effect
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: 90, // Adjust width according to the longest word.
+                height: 12,
+                color: Colors.grey,
+              ),
+              const SizedBox(width: 5),
+              Container(
+                width: 10,
+                height: 12,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            height: 50,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 5),
+          Container(
+            width:
+                170, // Adjust width according to '*Syarat & Ketentuan berlaku.'
+            height: 12,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity, // Adjust width here
+            height: 50,
+            color: Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _selectedkhusus() {
+    if (leaveOptions.isEmpty) {
+      return _shimmerSelect(); // Show a loader while waiting for data.
+    }
+
+    var kepentinganCutiOptions = leaveOptions
+        .where((option) => option['type_of_leave_id'] == 2)
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 10), // Add some padding
+        const SizedBox(height: 10),
         Row(
           children: [
             Text(
-              'Kepentingan Cuti',
+              'Cuti Khusus',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -212,9 +486,13 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             ),
           ],
         ),
-        const SizedBox(height: 10), // Add some padding
+        const SizedBox(height: 10),
         DropdownButtonFormField<String>(
           isExpanded: true,
+          value: kepentinganCutiOptions.any(
+                  (option) => option['id'].toString() == selectedValueExclusive)
+              ? selectedValueExclusive
+              : null,
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -229,31 +507,22 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
               color: kTextgrey,
             ),
           ),
-          items: List.generate(kepentinganCuti.length, (index) {
+          items: kepentinganCutiOptions.map((option) {
             return DropdownMenuItem<String>(
-              value: valuekepentinganCuti[index],
-              child: Text(kepentinganCuti[index],
-                  style: GoogleFonts.getFont('Montserrat', fontSize: 14)),
+              value: option['id'].toString(),
+              child: Text(
+                option['description_leave'],
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: kTextgrey,
+                ),
+              ),
             );
-          }),
-          validator: (value) {
-            if (value == null) {
-              return 'Pilih kepentingan cuti.';
-            }
-            return null;
-          },
+          }).toList(),
           onChanged: (value) {
             setState(() {
-              selectedValue = value!;
+              selectedValueExclusive = value!;
             });
-          },
-          selectedItemBuilder: (BuildContext context) {
-            return kepentinganCuti.map<Widget>((String item) {
-              return Text(
-                item,
-                style: GoogleFonts.montserrat(fontSize: 14),
-              );
-            }).toList();
           },
           icon: const Icon(
             LucideIcons.arrowDownCircle,
@@ -261,7 +530,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             size: 17,
           ),
         ),
-        const SizedBox(height: 5), // Add some padding
+        const SizedBox(height: 5),
         Row(
           children: [
             GestureDetector(
@@ -269,7 +538,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SyaratCutiKhusus(),
+                      builder: (context) => DetailSyaratCutiKhusus(),
                     ));
               },
               child: Text(
@@ -283,19 +552,75 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             )
           ],
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        Container(
+          width: double.infinity, // Adjust the width here
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: kBorder,
+              width: 1,
+            ),
+          ),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: _pickFile,
+            child: Row(
+              children: [
+                Expanded(
+                  // Wrapping Text widget in Flexible
+                  child: Text(
+                    _pickedFile != null
+                        ? '${_pickedFile!.files.first.name}'
+                        : 'Pilih Berkas',
+                    overflow: TextOverflow.ellipsis, // Ellipsis overflow
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: kTextgrey,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                const Icon(
+                  LucideIcons.arrowDownCircle,
+                  color: kBorder,
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _selecteddarurat() {
+    if (leaveOptions.isEmpty) {
+      return _shimmerSelect(); // Show a loader while waiting for data.
+    }
+
+    var daruratCutiOptions = leaveOptions
+        .where((option) => option['type_of_leave_id'] == 3)
+        .toList(); // Assuming 3 represents Darurat
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 10), // Add some padding
+        const SizedBox(height: 10),
         Row(
           children: [
             Text(
-              'Darurat Cuti',
+              'Cuti Darurat',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -310,9 +635,13 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             ),
           ],
         ),
-        const SizedBox(height: 10), // Add some padding
+        const SizedBox(height: 10),
         DropdownButtonFormField<String>(
           isExpanded: true,
+          value: daruratCutiOptions.any(
+                  (option) => option['id'].toString() == selectedValueEmergency)
+              ? selectedValueEmergency
+              : null,
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -327,31 +656,24 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
               color: kTextgrey,
             ),
           ),
-          items: List.generate(daruratCuti.length, (index) {
+          items: daruratCutiOptions.map((option) {
             return DropdownMenuItem<String>(
-              value: valuedaruratCuti[index],
-              child: Text(daruratCuti[index],
-                  style: GoogleFonts.getFont('Montserrat', fontSize: 14)),
+              value: option['id'].toString(),
+              child: Text(
+                option['description_leave'],
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: kTextgrey,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             );
-          }),
-          validator: (value) {
-            if (value == null) {
-              return 'Pilih darurat cuti.';
-            }
-            return null;
-          },
+          }).toList(),
           onChanged: (value) {
             setState(() {
-              selectedValue = value!;
+              selectedValueEmergency = value!;
             });
-          },
-          selectedItemBuilder: (BuildContext context) {
-            return daruratCuti.map<Widget>((String item) {
-              return Text(
-                truncateText(item, 40),
-                style: GoogleFonts.montserrat(fontSize: 14),
-              );
-            }).toList();
           },
           icon: const Icon(
             LucideIcons.arrowDownCircle,
@@ -359,7 +681,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             size: 17,
           ),
         ),
-        const SizedBox(height: 5), // Add some padding
+        const SizedBox(height: 5),
         Row(
           children: [
             GestureDetector(
@@ -367,7 +689,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SyaratCutiDarurat(),
+                      builder: (context) => DetailSyaratCutiDarurat(),
                     ));
               },
               child: Text(
@@ -381,432 +703,665 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             )
           ],
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        Container(
+          width: double.infinity, // Adjust the width here
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: kBorder,
+              width: 1,
+            ),
+          ),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: _pickFile,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _pickedFile != null
+                        ? '${_pickedFile!.files.first.name}'
+                        : 'Pilih Berkas',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: kTextgrey,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow
+                        .ellipsis, // Add this to truncate the text with an ellipsis
+                    softWrap: false,
+                  ),
+                ),
+                const Icon(
+                  LucideIcons.arrowDownCircle,
+                  color: kBorder,
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Row(
-            children: [
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: const Icon(
-                  LucideIcons.chevronLeft,
-                  color: kButton,
-                ),
+        elevation: 0,
+        title: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: const Icon(
+                LucideIcons.chevronLeft,
+                color: kButton,
               ),
-              Text(
-                'Kembali',
-                style: GoogleFonts.montserrat(
-                  fontSize: 10,
-                  color: kButton,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            Text(
+              'Kembali',
+              style: GoogleFonts.montserrat(
+                fontSize: 10,
+                color: kButton,
+                fontWeight: FontWeight.w500,
               ),
-              const Spacer(),
-              const Align(
-                alignment: Alignment.center,
-                child: Icon(
-                  LucideIcons.award,
-                  color: Color.fromRGBO(67, 129, 202, 1),
-                ),
-              )
-            ],
-          ),
+            ),
+            const Spacer(),
+            const Align(
+              alignment: Alignment.center,
+              child: Icon(
+                LucideIcons.award,
+                color: Color.fromRGBO(67, 129, 202, 1),
+              ),
+            )
+          ],
         ),
-        body: SafeArea(
-          child: ListView(
-            scrollDirection: Axis.vertical,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              Container(
-                padding: const EdgeInsets.only(left: 3, right: 30),
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(padding: EdgeInsets.only(top: 20)),
-                    Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Divider(
-                        color: Color.fromRGBO(67, 129, 202, 1),
-                        thickness: 2,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Permintaan",
-                          style: GoogleFonts.montserrat(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "Cuti",
-                          style: GoogleFonts.montserrat(
-                            fontSize: 20,
-                            color: const Color.fromRGBO(67, 129, 202, 1),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: 200,
-                      child: Text(
-                        "Permintaan akan di proses oleh HT & Management",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
+      ),
+      body: SafeArea(
+        child: ListView(
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          children: [
+            Container(
+              padding: const EdgeInsets.only(left: 3, right: 30),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Jenis Cuti',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                  const Padding(padding: EdgeInsets.only(top: 20)),
+                  Container(
+                    width: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Divider(
+                      color: Color.fromRGBO(67, 129, 202, 1),
+                      thickness: 2,
                     ),
                   ),
-                  const Text(
-                    '*',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red,
+                  Row(
+                    children: [
+                      Text(
+                        "Permintaan",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "Cuti",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 20,
+                          color: const Color.fromRGBO(67, 129, 202, 1),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 200,
+                    child: Text(
+                      "Permintaan akan di proses oleh HT & Management",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              children: [
+                Text(
+                  'Jenis Cuti',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Text(
+                  '*',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              decoration: InputDecoration(
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              hint: Text(
+                'Pilih jenis cuti',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: kTextgrey,
+                ),
+              ),
+              items: [
+                DropdownMenuItem(
+                    value: 'yearly',
+                    child: Text(
+                      'Tahunan',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: kTextgrey,
+                      ),
+                    )),
+                DropdownMenuItem(
+                    value: 'exclusive',
+                    child: Text(
+                      'Khusus',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: kTextgrey,
+                      ),
+                    )),
+                DropdownMenuItem(
+                    value: 'emergency',
+                    child: Text(
+                      'Darurat',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: kTextgrey,
+                      ),
+                    )),
+              ],
+              validator: (value) {
+                if (value == null) {
+                  return 'Pilih jenis cuti.';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                setState(() {
+                  selectedValueType = value;
+                  if (selectedValueType == 'exclusive') {
+                    selectedValueEmergency =
+                        null; // reset the other dropdown value
+                  } else if (selectedValueType == 'emergency') {
+                    selectedValueExclusive =
+                        null; // reset the other dropdown value
+                  } else if (selectedValueType == 'yearly') {
+                    selectedValueExclusive =
+                        null; // reset the exclusive dropdown value
+                    selectedValueEmergency =
+                        null; // reset the emergency dropdown value
+                    _pickedFile = null; // remove the picked file
+                  }
+                  isKhususSelected = selectedValueType == 'exclusive';
+                  isDaruratSelected = selectedValueType == 'emergency';
+                });
+              },
+              icon: const Icon(LucideIcons.arrowDownCircle,
+                  color: Color(0xffB6B6B6), size: 17),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            TypeAheadField(
+              debounceDuration:
+                  Duration(milliseconds: 300), // debouncing of 300ms
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: subtitueCont,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: kTextgrey, // Or whatever color you want
+                ),
                 decoration: InputDecoration(
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                hint: Text(
-                  'Pilih jenis cuti',
-                  style: GoogleFonts.montserrat(
+                  labelText: 'Pilih pengganti dirimu',
+                  labelStyle: GoogleFonts.montserrat(
                     fontSize: 14,
                     color: kTextgrey,
                   ),
+                  suffixIcon: const Icon(LucideIcons.arrowDownCircle,
+                      color: Color(0xffB6B6B6), size: 17),
                 ),
-                items: List.generate(jenisItems.length, (index) {
-                  return DropdownMenuItem<String>(
-                    value: valueItem[
-                        index], // Use value from valueItem based on the index.
-                    child: Text(
-                      jenisItems[index],
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+              ),
+              suggestionsCallback: (pattern) async {
+                return getSearchSuggestions(pattern);
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(
+                    suggestion['name'],
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: kTextgrey,
                     ),
-                  );
-                }),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Pilih jenis cuti.';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
+                  ),
+                );
+              },
+              onSuggestionSelected: (suggestion) {
+                selectedSubtitue = suggestion['user_id'].toString();
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
                   setState(() {
-                    selectedValue = value!;
-
-                    isKhususSelected = selectedValue == 'exclusive';
-                    isDaruratSelected = selectedValue == 'emergency';
+                    subtitueCont.text = suggestion['name'];
                   });
-                },
-                selectedItemBuilder: (BuildContext context) {
-                  return jenisItems.map<Widget>((String item) {
-                    return Text(
-                      item,
-                      style: GoogleFonts.montserrat(fontSize: 14),
-                    );
-                  }).toList();
-                },
-                icon: const Icon(LucideIcons.arrowDownCircle,
-                    color: Color(0xffB6B6B6), size: 17),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              if (isKhususSelected) _selectedkhusus(),
-              if (isDaruratSelected) _selecteddarurat(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(padding: EdgeInsets.only(top: 18, bottom: 5)),
-                  Row(
-                    children: [
-                      Text(
-                        'Tanggal',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Text(
-                        '*',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.5,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 15),
-                            primary: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(
-                                color: kBorder,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onPressed: _memulaiTanggal,
-                          child: Row(
-                            children: [
-                              Text(
-                                _mulaiTanggal != null
-                                    ? "${_mulaiTanggal!.year}/${_mulaiTanggal!.month}/${_mulaiTanggal!.day}"
-                                    : 'Mulai cuti',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: kTextgrey,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                LucideIcons.calendar,
-                                color: kBorder,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.5,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 15),
-                            primary: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(
-                                color: kBorder,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onPressed: _selesaiTanggall,
-                          child: Row(
-                            children: [
-                              Text(
-                                _selesaiTanggal != null
-                                    ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
-                                    : 'Akhir cuti',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: kTextgrey,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                LucideIcons.calendar,
-                                color: kBorder,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(padding: EdgeInsets.only(top: 10)),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 15),
-                      primary: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(
-                          color: kBorder,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    onPressed: _tanggalMasuk,
-                    child: Row(
-                      children: [
-                        Text(
-                          _tanggalMasuknya != null
-                              ? "${_tanggalMasuknya!.year}/${_tanggalMasuknya!.month}/${_tanggalMasuknya!.day}"
-                              : 'Tanggal Masuk',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: kTextgrey,
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          LucideIcons.calendar,
-                          color: kBorder,
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(padding: EdgeInsets.only(top: 18)),
-                  Row(
-                    children: [
-                      Text(
-                        'Deskripsi',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Text(
-                        '*',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                  TextField(
-                    controller: alasan,
-                    style: GoogleFonts.montserrat(color: kText),
-                    keyboardType: TextInputType.text,
-                    maxLines: 4,
-                    scrollPhysics: const ScrollPhysics(),
-                    decoration: InputDecoration(
-                      hintText: 'Ketikan sesuatu...',
-                      hintStyle: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: kTextgrey,
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: kBorder,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(13),
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(182, 182, 182, 1),
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Total Cuti : ${computeTotalCuti()} hari',
+                });
+              },
+            ),
+            if (isKhususSelected) _selectedkhusus(),
+            if (isDaruratSelected) _selecteddarurat(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(padding: EdgeInsets.only(top: 10, bottom: 5)),
+                Row(
+                  children: [
+                    Text(
+                      'Tanggal',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15, bottom: 35),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          width: 110,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                storeCuti().then((value) {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => CutiScreen()));
-                                  Navigator.pop(context);
-                                });
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              backgroundColor: kButton,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                    const Text(
+                      '*',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16, horizontal: 15),
+                          primary: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(
+                              color: kBorder,
+                              width: 1,
                             ),
-                            child: const Text('Ajukan Cuti'),
                           ),
                         ),
-                      ],
+                        onPressed: _memulaiTanggal,
+                        child: Row(
+                          children: [
+                            Text(
+                              _mulaiTanggal != null
+                                  ? "${_mulaiTanggal!.year}/${_mulaiTanggal!.month}/${_mulaiTanggal!.day}"
+                                  : 'Mulai cuti',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: kTextgrey,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              LucideIcons.calendar,
+                              color: kBorder,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16, horizontal: 15),
+                          primary: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(
+                              color: kBorder,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        onPressed: _selesaiTanggall,
+                        child: Row(
+                          children: [
+                            Text(
+                              _selesaiTanggal != null
+                                  ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
+                                  : 'Akhir cuti',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: kTextgrey,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              LucideIcons.calendar,
+                              color: kBorder,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(padding: EdgeInsets.only(top: 10)),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 18, horizontal: 15),
+                    primary: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(
+                        color: kBorder,
+                        width: 1,
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                  onPressed: _tanggalMasuk,
+                  child: Row(
+                    children: [
+                      Text(
+                        _tanggalMasuknya != null
+                            ? "${_tanggalMasuknya!.year}/${_tanggalMasuknya!.month}/${_tanggalMasuknya!.day}"
+                            : 'Tanggal Masuk',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: kTextgrey,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        LucideIcons.calendar,
+                        color: kBorder,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.only(top: 2)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Total Cuti : ${computeTotalCuti()} hari',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15, bottom: 35),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: 110,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            DateTime now = DateTime.now();
+                            if (selectedValueType == null) {
+                              showSnackbarWarning(
+                                  "Fail...",
+                                  "Jenis cuti belum dipilih",
+                                  kTextBlocker,
+                                  Icon(
+                                    LucideIcons.xCircle,
+                                    size: 26.0,
+                                    color: kTextBlocker,
+                                  ));
+                            } else if (subtitueCont.text.isEmpty) {
+                              showSnackbarWarning(
+                                  "Fail...",
+                                  "Pilih penggantimu",
+                                  kTextBlocker,
+                                  Icon(
+                                    LucideIcons.xCircle,
+                                    size: 26.0,
+                                    color: kTextBlocker,
+                                  ));
+                            } else if (_mulaiTanggal == null ||
+                                _selesaiTanggal == null) {
+                              showSnackbarWarning(
+                                  "Fail...",
+                                  "Tanggal mulai atau akhir belum diisi",
+                                  kTextBlocker,
+                                  Icon(
+                                    LucideIcons.xCircle,
+                                    size: 26.0,
+                                    color: kTextBlocker,
+                                  ));
+                            } else if (_tanggalMasuknya == null) {
+                              showSnackbarWarning(
+                                  "Fail...",
+                                  "Tanggal masuk belum diisi",
+                                  kTextBlocker,
+                                  Icon(
+                                    LucideIcons.xCircle,
+                                    size: 26.0,
+                                    color: kTextBlocker,
+                                  ));
+                            } else if (selectedValueType == 'exclusive') {
+                              if (selectedValueExclusive == null) {
+                                showSnackbarWarning(
+                                    "Fail...",
+                                    "Cuti khusus belum dipilih",
+                                    kTextBlocker,
+                                    Icon(
+                                      LucideIcons.xCircle,
+                                      size: 26.0,
+                                      color: kTextBlocker,
+                                    ));
+                              } else if (_pickedFile == null) {
+                                showSnackbarWarning(
+                                    "Fail...",
+                                    "File belum dipilih",
+                                    kTextBlocker,
+                                    Icon(
+                                      LucideIcons.xCircle,
+                                      size: 26.0,
+                                      color: kTextBlocker,
+                                    ));
+                              } else if (_mulaiTanggal!
+                                  .isBefore(now.add(Duration(days: 1)))) {
+                                showSnackbarWarning(
+                                    "Fail...",
+                                    "Pengajuan cuti khusus harus H-2",
+                                    kTextBlocker,
+                                    Icon(
+                                      LucideIcons.xCircle,
+                                      size: 26.0,
+                                      color: kTextBlocker,
+                                    ));
+                              }
+                            } else if (selectedValueType == 'yearly') {
+                        if (widget.yearly['data'] == 12) {
+      // The validation for not allowing leave when yearly['data'] is 12
+      showSnackbarWarning(
+          "Fail...",
+          "Cuti tahunan mu sudah habis ",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+    }
+  else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
+    showSnackbarWarning(
+        "Fail...",
+        "Pengajuan cuti khusus harus H-2",
+        kTextBlocker,
+        Icon(
+          LucideIcons.xCircle,
+          size: 26.0,
+          color: kTextBlocker,
+        ));
+  } else {
+    int duration = _selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1;
+    if (duration > 3) {
+      showSnackbarWarning(
+          "Fail...",
+          "Maksimal cuti berturut adalah 3 hari.",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+    } 
+  }
+}
+ else if (selectedValueType == 'emergency') {
+                              if (selectedValueEmergency == null) {
+                                showSnackbarWarning(
+                                    "Fail...",
+                                    "Cuti darurat belum dipilih",
+                                    kTextBlocker,
+                                    Icon(
+                                      LucideIcons.xCircle,
+                                      size: 26.0,
+                                      color: kTextBlocker,
+                                    ));
+                              } else if (_pickedFile == null) {
+                                showSnackbarWarning(
+                                    "Fail...",
+                                    "File belum dipilih",
+                                    kTextBlocker,
+                                    Icon(
+                                      LucideIcons.xCircle,
+                                      size: 26.0,
+                                      color: kTextBlocker,
+                                    ));
+                              }
+                              // Since it's emergency, no need to check for H-2 as it's allowed on the day.
+                            } else {
+                              showSnackbarWarning(
+                                  "Success",
+                                  "Permintaan sudah dikirim",
+                                  kTextoo,
+                                  Icon(
+                                    LucideIcons.checkCircle2,
+                                    size: 26.0,
+                                    color: kTextoo,
+                                  ));
+                            }
+                            print("Selected Value Type: $selectedValueType");
+                            print("Selected Value Yearly: $selectedValue");
+                            print(
+                                "Selected Value Exclusive: $selectedValueExclusive");
+                            print(
+                                "Selected Value Emergency: $selectedValueEmergency");
+                            print(
+                                "Mulai Tanggal: ${_mulaiTanggal?.toIso8601String()}");
+                            print(
+                                "Selesai Tanggal: ${_selesaiTanggal?.toIso8601String()}");
+                            print(
+                                "Tanggal Masuk: ${_tanggalMasuknya?.toIso8601String()}");
+                            print("Pengganti : $selectedSubtitue");
+                            if (_pickedFile != null &&
+                                _pickedFile!.files.isNotEmpty) {
+                              print(
+                                  "Picked File Path: ${_pickedFile!.files.first.path}");
+                            }
+                            // setState(() {
+                            //   storeCuti().then((value) {
+                            //     // Navigator.push(
+                            //     //     context,
+                            //     //     MaterialPageRoute(
+                            //     //         builder: (context) => CutiScreen()));
+                            //     Navigator.pop(context);
+                            //   });
+                            // });
+
+                            // Your print statements...
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: kButton,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Ajukan Cuti'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

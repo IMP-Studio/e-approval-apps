@@ -280,7 +280,7 @@ class _EditPerjadinState extends State<EditPerjadin>
                 height: 5,
               ),
               Container(
-                width: double.infinity, // Adjust the width here
+                width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
@@ -301,24 +301,31 @@ class _EditPerjadinState extends State<EditPerjadin>
                   onPressed: _pickFile,
                   child: Row(
                     children: [
-                      Text(
+                      Expanded(
+                        // Wrapping Text widget in Flexible
+                        child: Text(
                           _pickedFile != null
                               ? '${_pickedFile!.files.first.name}'
                               : '${widget.absen['file']}',
+                          overflow: TextOverflow.ellipsis, // Ellipsis overflow
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             color: kTextgrey,
                             fontWeight: FontWeight.w400,
-                          )),
+                          ),
+                        ),
+                      ),
                       const Spacer(),
                       const Icon(
                         LucideIcons.arrowDownCircle,
                         color: kBorder,
+                         size: 16,
                       ),
                     ],
                   ),
                 ),
               ),
+
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -506,19 +513,20 @@ class _EditPerjadinState extends State<EditPerjadin>
                           child: ElevatedButton(
                             onPressed: () {
                               print(
-                                _pickedFile?.files.first.name,
+                                _pickedFile?.files.first.path,
                               );
                               print(_selesaiTanggal);
                               print(_selectedDate);
                               print(_tanggalKembali);
+                              print(widget.absen['id']);
 
-                              updatePresence().then((value) {
-                                Navigator.pop(context); // Pop once
-                                Navigator.pop(context, 'refresh'); // Pop again
-                              });
+                              // updatePresence().then((value) {
+                              //   Navigator.pop(context); // Pop once
+                              //   Navigator.pop(context, 'refresh'); // Pop again
+                              // });
                             },
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 2),
                               backgroundColor: kButton,
                               shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(

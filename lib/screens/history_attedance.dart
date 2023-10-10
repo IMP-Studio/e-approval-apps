@@ -1426,16 +1426,37 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                     ],
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.only(left: 20.0),
+                Row(
+                  children: [
+                   Container(
+                    padding: EdgeInsets.only(left: 20),
+                    child:  Text(
+                                  "Riwayat",
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      color: hitamText,
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.048,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                   ),
+                                Spacer(),
+                    Container(
+                  padding: EdgeInsets.only(right: 20.0),
                   child: Stack(
                     children: [
                       GestureDetector(
                         onTap: () {
+                          final historyArgs = {
+                            'user_id': preferences?.getInt('user_id') ?? 0
+                            };
+                          print(historyArgs);
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DetailHistoryResume(),
+                                builder: (context) => DetailHistoryResume(
+                                  arguments : historyArgs
+                                ),
                               ));
                         },
                         child: Container(
@@ -1486,6 +1507,8 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                       ),
                     ],
                   ),
+                ),
+                  ],
                 ),
                 SizedBox(
                   height: 10,

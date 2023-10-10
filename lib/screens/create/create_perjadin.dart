@@ -244,45 +244,50 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                 height: 5,
               ),
               Container(
-                width: double.infinity, // Adjust the width here
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: kBorder,
-                    width: 1,
-                  ),
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 15),
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: _pickFile,
-                  child: Row(
-                    children: [
-                      Text(
+          width: double.infinity, // Adjust the width here
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: kBorder,
+              width: 1,
+            ),
+          ),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: _pickFile,
+            child: Row(
+              children: [
+                Expanded(
+                        // Wrapping Text widget in Flexible
+                        child: Text(
                           _pickedFile != null
                               ? '${_pickedFile!.files.first.name}'
-                              : 'Pilih Berkas',
+                              :  'Pilih Berkas',
+                          overflow: TextOverflow.ellipsis, // Ellipsis overflow
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             color: kTextgrey,
                             fontWeight: FontWeight.w400,
-                          )),
-                      const Spacer(),
-                      const Icon(
-                        LucideIcons.arrowDownCircle,
-                        color: kBorder,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
+                      const Spacer(),
+                const Icon(
+                  LucideIcons.arrowDownCircle,
+                  color: kBorder,
+                  size: 16,
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

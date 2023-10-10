@@ -2,18 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'dart:math';
+import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 
-class SyaratCutiDarurat extends StatefulWidget {
-  const SyaratCutiDarurat({super.key});
+class DetailSyaratCutiDarurat extends StatefulWidget {
+  const DetailSyaratCutiDarurat({super.key});
 
   @override
-  State<SyaratCutiDarurat> createState() => _SyaratCutiDaruratState();
+  State<DetailSyaratCutiDarurat> createState() =>
+      _DetailSyaratCutiDaruratState();
 }
 
-class _SyaratCutiDaruratState extends State<SyaratCutiDarurat> {
+class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
+  void initState() {
+    super.initState();
+    getDarurat();
+  }
+
+  Future getDarurat() async {
+    String baseURL =
+        'https://testing.impstudio.id/approvall/api/leave/option?type=3';
+
+    var response = await http.get(Uri.parse(baseURL));
+    print(response.body);
+    print(baseURL);
+    return jsonDecode(response.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
@@ -134,160 +158,180 @@ class _SyaratCutiDaruratState extends State<SyaratCutiDarurat> {
                         SizedBox(
                           height: 10.0,
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      color: kTextUnselectedOpa, width: 0.5))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 320,
-                                child: Text(
-                                  "Suami/Istri, Orangtua/Mertua/Anak/Menantu meninggal dunia",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kTextBlcknw,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
+                        FutureBuilder(
+                          future: getDarurat(),
+                          builder: (context, snapshot) {
+                            // Check for errors first.
+                            if (snapshot.hasError) {
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: 15, // number of mock items
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      margin: EdgeInsets.only(bottom: 10),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10.0),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                              color: kTextUnselectedOpa,
+                                              width: 0.5),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                (160 / 320),
+                                            color: Colors.grey[
+                                                300], // placeholder color for the text
+                                            height:
+                                                20, // giving it a height to simulate a line of text
+                                          ),
+                                          Spacer(),
+                                          Container(
+                                            color: Colors
+                                                .grey[300], // placeholder color
+                                            width:
+                                                20, // width for the mock number
+                                            height:
+                                                20, // height for the mock number
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                              Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Text(
-                                  "2",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kBlck,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
+                              );
+                            }
+
+                            // Check the connection state.
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: 15, // number of mock items
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      margin: EdgeInsets.only(bottom: 10),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10.0),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                              color: kTextUnselectedOpa,
+                                              width: 0.5),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                (160 / 320),
+                                            color: Colors.grey[
+                                                300], // placeholder color for the text
+                                            height:
+                                                20, // giving it a height to simulate a line of text
+                                          ),
+                                          Spacer(),
+                                          Container(
+                                            color: Colors
+                                                .grey[300], // placeholder color
+                                            width:
+                                                20, // width for the mock number
+                                            height:
+                                                20, // height for the mock number
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      color: kTextUnselectedOpa, width: 0.5))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Saudara dalam satu rumah meninggal dunia",
-                                style: GoogleFonts.getFont('Montserrat',
-                                    color: kTextBlcknw,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.028,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Text(
-                                  "1",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kBlck,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
+                              );
+                            }
+
+                            if (snapshot.data?['data'] == null ||
+                                snapshot.data['data'].isEmpty) {
+                              return Center(
+                                child: Container(
+                                  color: Colors.white,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      color: kTextUnselectedOpa, width: 0.5))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Merawat anggota keluarga karyawan yang sakit",
-                                style: GoogleFonts.getFont('Montserrat',
-                                    color: kTextBlcknw,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.028,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Text(
-                                  "3",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kBlck,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      color: kTextUnselectedOpa, width: 0.5))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 320,
-                                child: Text(
-                                  "Merawat anak karyawan yang sakit dengan ketentuan anak berusia maksimal 6 (enam) tahun",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kTextBlcknw,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                              Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5),
-                                child: Text(
-                                  "3",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: kBlck,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.028,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
+                              );
+                            }
+
+                            var limitedData = snapshot.data['data'].toList();
+                            return ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: limitedData.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                              color: kTextUnselectedOpa,
+                                              width: 0.5))),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                (160 / 320),
+                                        child: Text(
+                                          limitedData[index]
+                                              ['description_leave'],
+                                          style: GoogleFonts.getFont(
+                                              'Montserrat',
+                                              color: kTextBlcknw,
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.028,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Text(
+                                          limitedData[index]['days'].toString(),
+                                          style: GoogleFonts.getFont(
+                                              'Montserrat',
+                                              color: kBlck,
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.028,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        )
                       ],
                     ),
                   ),

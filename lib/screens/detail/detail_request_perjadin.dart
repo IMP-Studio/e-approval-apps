@@ -489,14 +489,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              Text(
-                                "1.2MB",
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 6,
-                                  color: kTextgrey,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              
                             ],
                           ),
                         ),

@@ -47,10 +47,10 @@ enum AttendanceStatus {
   checkedOut,
   completed,
   pendingStatus,
-  perjadinStatus,
+  Perjadin,
   leaveStatus,
   canReAttend,
-  bolos,
+  Bolos,
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
@@ -96,7 +96,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future? _absensiAll;
   Future? _absensiToday;
 
-  TimeOfDay? _currentTime;
+  TimeOfDay? _currentTime = TimeOfDay.now();
+
   String? _timeStatus;
 
   final List<String> genderItems = [
@@ -183,8 +184,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           case 'pendingStatus':
             _attendanceStatus = AttendanceStatus.pendingStatus;
             break;
-          case 'perjadinStatus':
-            _attendanceStatus = AttendanceStatus.perjadinStatus;
+          case 'Perjadin':
+            _attendanceStatus = AttendanceStatus.Perjadin;
             break;
           case 'leaveStatus':
             _attendanceStatus = AttendanceStatus.leaveStatus;
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             _attendanceStatus = AttendanceStatus.canReAttend;
             break;
           case 'Bolos':
-            _attendanceStatus = AttendanceStatus.bolos;
+            _attendanceStatus = AttendanceStatus.Bolos;
             break;
           default:
             _attendanceStatus = AttendanceStatus.notAttended;
@@ -221,7 +222,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildCheckInButton();
       case AttendanceStatus.pendingStatus:
         return _buildPendingButton();
-      case AttendanceStatus.perjadinStatus:
+      case AttendanceStatus.Perjadin:
         return _buildPerjadinButton();
       case AttendanceStatus.leaveStatus:
         return _buildLeaveButton();
@@ -229,7 +230,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildCheckOutButton();
       case AttendanceStatus.checkedOut:
         return _buildCheckedOutButton();
-      case AttendanceStatus.bolos:
+      case AttendanceStatus.Bolos:
         return _buildBolosButton();
       case AttendanceStatus.completed:
       default:
@@ -328,7 +329,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       ),
       child: Text(
-        'Check In | Perjadin',
+        'PERJADIN',
         style: GoogleFonts.inter(
           color: whiteText,
           fontSize: 14,
@@ -417,12 +418,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
-    TimeOfDay? _currentTime;
 
     TimeOfDay morningLimit = const TimeOfDay(hour: 0, minute: 1);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
 
- bool isBeforeEveningLimit = isTimeOfDayBefore(_currentTime!, eveningLimit);
+bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTime!, eveningLimit) : false;
   bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
 
   bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
@@ -508,54 +508,58 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.02,
                             ),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                elevation: isBeforeEveningLimit ? 0 : 3,
-                                backgroundColor: isBeforeEveningLimit
-                                    ? Colors.transparent
-                                    : kButton,
-                                foregroundColor: Colors.black,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                side: BorderSide(
-                                  width: 1,
-                                  color: isBeforeEveningLimit
-                                      ? Colors.black
-                                      : kButton,
-                                ),
-
-                                // Mengatur lebar tombol menjadi double.infinity
-
-                                minimumSize: const Size(double.infinity, 45),
-                              ),
-                              onPressed:
-                                  isBeforeEveningLimit && isAfterMorningLimit
-                                      ? null
-                                      : () {
-                                          checkOutToday().then((_) {
-                                            setState(() {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        MainLayout(),
-                                                  ));
-                                            });
-                                          });
-                                        },
-                              child: Text("Pulang",
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.034,
-                                    color: isBeforeEveningLimit
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  )),
+                             isLoading
+          ? Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: double.infinity,
+                height: 45.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+              ),
+            )
+          : OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                elevation: isBeforeEveningLimit ? 0 : 3,
+                backgroundColor: isBeforeEveningLimit
+                    ? Colors.transparent
+                    : kButton,
+                foregroundColor: Colors.black,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                side: BorderSide(
+                  width: 1,
+                  color: isBeforeEveningLimit ? Colors.black : kButton,
+                ),
+                minimumSize: const Size(double.infinity, 45),
+              ),
+              onPressed: isBeforeEveningLimit && isAfterMorningLimit
+                  ? null
+                  : () {
+                      checkOutToday().then((_) {
+                        setState(() {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainLayout(),
                             ),
+                          );
+                        });
+                      });
+                    },
+              child: Text(
+                "Pulang",
+                style: GoogleFonts.montserrat(
+                  fontSize: MediaQuery.of(context).size.width * 0.034,
+                  color: isBeforeEveningLimit ? Colors.black : Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
                           ],
                         ),
                       ),
@@ -573,7 +577,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget _buildCheckedOutButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
+       backgroundColor: Colors.white,
+        shadowColor: Colors.black,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -622,7 +627,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           side: BorderSide(color: Colors.black, width: 1)),
       child: Text(
-        'Completed',
+        'Unknown',
         style: GoogleFonts.inter(
           color: hitamText,
           fontSize: 14,
@@ -677,7 +682,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         color: Colors.black12,
                       ),
                     ),
-                    if (showAtributModalCheckOut) _modalPendingAttribute(),
+                    if (showAtributModalCheckOut) _modalBolosAttribute(),
                     Center(
                       child: Column(
                         children: [
@@ -901,12 +906,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchNTPTime() async {
+  try {
     DateTime ntpTime = await NTP.now(lookUpAddress: 'id.pool.ntp.org');
     setState(() {
       _currentTime = TimeOfDay(hour: ntpTime.hour, minute: ntpTime.minute);
       isLoading = false;
     });
+  } catch (e) {
+    print('Failed to fetch NTP time: $e');
+    // Handle the error appropriately here, maybe by showing an error message to the user
   }
+}
+
 
   Future<void> refreshData() async {
     await getUserData().then((_) {
@@ -2177,15 +2188,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     height: 34,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 4.0,
-                          spreadRadius: 0.0, // Set to 0 for no spread
-                          offset:
-                              const Offset(1, 1), // changes position of shadow
-                        ),
-                      ],
+                     
                       color: kButton,
                     ),
                     child: _buildButtonBasedOnStatus()),
@@ -2318,7 +2321,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           width: double.infinity,
-          height: 54,
+          height: 62,
           decoration: const BoxDecoration(),
           child: ElevatedButton(
             onPressed: () {
@@ -2349,23 +2352,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 )),
           ),
         ),
+        
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.02,
+          height: MediaQuery.of(context).size.height * 0.005,
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           width: double.infinity,
-          height: 38,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: const Color(0xff4381ca),
-              width: 1,
-            ),
-          ),
+          height: 62,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
+              backgroundColor: kButton,
               shadowColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -2374,7 +2371,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Text('PERJADIN',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
-                  color: hitamText,
+                  color: whiteText,
                   fontWeight: FontWeight.w600,
                 )),
             onPressed: () {
@@ -2384,8 +2381,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     builder: (context) => const CreatePerjadin(),
                   ));
               // setState(() {
-              //   selectedOption = 'PERJADIN';
-              //   _tinggimodal = 420;
+              //   selectedOption = 'WFO';
               //   showCheckin = false;
               //   showAtributModalCheckin = false;
               // });
@@ -2393,12 +2389,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.02,
+          height: MediaQuery.of(context).size.height * 0.005,
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           width: double.infinity,
-          height: 54,
+          height: 62,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: kButton,
@@ -2525,9 +2521,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.only(left: 18.0, top: 16, bottom: 10),
+        padding: const EdgeInsets.only( top: 16, bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -2554,14 +2551,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             const SizedBox(
               height: 5,
             ),
-            Text(
+            Container(
+              width: MediaQuery.of(context).size.width / 1.3,
+              child: Text(
               'Kamu sudah bolos hari ini, tolong untuk tidak melakukan lagi dihari berikutnya',
-              style: GoogleFonts.montserrat(
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(          
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: const Color.fromRGBO(182, 182, 182, 1),
               ),
             ),
+            )
           ],
         ),
       ),
