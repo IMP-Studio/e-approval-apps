@@ -183,10 +183,10 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   }
 
   final List<String> jenisItems = [
-    'kesehatan',
-    'keluarga',
-    'pendidikan',
-    'other',
+    'Kesehatan',
+    'Keluarga',
+    'Pendidikan',
+    'Other',
   ];
 
   String? selectedValue;

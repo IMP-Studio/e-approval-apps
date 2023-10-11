@@ -62,6 +62,8 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
         data = jsonDecode(widget.profile['facepoint']);
       }
 
+      print('desc :' + widget.arguments['description']);
+
       print('file guach : ${widget.arguments['file'].toString()}');
 
       await _updateLocationAndAddress();
@@ -205,76 +207,73 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   Timer? recognitionTimer;
 
   Future<void> _storeAndNavigate() async {
-  // Check if a storing process is ongoing, if yes, return immediately
-  if (isStoringFace) {
-    return;
-  }
-
-  // Set the flag to indicate a storing process is starting
-  isStoringFace = true;
-
-  try {
-    print('Button pressed');
-    final String nameFromArguments = nama_lengkap;
-    data[nameFromArguments] = e1;
-
-    print('Before storeAbsen()');
-    
-    // Assuming storeAbsen() returns a Future, we need to await it to ensure it completes
-    await storeAbsen(); 
-
-    print('After storeAbsen()');
-
-    if (_camera != null) {
-      print('Stopping camera and disposing...');
-      await _camera!.stopImageStream();
-      await _camera!.dispose();
-
-      _camera = null;
-      _timer.cancel();
+    // Check if a storing process is ongoing, if yes, return immediately
+    if (isStoringFace) {
+      return;
     }
 
-    print('Before navigation');
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainLayout()),
-      );
+    // Set the flag to indicate a storing process is starting
+    isStoringFace = true;
+
+    try {
+      print('Button pressed');
+      final String nameFromArguments = nama_lengkap;
+      data[nameFromArguments] = e1;
+
+      print('Before storeAbsen()');
+
+      // Assuming storeAbsen() returns a Future, we need to await it to ensure it completes
+      await storeAbsen();
+
+      print('After storeAbsen()');
+
+      if (_camera != null) {
+        print('Stopping camera and disposing...');
+        await _camera!.stopImageStream();
+        await _camera!.dispose();
+
+        _camera = null;
+        _timer.cancel();
+      }
+
+      print('Before navigation');
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainLayout()),
+        );
+      }
+      print('After navigation');
+    } catch (error) {
+      print('Error: $error');
+    } finally {
+      // Reset the flag once the storing process completes
+      isStoringFace = false;
+
+      // Cancel any ongoing recognitionTimer
+      recognitionTimer?.cancel();
+      recognitionTimer = null;
     }
-    print('After navigation');
-  } catch (error) {
-    print('Error: $error');
-  } finally {
-    // Reset the flag once the storing process completes
-    isStoringFace = false;
-    
-    // Cancel any ongoing recognitionTimer
-    recognitionTimer?.cancel(); 
-    recognitionTimer = null;
-  }
-}
-
-
-void onFaceDetected(String recognizedName) {
-  if (isStoringFace) {
-    return;
   }
 
-  // If face is recognized and there's no active timer, set the timer
-  if (recognizedName.isNotEmpty && recognitionTimer == null) {
-    faceRecognized = true;
-    recognitionTimer = Timer(const Duration(seconds: 7), () async {
-      await _storeAndNavigate();
-    });
-  } 
-  // If recognizedName is empty or not a valid name, cancel any ongoing timer
-  else if (recognizedName.isEmpty || recognizedName == "TIDAK DIKENALI") {
-    faceRecognized = false;
-    recognitionTimer?.cancel();
-    recognitionTimer = null;
+  void onFaceDetected(String recognizedName) {
+    if (isStoringFace) {
+      return;
+    }
+
+    // If face is recognized and there's no active timer, set the timer
+    if (recognizedName.isNotEmpty && recognitionTimer == null) {
+      faceRecognized = true;
+      recognitionTimer = Timer(const Duration(seconds: 7), () async {
+        await _storeAndNavigate();
+      });
+    }
+    // If recognizedName is empty or not a valid name, cancel any ongoing timer
+    else if (recognizedName.isEmpty || recognizedName == "TIDAK DIKENALI") {
+      faceRecognized = false;
+      recognitionTimer?.cancel();
+      recognitionTimer = null;
+    }
   }
-}
-
-
 
   void initialCamera() async {
     CameraDescription description =
@@ -423,9 +422,7 @@ void onFaceDetected(String recognizedName) {
       "longitude": _position!.longitude.toString(),
       "date": DateTime.now().toIso8601String(),
       "face_point": jsonData ?? 'sawarasenaii',
-      "status": widget.profile['permission'] == 'ordinary_employee'
-          ? 'pending'
-          : 'allow_HT',
+      "status": 'pending'
     };
 
     request.fields.addAll(fields);
@@ -483,27 +480,25 @@ void onFaceDetected(String recognizedName) {
       resizeToAvoidBottomInset: false,
       floatingActionButton: widget.profile['facepoint'] == null
           ? FloatingActionButton(
-    onPressed: () async {
-        if (recognitionTimer != null) {
-            // If the timer is active, cancel it to prevent duplicate action
-            recognitionTimer?.cancel();
-            recognitionTimer = null;
-        }
+              onPressed: () async {
+                if (recognitionTimer != null) {
+                  // If the timer is active, cancel it to prevent duplicate action
+                  recognitionTimer?.cancel();
+                  recognitionTimer = null;
+                }
 
-        if (!_faceFound) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        'No face detected. Ensure your face is in view.')),
-            );
-            return;
-        }
+                if (!_faceFound) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'No face detected. Ensure your face is in view.')),
+                  );
+                  return;
+                }
 
-        await _storeAndNavigate();
-    },
-    child: const Icon(Icons.photo_camera_outlined)
-)
-
+                await _storeAndNavigate();
+              },
+              child: const Icon(Icons.photo_camera_outlined))
           : Container(
               color: Colors.transparent,
             ),

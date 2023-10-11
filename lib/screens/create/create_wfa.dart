@@ -173,7 +173,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
     'Kesehatan',
     'Keluarga',
     'Pendidikan',
-    'Lainnya',
+    'Other',
   ];
 
   void initState() {
@@ -435,7 +435,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                 }).toList();
               },
             ),
-            if (selectedValue == 'Lainnya') _inputdeskripsi(),
+            if (selectedValue == 'Other') _inputdeskripsi(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -488,7 +488,6 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                                           'description':
                                               descriptionController.text,
                                         };
-
                                         print(facePageArgs);
 
                                         Navigator.push(
