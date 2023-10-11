@@ -106,7 +106,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     DateTime? newDate = await showDatePicker(
       context: context,
       initialDate: _selesaiTanggal ?? DateTime.now(),
-      firstDate:DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
 
@@ -121,7 +121,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     DateTime? newDate = await showDatePicker(
       context: context,
       initialDate: _tanggalKembali ?? DateTime.now(),
-      firstDate:DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
 
@@ -296,6 +296,43 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  bool areInputsValidForWorkTrip() {
+    if (_pickedFile == null) {
+      showSnackbarWarning("Fail...", "File belum dipilih", kTextBlocker,
+          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+      return false;
+    }
+    if (_selectedDate == null || _selesaiTanggal == null) {
+      showSnackbarWarning(
+          "Fail...",
+          "Tanggal mulai atau akhir belum diisi",
+          kTextBlocker,
+          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+      return false;
+    }
+    if (_tanggalKembali == null) {
+      showSnackbarWarning("Fail...", "Tanggal masuk belum diisi", kTextBlocker,
+          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+      return false;
+    }
+    if (differenceInDays < 0) {
+      showSnackbarWarning(
+          "Fail...",
+          "Tanggal mulai dan akhir tidak valid",
+          kTextBlocker,
+          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+      return false;
+    }
+    if (differenceInDays2 > 3) {
+      showSnackbarWarning(
+          "Fail...",
+          "Maksimal untuk kembali adalah 2 hari",
+          kTextBlocker,
+          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+      return false;
+    }
+    return true;
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -653,76 +690,26 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                             if (snapshot.connectionState ==
                                 ConnectionState.done) {
                               if (snapshot.hasError) {
-                                return const Text(
-                                    'Error occurred while fetching profile');
+                                return Shimmer.fromColors(
+                                  baseColor: kButton.withOpacity(0.5),
+                                  highlightColor: kButton.withOpacity(0.7),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      color: kButton,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 19),
+                                  ),
+                                );
                               } else {
                                 var profileData = snapshot.data['data'][0];
 
                                 return ElevatedButton(
                                   onPressed: () {
-                                    if (_pickedFile == null) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "File belum dipilih",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else if (_selectedDate == null ||
-                                        _selesaiTanggal == null) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "Tanggal mulai atau akhir belum diisi",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else if (_selectedDate!
-                                        .isBefore(DateTime.now())) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "Tanggal mulai tidak valid",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else if (_tanggalKembali == null) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "Tanggal masuk belum diisi",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else if (differenceInDays < 0) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "Tanggal mulai dan akhir tidak valid",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else if (differenceInDays2 > 3) {
-                                      showSnackbarWarning(
-                                          "Fail...",
-                                          "Maksimal untuk kembali adalah 2 hari",
-                                          kTextBlocker,
-                                          Icon(
-                                            LucideIcons.xCircle,
-                                            size: 26.0,
-                                            color: kTextBlocker,
-                                          ));
-                                    } else {
+                                    if (areInputsValidForWorkTrip()) {
                                       setState(() {
                                         final facePageArgs = {
                                           'category': 'work_trip',

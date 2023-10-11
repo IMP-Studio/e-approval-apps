@@ -70,89 +70,101 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       }
     });
     final snackBar = SnackBar(
- margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10), // Adjust margin for top
-  content: StatefulBuilder(
-    builder: (BuildContext context, setState) {
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            padding: EdgeInsets.all(4.0),
-            child: Row(
-              children: [
-                SizedBox(width: 15),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Column(mainAxisAlignment: MainAxisAlignment.center, children: [customIcon]),
-                      SizedBox(width: 15),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+      margin: EdgeInsets.only(
+          top:
+              MediaQuery.of(context).padding.top + 10), // Adjust margin for top
+      content: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: Row(
                         children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.65,
-                            child: Text(
-                              message,
-                              style: GoogleFonts.getFont('Montserrat',
-                                  textStyle: TextStyle(color: kBlck, fontSize: MediaQuery.of(context).size.width * 0.034, fontWeight: FontWeight.w600)),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              softWrap: true,
-                            ),
-                          ),
-                          Padding(padding: EdgeInsets.symmetric(vertical: 2)),
-                          Text(
-                            submessage,
-                            style: GoogleFonts.getFont('Montserrat', color: Colors.black, fontWeight: FontWeight.w400, fontSize: 10),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [customIcon]),
+                          SizedBox(width: 15),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.65,
+                                child: Text(
+                                  message,
+                                  style: GoogleFonts.getFont('Montserrat',
+                                      textStyle: TextStyle(
+                                          color: kBlck,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.034,
+                                          fontWeight: FontWeight.w600)),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                ),
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2)),
+                              Text(
+                                submessage,
+                                style: GoogleFonts.getFont('Montserrat',
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 10),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 3,
-                  offset: Offset(0, 2),
+                    )
+                  ],
                 ),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-          ),
-          Container(
-            width: 5,
-            height: 50,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                topLeft: Radius.circular(10),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
               ),
-            ),
-          ),
-        ],
-      );
-    },
-  ),
-  behavior: SnackBarBehavior.floating,
-  backgroundColor: Colors.transparent,
-  elevation: 0,
-  duration: Duration(seconds: 3), // Reduced duration
-);
+              Container(
+                width: 5,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topLeft: Radius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      duration: Duration(seconds: 3), // Reduced duration
+    );
 
-ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -221,8 +233,8 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
   TextEditingController tanggal_masuk = TextEditingController();
 
   Future<List<Map<String, dynamic>>> fetchLeaveOptions() async {
-    final response = await http.get(
-        Uri.parse('https://d2ce-182-253-246-22.ngrok-free.app/api/leave/option'));
+    final response = await http.get(Uri.parse(
+        'https://d2ce-182-253-246-22.ngrok-free.app/api/leave/option'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -296,15 +308,16 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } else if (selectedValueType == 'emergency') {
       leaveDetailId = selectedValueEmergency;
     } else if (selectedValueType == 'yearly') {
-        if (leaveOptions.any((option) => option['type_leave'] == 'yearly')) {
-            final yearlyOption = leaveOptions.firstWhere((option) => option['type_leave'] == 'yearly');
-            leaveDetailId = yearlyOption['id'].toString();
-        } else {
-            leaveDetailId = '1'; // Default fallback ID for yearly
-        }
+      if (leaveOptions.any((option) => option['type_leave'] == 'yearly')) {
+        final yearlyOption = leaveOptions
+            .firstWhere((option) => option['type_leave'] == 'yearly');
+        leaveDetailId = yearlyOption['id'].toString();
+      } else {
+        leaveDetailId = '1'; // Default fallback ID for yearly
+      }
     } else {
-        print("Unexpected selectedValueType: $selectedValueType");
-        return;
+      print("Unexpected selectedValueType: $selectedValueType");
+      return;
     }
 
     http.MultipartRequest request = new http.MultipartRequest('POST', uri)
@@ -312,7 +325,8 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
       ..fields['leave_detail_id'] = leaveDetailId ?? ""
       ..fields['substitute_id'] = selectedSubtitue ?? ""
       ..fields['submission_date'] = DateTime.now().toIso8601String()
-      ..fields['total_leave_days'] = (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()
+      ..fields['total_leave_days'] =
+          (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()
       ..fields['start_date'] = formatDate(_mulaiTanggal!)
       ..fields['end_date'] = formatDate(_selesaiTanggal!)
       ..fields['entry_date'] = formatDate(_tanggalMasuknya!);
@@ -325,22 +339,22 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
 
     try {
-        http.StreamedResponse response = await request.send();
-        final responseData = await response.stream.bytesToString();
+      http.StreamedResponse response = await request.send();
+      final responseData = await response.stream.bytesToString();
 
-        if (response.statusCode == 200) {
-            print(responseData);
-        } else {
-            print('Error response:');
-            print(responseData); // Printing the actual server response for debugging
-            print('Status code: ${response.statusCode}');
-            print('Reason: ${response.reasonPhrase}');
-        }
+      if (response.statusCode == 200) {
+        print(responseData);
+      } else {
+        print('Error response:');
+        print(
+            responseData); // Printing the actual server response for debugging
+        print('Status code: ${response.statusCode}');
+        print('Reason: ${response.reasonPhrase}');
+      }
     } catch (e) {
-        print('Error sending request: $e');
+      print('Error sending request: $e');
     }
-}
-
+  }
 
   int computeTotalCuti() {
     if (_mulaiTanggal != null && _selesaiTanggal != null) {
@@ -481,7 +495,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
   Widget _shimmerSelect() {
     return Shimmer.fromColors(
-      baseColor:  Colors.grey[300]!, // Base color for the shimmer effect
+      baseColor: Colors.grey[300]!, // Base color for the shimmer effect
       highlightColor:
           Colors.grey[100]!, // Highlight color for the shimmer effect
       child: Column(
@@ -831,167 +845,165 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   bool areInputsValid() {
-  DateTime now = DateTime.now();
-  
-  if (selectedValueType == null) {
-    showSnackbarWarning(
-                                  "Fail...",
-                                  "Jenis cuti belum dipilih",
-                                  kTextBlocker,
-                                  Icon(
-                                    LucideIcons.xCircle,
-                                    size: 26.0,
-                                    color: kTextBlocker,
-                                  ));
-    return false;
-  }
-  
-  if (subtitueCont.text.isEmpty) {
-    showSnackbarWarning(
-                                  "Fail...",
-                                  "Pilih penggantimu",
-                                  kTextBlocker,
-                                  Icon(
-                                    LucideIcons.xCircle,
-                                    size: 26.0,
-                                    color: kTextBlocker,
-                                  ));
-    return false;
-  }
-  
-  if (_mulaiTanggal == null || _selesaiTanggal == null) {
-    showSnackbarWarning(
-                                  "Fail...",
-                                  "Tanggal mulai atau akhir belum diisi",
-                                  kTextBlocker,
-                                  Icon(
-                                    LucideIcons.xCircle,
-                                    size: 26.0,
-                                    color: kTextBlocker,
-                                  ));
-    return false;
-  }
-  
-  if (_tanggalMasuknya == null) {
-    showSnackbarWarning(
-                                  "Fail...",
-                                  "Tanggal masuk belum diisi",
-                                  kTextBlocker,
-                                  Icon(
-                                    LucideIcons.xCircle,
-                                    size: 26.0,
-                                    color: kTextBlocker,
-                                  ));
-    return false;
-  }
-  
-  if (selectedValueType == 'exclusive') {
-    if (selectedValueExclusive == null) {
-       showSnackbarWarning(
-                                    "Fail...",
-                                    "Cuti khusus belum dipilih",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
-      return false;
-    } else if (_pickedFile == null) {
-     showSnackbarWarning(
-                                    "Fail...",
-                                    "File belum dipilih",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
-      return false;
-    } else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
-      showSnackbarWarning(
-                                    "Fail...",
-                                    "Pengajuan cuti khusus harus H-2",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
-      return false;
-    }
-  }
-  
-  if (selectedValueType == 'yearly') {
+    DateTime now = DateTime.now();
 
-    if (widget.yearly['data'] == 12) {
-      // The validation for not allowing leave when yearly['data'] is 12
+    if (selectedValueType == null) {
       showSnackbarWarning(
           "Fail...",
-          "Cuti tahunan mu sudah habis ",
+          "Jenis cuti belum dipilih",
           kTextBlocker,
           Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
           ));
-    }else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
-      showSnackbarWarning(
-                                    "Fail...",
-                                    "Pengajuan cuti khusus harus H-2",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
       return false;
-    } else {
-      int duration = _selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1;
-      if (duration > 3) {
+    }
+
+    if (subtitueCont.text.isEmpty) {
+      showSnackbarWarning(
+          "Fail...",
+          "Pilih penggantimu",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+      return false;
+    }
+
+    if (_mulaiTanggal == null || _selesaiTanggal == null) {
+      showSnackbarWarning(
+          "Fail...",
+          "Tanggal mulai atau akhir belum diisi",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+      return false;
+    }
+
+    if (_tanggalMasuknya == null) {
+      showSnackbarWarning(
+          "Fail...",
+          "Tanggal masuk belum diisi",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+      return false;
+    }
+
+    if (selectedValueType == 'exclusive') {
+      if (selectedValueExclusive == null) {
         showSnackbarWarning(
-                                      "Fail...",
-                                      "Maksimal cuti berturut adalah 3 hari.",
-                                      kTextBlocker,
-                                      Icon(
-                                        LucideIcons.xCircle,
-                                        size: 26.0,
-                                        color: kTextBlocker,
-                                      ));
+            "Fail...",
+            "Cuti khusus belum dipilih",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+        return false;
+      } else if (_pickedFile == null) {
+        showSnackbarWarning(
+            "Fail...",
+            "File belum dipilih",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+        return false;
+      } else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
+        showSnackbarWarning(
+            "Fail...",
+            "Pengajuan cuti khusus harus H-2",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
         return false;
       }
     }
-  }
 
-  if (selectedValueType == 'emergency') {
-    if (selectedValueEmergency == null) {
-      showSnackbarWarning(
-                                    "Fail...",
-                                    "Cuti darurat belum dipilih",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
-      return false;
-    } else if (_pickedFile == null) {
-      showSnackbarWarning(
-                                    "Fail...",
-                                    "File belum dipilih",
-                                    kTextBlocker,
-                                    Icon(
-                                      LucideIcons.xCircle,
-                                      size: 26.0,
-                                      color: kTextBlocker,
-                                    ));
-      return false;
+    if (selectedValueType == 'yearly') {
+      if (widget.yearly['data'] == 12) {
+        // The validation for not allowing leave when yearly['data'] is 12
+        showSnackbarWarning(
+            "Fail...",
+            "Cuti tahunan mu sudah habis ",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+      } else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
+        showSnackbarWarning(
+            "Fail...",
+            "Pengajuan cuti khusus harus H-2",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+        return false;
+      } else {
+        int duration = _selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1;
+        if (duration > 3) {
+          showSnackbarWarning(
+              "Fail...",
+              "Maksimal cuti berturut adalah 3 hari.",
+              kTextBlocker,
+              Icon(
+                LucideIcons.xCircle,
+                size: 26.0,
+                color: kTextBlocker,
+              ));
+          return false;
+        }
+      }
     }
+
+    if (selectedValueType == 'emergency') {
+      if (selectedValueEmergency == null) {
+        showSnackbarWarning(
+            "Fail...",
+            "Cuti darurat belum dipilih",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+        return false;
+      } else if (_pickedFile == null) {
+        showSnackbarWarning(
+            "Fail...",
+            "File belum dipilih",
+            kTextBlocker,
+            Icon(
+              LucideIcons.xCircle,
+              size: 26.0,
+              color: kTextBlocker,
+            ));
+        return false;
+      }
+    }
+
+    return true; // Return true if all validations pass.
   }
-
-  return true; // Return true if all validations pass.
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -1400,8 +1412,6 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     ),
                   ),
                 ),
-
-                
                 Padding(
                   padding: const EdgeInsets.only(top: 15, bottom: 35),
                   child: Row(
@@ -1411,28 +1421,37 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         width: 110,
                         child: ElevatedButton(
                           onPressed: () {
-    if (areInputsValid()) {
-      print("Selected Value Type: $selectedValueType");
-      print("Selected Value Yearly: $selectedValue");
-      print("Does yearly option exist: ${leaveOptions.any((option) => option['type_leave'] == 'yearly')}");
-      print("Selected Value Exclusive: $selectedValueExclusive");
-      print("Selected Value Emergency: $selectedValueEmergency");
-      print("Mulai Tanggal: ${_mulaiTanggal?.toIso8601String()}");
-      print("Selesai Tanggal: ${_selesaiTanggal?.toIso8601String()}");
-      print("Tanggal Masuk: ${_tanggalMasuknya?.toIso8601String()}");
-      print("Total Hari: ${(_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()}");
-      print("Pengganti : $selectedSubtitue");
-      if (_pickedFile != null && _pickedFile!.files.isNotEmpty) {
-        print("Picked File Path: ${_pickedFile!.files.first.path}");
-      }
-      
-      setState(() {
-        storeCuti().then((value) {
-          Navigator.pop(context);
-        });
-      });
-    }
-  },
+                            if (areInputsValid()) {
+                              print("Selected Value Type: $selectedValueType");
+                              print("Selected Value Yearly: $selectedValue");
+                              print(
+                                  "Does yearly option exist: ${leaveOptions.any((option) => option['type_leave'] == 'yearly')}");
+                              print(
+                                  "Selected Value Exclusive: $selectedValueExclusive");
+                              print(
+                                  "Selected Value Emergency: $selectedValueEmergency");
+                              print(
+                                  "Mulai Tanggal: ${_mulaiTanggal?.toIso8601String()}");
+                              print(
+                                  "Selesai Tanggal: ${_selesaiTanggal?.toIso8601String()}");
+                              print(
+                                  "Tanggal Masuk: ${_tanggalMasuknya?.toIso8601String()}");
+                              print(
+                                  "Total Hari: ${(_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()}");
+                              print("Pengganti : $selectedSubtitue");
+                              if (_pickedFile != null &&
+                                  _pickedFile!.files.isNotEmpty) {
+                                print(
+                                    "Picked File Path: ${_pickedFile!.files.first.path}");
+                              }
+
+                              setState(() {
+                                storeCuti().then((value) {
+                                  Navigator.pop(context);
+                                });
+                              });
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             backgroundColor: kButton,

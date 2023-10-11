@@ -167,180 +167,186 @@ void initState() {
         centerTitle: true,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: ListView(
-            scrollDirection: Axis.vertical,
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            children: [
-              // password
-              Padding(
-                padding: EdgeInsets.only(top: 18, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text(
-                        'Password',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextgrey,
-                          fontWeight: FontWeight.w400,
+      body: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (overscroll) {
+              overscroll.disallowIndicator();
+              return true;
+            },
+        child: SafeArea(
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              children: [
+                // password
+                Padding(
+                  padding: EdgeInsets.only(top: 18, bottom: 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10, left: 10),
+                        child: Text(
+                          'Password',
+                          style: GoogleFonts.montserrat(
+                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                            color: kTextgrey,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: newpassword,
-                              obscureText:
-                                  !_isPasswordVisible, // Gunakan status _isPasswordVisible
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Masukkan password baru',
-                                hintStyle: GoogleFonts.montserrat(
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: newpassword,
+                                obscureText:
+                                    !_isPasswordVisible, // Gunakan status _isPasswordVisible
+                                style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                 ),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                // Diperlukan jika ini berada dalam StatefulWidget
-                                _isPasswordVisible =
-                                    !_isPasswordVisible; // Ubah status ketika ikon diklik
-                              });
-                            },
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: kBorder,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // konfirmasi password
-              Padding(
-                padding: EdgeInsets.only(top: 18, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text(
-                        'Konfirmasi password',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextgrey,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: confirmPassword,
-                              obscureText: !_konfirPasswordVisible,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Konfirmasi password',
-                                border: InputBorder.none,
-                                hintStyle: GoogleFonts.montserrat(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                                decoration: InputDecoration(
+                                  hintText: 'Masukkan password baru',
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: InputBorder.none,
                                 ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _konfirPasswordVisible =
-                                    !_konfirPasswordVisible;
-                              });
-                            },
-                            icon: Icon(
-                              _konfirPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: kBorder,
-                              shadows: [
-                                Shadow(color: Colors.transparent),
-                              ],
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  // Diperlukan jika ini berada dalam StatefulWidget
+                                  _isPasswordVisible =
+                                      !_isPasswordVisible; // Ubah status ketika ikon diklik
+                                });
+                              },
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: kBorder,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 120,
-                    child: ElevatedButton(
-                    onPressed: () {
-                    validateOldPassPopUp = true;
-                        if (validateOldPassPopUp)
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return _modalvalidasipass(context);
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        backgroundColor: kButton,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                          ],
                         ),
                       ),
-                      child: const Text('Konfirmasi'),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+      
+                // konfirmasi password
+                Padding(
+                  padding: EdgeInsets.only(top: 18, bottom: 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10, left: 10),
+                        child: Text(
+                          'Konfirmasi password',
+                          style: GoogleFonts.montserrat(
+                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                            color: kTextgrey,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: confirmPassword,
+                                obscureText: !_konfirPasswordVisible,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Konfirmasi password',
+                                  border: InputBorder.none,
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _konfirPasswordVisible =
+                                      !_konfirPasswordVisible;
+                                });
+                              },
+                              icon: Icon(
+                                _konfirPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: kBorder,
+                                shadows: [
+                                  Shadow(color: Colors.transparent),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 120,
+                      child: ElevatedButton(
+                      onPressed: () {
+                      validateOldPassPopUp = true;
+                          if (validateOldPassPopUp)
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return _modalvalidasipass(context);
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          backgroundColor: kButton,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: const Text('Konfirmasi'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

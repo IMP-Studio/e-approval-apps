@@ -325,368 +325,374 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
       body: SafeArea(
           child: RefreshIndicator(
         onRefresh: refreshUserData,
-        child: ListView(
-          children: [
-            Column(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  color: Colors.white,
-                  child: Row(
+        child: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (overscroll) {
+              overscroll.disallowIndicator();
+              return true;
+            },
+          child: ListView(
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        // card profile \\
+                        Container(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Image.asset('assets/img/profil2.png',
+                                height: 58, width: 58),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 20), // Add vertical padding
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${preferences?.getString('nama_lengkap')}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                '${preferences?.getString('posisi')}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  // list menu setting \\
+                  Column(
                     children: [
-                      // card profile \\
-                      Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Image.asset('assets/img/profil2.png',
-                              height: 58, width: 58),
+                      // informasi pribadi
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InformasiPribadi(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.user,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('Informasi Pribadi',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 20), // Add vertical padding
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${preferences?.getString('nama_lengkap')}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                      // informasi notifikasi
+                      InkWell(
+                        onTap: () {
+                          // Tambahkan aksi yang ingin Anda lakukan ketika widget ditekan
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.bell,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('Notifikasi',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // informasi privasi
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PrivasiPage(),
                             ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${preferences?.getString('posisi')}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
+                          );
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.shield,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('Privasi',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // informasi aplikasi
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InfoApp(),
                             ),
-                          ],
+                          );
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.info,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('Informasi Aplikasi',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Faq
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FaqScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.helpCircle,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('FAQ',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // keluar
+                      InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (validasilogout)
+                                    _modalvalidasilogout(context),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.logOut,
+                                      color: kTextgrey,
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          Text('Keluar',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 14,
+                                                color: kTextgrey,
+                                                fontWeight: FontWeight.w500,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      LucideIcons.chevronRight,
+                                      color: kBorder,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                // list menu setting \\
-                Column(
-                  children: [
-                    // informasi pribadi
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => InformasiPribadi(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.user,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('Informasi Pribadi',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // informasi notifikasi
-                    InkWell(
-                      onTap: () {
-                        // Tambahkan aksi yang ingin Anda lakukan ketika widget ditekan
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.bell,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('Notifikasi',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // informasi privasi
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PrivasiPage(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.shield,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('Privasi',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // informasi aplikasi
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => InfoApp(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.info,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('Informasi Aplikasi',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Faq
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FaqScreen(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.helpCircle,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('FAQ',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // keluar
-                    InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (validasilogout)
-                                  _modalvalidasilogout(context),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.logOut,
-                                    color: kTextgrey,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        Text('Keluar',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              color: kTextgrey,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    LucideIcons.chevronRight,
-                                    color: kBorder,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       )),
     );

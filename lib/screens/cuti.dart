@@ -405,7 +405,7 @@
 
     @override
     Widget build(BuildContext context) {
-      return GestureDetector(
+      return  GestureDetector(
         onTap: () {
           showButton();
           startTimer();
@@ -418,1178 +418,1184 @@
           backgroundColor: Colors.white,
           body: RefreshIndicator(
             onRefresh: refreshContent,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.width * 0.35,
-                    decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [kTextoo, kTextoo])),
-                    child: Row(
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 0.15,
-                                height: MediaQuery.of(context).size.width * 0.007,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20.0)),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10.0,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 20.0,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Kalender Cuti",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.055,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white)),
-                                  ),
-                                  const SizedBox(
-                                    height: 5.0,
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.55,
-                                    child: Text(
-                                      "Kalender cuti dan riwayat cuti",
-                                      style: GoogleFonts.getFont('Montserrat',
-                                          textStyle: TextStyle(
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.028,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white)),
-                                    ),
-                                  ),
-                                  Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.55,
-                                    child: Text(
-                                      "Ajukan cuti jika berkenan",
-                                      style: GoogleFonts.getFont('Montserrat',
-                                          textStyle: TextStyle(
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.028,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: SvgPicture.asset(
-                            "assets/img/calendar-cuti.svg",
-                            width: MediaQuery.of(context).size.width * 0.3,
-                            height: MediaQuery.of(context).size.width * 0.3,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: FutureBuilder(
-                        future: _cutiDays,
-                        builder: (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return shimmerLayout();
-                          } else if (snapshot.hasData) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // CONTAINER START
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(width: 1, color: kTextoo),
-                                      borderRadius: BorderRadius.circular(10),
+          child: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (overscroll) {
+              overscroll.disallowIndicator();
+              return true;
+            },
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.width * 0.35,
+                      decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [kTextoo, kTextoo])),
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.15,
+                                  height: MediaQuery.of(context).size.width * 0.007,
+                                  decoration: BoxDecoration(
                                       color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.25),
-                                          spreadRadius: 0,
-                                          blurRadius: 1,
-                                          offset: const Offset(0, 1),
-                                        )
-                                      ],
+                                      borderRadius: BorderRadius.circular(20.0)),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10.0,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 20.0,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Kalender Cuti",
+                                      style: GoogleFonts.getFont('Montserrat',
+                                          textStyle: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.055,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white)),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Text(
-                                                "Tahunan",
-                                                style: GoogleFonts.getFont(
-                                                    'Montserrat',
-                                                    textStyle: TextStyle(
-                                                        fontSize:
-                                                            MediaQuery.of(context)
-                                                                    .size
-                                                                    .width *
-                                                                0.028,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: kTextoo)),
-                                              ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Divider(
-                                                color: kTextoo,
-                                                thickness: 1,
-                                                height: 1,
-                                              ),
-                                            ],
+                                    const SizedBox(
+                                      height: 5.0,
+                                    ),
+                                    Container(
+                                      width:
+                                          MediaQuery.of(context).size.width * 0.55,
+                                      child: Text(
+                                        "Kalender cuti dan riwayat cuti",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            textStyle: TextStyle(
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.028,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white)),
+                                      ),
+                                    ),
+                                    Container(
+                                      width:
+                                          MediaQuery.of(context).size.width * 0.55,
+                                      child: Text(
+                                        "Ajukan cuti jika berkenan",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            textStyle: TextStyle(
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.028,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: SvgPicture.asset(
+                              "assets/img/calendar-cuti.svg",
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              height: MediaQuery.of(context).size.width * 0.3,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        child: FutureBuilder(
+                          future: _cutiDays,
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return shimmerLayout();
+                            } else if (snapshot.hasData) {
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // CONTAINER START
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border:
+                                            Border.all(width: 1, color: kTextoo),
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.25),
+                                            spreadRadius: 0,
+                                            blurRadius: 1,
+                                            offset: const Offset(0, 1),
+                                          )
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Text(
+                                                  "Tahunan",
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize:
+                                                              MediaQuery.of(context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.028,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
+                                                ),
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Divider(
+                                                  color: kTextoo,
+                                                  thickness: 1,
+                                                  height: 1,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Container(
+                                          Container(
+                                              padding:
+                                                  EdgeInsets.symmetric(vertical: 7),
+                                              alignment: Alignment.center,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.bottomCenter,
+                                                    child: Text(
+                                                      snapshot.data['data']['yearly'].toString() ?? '0',
+                                                      style: GoogleFonts.getFont(
+                                                          'Montserrat',
+                                                          textStyle: TextStyle(
+                                                              fontSize: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.044,
+                                                              fontWeight:
+                                                                  FontWeight.w500,
+                                                              color: kTextoo)),
+                                                    ),
+                                                  ),
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.bottomCenter,
+                                                    child: Text(
+                                                      "/12",
+                                                      style: GoogleFonts.getFont(
+                                                          'Montserrat',
+                                                          textStyle: TextStyle(
+                                                              fontSize: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.028,
+                                                              fontWeight:
+                                                                  FontWeight.w500,
+                                                              color: kTextoo)),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+          
+                                  const SizedBox(
+                                    width: 7.0,
+                                  ),
+          
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border:
+                                            Border.all(width: 1, color: kTextoo),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.25),
+                                            spreadRadius: 0,
+                                            blurRadius: 1,
+                                            offset: const Offset(0, 1),
+                                          )
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Text(
+                                                  "Khusus",
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize:
+                                                              MediaQuery.of(context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.028,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
+                                                ),
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Divider(
+                                                  color: kTextoo,
+                                                  thickness: 1,
+                                                  height: 1,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
                                             padding:
                                                 EdgeInsets.symmetric(vertical: 7),
                                             alignment: Alignment.center,
                                             child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
                                               children: [
-                                                Align(
-                                                  alignment:
-                                                      Alignment.bottomCenter,
-                                                  child: Text(
-                                                    snapshot.data['data']['yearly'].toString() ?? '0',
-                                                    style: GoogleFonts.getFont(
-                                                        'Montserrat',
-                                                        textStyle: TextStyle(
-                                                            fontSize: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.044,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color: kTextoo)),
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.bottomCenter,
-                                                  child: Text(
-                                                    "/12",
-                                                    style: GoogleFonts.getFont(
-                                                        'Montserrat',
-                                                        textStyle: TextStyle(
-                                                            fontSize: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.028,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color: kTextoo)),
-                                                  ),
+                                                Text(
+                                                  snapshot.data['data']['exclusive'].toString() ?? '0',
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize:
+                                                              MediaQuery.of(context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.044,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
                                                 ),
                                               ],
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(
-                                  width: 7.0,
-                                ),
-
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border:
-                                          Border.all(width: 1, color: kTextoo),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.25),
-                                          spreadRadius: 0,
-                                          blurRadius: 1,
-                                          offset: const Offset(0, 1),
-                                        )
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Text(
-                                                "Khusus",
-                                                style: GoogleFonts.getFont(
-                                                    'Montserrat',
-                                                    textStyle: TextStyle(
-                                                        fontSize:
-                                                            MediaQuery.of(context)
-                                                                    .size
-                                                                    .width *
-                                                                0.028,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: kTextoo)),
-                                              ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Divider(
-                                                color: kTextoo,
-                                                thickness: 1,
-                                                height: 1,
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                        Container(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 7),
-                                          alignment: Alignment.center,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                snapshot.data['data']['exclusive'].toString() ?? '0',
-                                                style: GoogleFonts.getFont(
-                                                    'Montserrat',
-                                                    textStyle: TextStyle(
-                                                        fontSize:
-                                                            MediaQuery.of(context)
-                                                                    .size
-                                                                    .width *
-                                                                0.044,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: kTextoo)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(
-                                  width: 7.0,
-                                ),
-
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border:
-                                          Border.all(width: 1, color: kTextoo),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.25),
-                                          spreadRadius: 0,
-                                          blurRadius: 1,
-                                          offset: const Offset(0, 1),
-                                        )
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Text(
-                                                "Darurat",
-                                                style: GoogleFonts.getFont(
-                                                    'Montserrat',
-                                                    textStyle: TextStyle(
-                                                        fontSize:
-                                                            MediaQuery.of(context)
-                                                                    .size
-                                                                    .width *
-                                                                0.028,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: kTextoo)),
-                                              ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Divider(
-                                                color: kTextoo,
-                                                thickness: 1,
-                                                height: 1,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 7),
-                                          alignment: Alignment.center,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                snapshot.data['data']['emergency'].toString() ?? '0',
-                                                style: GoogleFonts.getFont(
-                                                    'Montserrat',
-                                                    textStyle: TextStyle(
-                                                        fontSize:
-                                                            MediaQuery.of(context)
-                                                                    .size
-                                                                    .width *
-                                                                0.044,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: kTextoo)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            return shimmerLayout(); // Replace with your error widget.
-                          }
-                        },
-                      )),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            spreadRadius: 0,
-                            blurRadius: 1,
-                            offset: const Offset(0, 1),
-                          )
-                        ]),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: Column(
-                        children: [
-                          TableCalendar(
-                            calendarBuilders: CalendarBuilders(
-                              defaultBuilder: (context, date, _) {
-                                final formattedDate =
-                                    DateTime(date.year, date.month, date.day);
-                                final eventType = leaveDays[formattedDate];
-
-                                TextStyle textStyle;
-
-                                switch (eventType) {
-                                  case 'yearly':
-                                    textStyle = GoogleFonts.montserrat(
-                                        color: kTextBlocker, fontSize: 10);
-                                    break;
-                                  case 'exclusive':
-                                    textStyle = GoogleFonts.montserrat(
-                                        color: kTextoo, fontSize: 10);
-                                    break;
-                                  case 'emergency':
-                                    textStyle = GoogleFonts.montserrat(
-                                        color: kTextOren, fontSize: 10);
-                                    break;
-                                  default:
-                                    textStyle = GoogleFonts.getFont(
-                                      'Montserrat',
-                                      textStyle: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    );
-                                    break;
-                                }
-
-                                return Center(
-                                  child: Text(
-                                    '${date.day}',
-                                    style: textStyle,
-                                  ),
-                                );
-                              },
-                            ),
-
-                            // locale: "en_US",
-                            rowHeight: 25,
-                            focusedDay: today,
-                            headerStyle: HeaderStyle(
-                              leftChevronIcon: const Icon(
-                                Icons.arrow_back_ios_rounded,
-                                color: kTextoo,
-                                size: 10.0,
-                              ),
-                              leftChevronMargin:
-                                  const EdgeInsets.only(right: 30.0),
-                              rightChevronIcon: const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: kTextoo,
-                                size: 10.0,
-                              ),
-                              rightChevronMargin:
-                                  const EdgeInsets.only(left: 30.0),
-                              formatButtonVisible: false,
-                              titleCentered: true,
-                              titleTextStyle: GoogleFonts.getFont('Montserrat',
-                                  textStyle: GoogleFonts.montserrat(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: kTextBlcknw)),
-                            ),
-                            firstDay: DateTime.utc(2020, 1, 1),
-                            lastDay: DateTime.utc(20024, 1, 1),
-                            calendarStyle: CalendarStyle(
-                              outsideTextStyle: GoogleFonts.montserrat(
-                                  fontSize: 10, color: Colors.grey),
-                              todayTextStyle: GoogleFonts.getFont('Montserrat',
-                                  fontSize: 10, color: Colors.white),
-                              todayDecoration: const BoxDecoration(
-                                  shape: BoxShape.circle, color: kTextoo),
-                              tablePadding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              cellMargin: const EdgeInsets.all(4),
-                              weekendTextStyle: GoogleFonts.getFont('Montserrat',
-                                  textStyle: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color.fromRGBO(244, 67, 54, 1))),
-                              defaultTextStyle: GoogleFonts.getFont('Montserrat',
-                                  textStyle: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: kTextBlcknw)),
-                            ),
-                            daysOfWeekStyle: DaysOfWeekStyle(
-                              weekdayStyle: GoogleFonts.getFont(
-                                'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 10,
-                              ),
-                              weekendStyle: GoogleFonts.getFont(
-                                'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
-                            child: Container(
-                              width: double.infinity,
-                              height: 20.0,
-                              decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 249, 249, 249),
-                                  borderRadius: BorderRadius.circular(5.0)),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Cuti",
-                                      style: GoogleFonts.getFont('Montserrat',
-                                          fontSize: 10.0,
-                                          color: kTextUnselected,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    const Spacer(),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Tahunan",
-                                          style: GoogleFonts.getFont('Montserrat',
-                                              fontSize: 10.0,
-                                              color: kTextBlocker,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                        const SizedBox(
-                                          width: 25.0,
-                                        ),
-                                        Text(
-                                          "Khusus",
-                                          style: GoogleFonts.getFont('Montserrat',
-                                              fontSize: 10.0,
-                                              color: kTextBlocker,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                        const SizedBox(
-                                          width: 25.0,
-                                        ),
-                                        Text(
-                                          "Darurat",
-                                          style: GoogleFonts.getFont('Montserrat',
-                                              fontSize: 10.0,
-                                              color: kTextOren,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 50.0,
-                        height: 1.0,
-                        decoration: BoxDecoration(
-                            color: kTextoo,
-                            borderRadius: BorderRadius.circular(20.0)),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Total",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black)),
-                          ),
-                          const SizedBox(
-                            width: 5.0,
-                          ),
-                          Text(
-                            "Cuti",
-                            style: GoogleFonts.getFont('Montserrat',
-                                textStyle: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: kTextoo)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      Text(
-                        "Cuti khusus, darurat, tahunan",
-                        style: GoogleFonts.getFont('Montserrat',
-                            textStyle: const TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w600,
-                                color: kTextBlcknw)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IndexedStack(
-                        index: _tabController.index,
-                        children: [
-                          buildContent(),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height / 2.0,
-                    child: isLoading
-                        ? ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: 3,
-                            itemBuilder: (context, index) {
-                              return Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 30.0),
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.25),
-                                              spreadRadius: 0,
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 1))
                                         ],
                                       ),
-                                      child: Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              width: double.infinity,
-                                              height: 40.0,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.grey[300],
-                                                  borderRadius: const BorderRadius
-                                                          .only(
-                                                      topRight:
-                                                          Radius.circular(8.0),
-                                                      topLeft:
-                                                          Radius.circular(8.0))),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 15.0,
-                                                        vertical: 10.0),
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width:
-                                                          60, // Arbitrary width for status text
-                                                      height: 10.0,
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                    const Spacer(),
-                                                    Row(
-                                                      children: [
-                                                        Container(
-                                                          width:
-                                                              50, // Arbitrary width for date text
-                                                          height: 10.0,
-                                                          color: Colors.grey[300],
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5.0),
-                                                        Container(
-                                                          width:
-                                                              5, // Arbitrary width for '-' text
-                                                          height: 10.0,
-                                                          color: Colors.grey[300],
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5.0),
-                                                        Container(
-                                                          width:
-                                                              50, // Arbitrary width for date text
-                                                          height: 10.0,
-                                                          color: Colors.grey[300],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                    ),
+                                  ),
+          
+                                  const SizedBox(
+                                    width: 7.0,
+                                  ),
+          
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border:
+                                            Border.all(width: 1, color: kTextoo),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.25),
+                                            spreadRadius: 0,
+                                            blurRadius: 1,
+                                            offset: const Offset(0, 1),
+                                          )
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 7,
                                                 ),
-                                              ),
+                                                Text(
+                                                  "Darurat",
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize:
+                                                              MediaQuery.of(context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.028,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
+                                                ),
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Divider(
+                                                  color: kTextoo,
+                                                  thickness: 1,
+                                                  height: 1,
+                                                ),
+                                              ],
                                             ),
-                                            Container(
-                                              width: double.infinity,
-                                              height: 70.0,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey[300],
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                        bottomRight:
-                                                            Radius.circular(8.0),
-                                                        bottomLeft:
-                                                            Radius.circular(8.0)),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10.0,
-                                                        horizontal: 15.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      width:
-                                                          40, // Arbitrary width for 'Alasan' text
-                                                      height: 10.0,
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                    const SizedBox(height: 5.0),
-                                                    Container(
-                                                      width: double
-                                                          .infinity, // Max width for description text
-                                                      height: 10.0,
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                    const SizedBox(height: 5.0),
-                                                    Container(
-                                                      width: double
-                                                          .infinity, // Max width for description text
-                                                      height: 10.0,
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                  ],
+                                          ),
+                                          Container(
+                                            padding:
+                                                EdgeInsets.symmetric(vertical: 7),
+                                            alignment: Alignment.center,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  snapshot.data['data']['emergency'].toString() ?? '0',
+                                                  style: GoogleFonts.getFont(
+                                                      'Montserrat',
+                                                      textStyle: TextStyle(
+                                                          fontSize:
+                                                              MediaQuery.of(context)
+                                                                      .size
+                                                                      .width *
+                                                                  0.044,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: kTextoo)),
                                                 ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ));
-                            },
-                          )
-                        : FutureBuilder(
-                            future: _cutiFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                if (snapshot.data['data'] == null ||
-                                    snapshot.data['data'].isEmpty) {
-                                  // Return an Image or placeholder here
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return shimmerLayout(); // Replace with your error widget.
+                            }
+                          },
+                        )),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.25),
+                              spreadRadius: 0,
+                              blurRadius: 1,
+                              offset: const Offset(0, 1),
+                            )
+                          ]),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Column(
+                          children: [
+                            TableCalendar(
+                              calendarBuilders: CalendarBuilders(
+                                defaultBuilder: (context, date, _) {
+                                  final formattedDate =
+                                      DateTime(date.year, date.month, date.day);
+                                  final eventType = leaveDays[formattedDate];
+          
+                                  TextStyle textStyle;
+          
+                                  switch (eventType) {
+                                    case 'yearly':
+                                      textStyle = GoogleFonts.montserrat(
+                                          color: kTextBlocker, fontSize: 10);
+                                      break;
+                                    case 'exclusive':
+                                      textStyle = GoogleFonts.montserrat(
+                                          color: kTextoo, fontSize: 10);
+                                      break;
+                                    case 'emergency':
+                                      textStyle = GoogleFonts.montserrat(
+                                          color: kTextOren, fontSize: 10);
+                                      break;
+                                    default:
+                                      textStyle = GoogleFonts.getFont(
+                                        'Montserrat',
+                                        textStyle: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      );
+                                      break;
+                                  }
+          
                                   return Center(
-                                    child: Container(
-                                      color: Colors.transparent,
+                                    child: Text(
+                                      '${date.day}',
+                                      style: textStyle,
                                     ),
                                   );
-                                }
-                                return ListView.builder(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    itemCount: snapshot.data['data'].length,
+                                },
+                              ),
+          
+                              // locale: "en_US",
+                              rowHeight: 25,
+                              focusedDay: today,
+                              headerStyle: HeaderStyle(
+                                leftChevronIcon: const Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  color: kTextoo,
+                                  size: 10.0,
+                                ),
+                                leftChevronMargin:
+                                    const EdgeInsets.only(right: 30.0),
+                                rightChevronIcon: const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  color: kTextoo,
+                                  size: 10.0,
+                                ),
+                                rightChevronMargin:
+                                    const EdgeInsets.only(left: 30.0),
+                                formatButtonVisible: false,
+                                titleCentered: true,
+                                titleTextStyle: GoogleFonts.getFont('Montserrat',
+                                    textStyle: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: kTextBlcknw)),
+                              ),
+                              firstDay: DateTime.utc(2020, 1, 1),
+                              lastDay: DateTime.utc(20024, 1, 1),
+                              calendarStyle: CalendarStyle(
+                                outsideTextStyle: GoogleFonts.montserrat(
+                                    fontSize: 10, color: Colors.grey),
+                                todayTextStyle: GoogleFonts.getFont('Montserrat',
+                                    fontSize: 10, color: Colors.white),
+                                todayDecoration: const BoxDecoration(
+                                    shape: BoxShape.circle, color: kTextoo),
+                                tablePadding:
+                                    const EdgeInsets.symmetric(horizontal: 10.0),
+                                cellMargin: const EdgeInsets.all(4),
+                                weekendTextStyle: GoogleFonts.getFont('Montserrat',
+                                    textStyle: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color.fromRGBO(244, 67, 54, 1))),
+                                defaultTextStyle: GoogleFonts.getFont('Montserrat',
+                                    textStyle: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: kTextBlcknw)),
+                              ),
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 10,
+                                ),
+                                weekendStyle: GoogleFonts.getFont(
+                                  'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10.0, horizontal: 10.0),
+                              child: Container(
+                                width: double.infinity,
+                                height: 20.0,
+                                decoration: BoxDecoration(
+                                    color: const Color.fromARGB(255, 249, 249, 249),
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Cuti",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            fontSize: 10.0,
+                                            color: kTextUnselected,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Tahunan",
+                                            style: GoogleFonts.getFont('Montserrat',
+                                                fontSize: 10.0,
+                                                color: kTextBlocker,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          const SizedBox(
+                                            width: 25.0,
+                                          ),
+                                          Text(
+                                            "Khusus",
+                                            style: GoogleFonts.getFont('Montserrat',
+                                                fontSize: 10.0,
+                                                color: kTextBlocker,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          const SizedBox(
+                                            width: 25.0,
+                                          ),
+                                          Text(
+                                            "Darurat",
+                                            style: GoogleFonts.getFont('Montserrat',
+                                                fontSize: 10.0,
+                                                color: kTextOren,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 50.0,
+                          height: 1.0,
+                          decoration: BoxDecoration(
+                              color: kTextoo,
+                              borderRadius: BorderRadius.circular(20.0)),
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Total",
+                              style: GoogleFonts.getFont('Montserrat',
+                                  textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black)),
+                            ),
+                            const SizedBox(
+                              width: 5.0,
+                            ),
+                            Text(
+                              "Cuti",
+                              style: GoogleFonts.getFont('Montserrat',
+                                  textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: kTextoo)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        Text(
+                          "Cuti khusus, darurat, tahunan",
+                          style: GoogleFonts.getFont('Montserrat',
+                              textStyle: const TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w600,
+                                  color: kTextBlcknw)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IndexedStack(
+                          index: _tabController.index,
+                          children: [
+                            buildContent(),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height / 2.0,
+                      child: isLoading
+                          ? ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 3,
+                              itemBuilder: (context, index) {
+                                return Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30.0),
+                                      child: Container(
+                                        margin: const EdgeInsets.only(bottom: 10),
+                                        decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color:
+                                                    Colors.black.withOpacity(0.25),
+                                                spreadRadius: 0,
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 1))
+                                          ],
+                                        ),
+                                        child: Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                height: 40.0,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    borderRadius: const BorderRadius
+                                                            .only(
+                                                        topRight:
+                                                            Radius.circular(8.0),
+                                                        topLeft:
+                                                            Radius.circular(8.0))),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                          horizontal: 15.0,
+                                                          vertical: 10.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            60, // Arbitrary width for status text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const Spacer(),
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width for date text
+                                                            height: 10.0,
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5.0),
+                                                          Container(
+                                                            width:
+                                                                5, // Arbitrary width for '-' text
+                                                            height: 10.0,
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5.0),
+                                                          Container(
+                                                            width:
+                                                                50, // Arbitrary width for date text
+                                                            height: 10.0,
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: double.infinity,
+                                                height: 70.0,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[300],
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                          bottomRight:
+                                                              Radius.circular(8.0),
+                                                          bottomLeft:
+                                                              Radius.circular(8.0)),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                          vertical: 10.0,
+                                                          horizontal: 15.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Container(
+                                                        width:
+                                                            40, // Arbitrary width for 'Alasan' text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(height: 5.0),
+                                                      Container(
+                                                        width: double
+                                                            .infinity, // Max width for description text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                      const SizedBox(height: 5.0),
+                                                      Container(
+                                                        width: double
+                                                            .infinity, // Max width for description text
+                                                        height: 10.0,
+                                                        color: Colors.grey[300],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ));
+                              },
+                            )
+                          : FutureBuilder(
+                              future: _cutiFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  if (snapshot.data['data'] == null ||
+                                      snapshot.data['data'].isEmpty) {
+                                    // Return an Image or placeholder here
+                                    return Center(
+                                      child: Container(
+                                        color: Colors.transparent,
+                                      ),
+                                    );
+                                  }
+                                  return ListView.builder(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      itemCount: snapshot.data['data'].length,
+                                      itemBuilder: (context, index) {
+                                        print(snapshot.data['data']);
+                                        return GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context)
+                                                  .push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailCuti(
+                                                          absen: snapshot
+                                                              .data['data'][index],
+                                                        )),
+                                              )
+                                                  .then((result) {
+                                                if (result == 'refresh') {
+                                                  refreshData(); // Call your refresh logic
+                                                }
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 30.0),
+                                              child: Container(
+                                                margin: const EdgeInsets.only(
+                                                    bottom: 10),
+                                                decoration:
+                                                    BoxDecoration(boxShadow: [
+                                                  BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.25),
+                                                      spreadRadius: 0,
+                                                      blurRadius: 4,
+                                                      offset: const Offset(0, 1))
+                                                ]),
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      height: 40.0,
+                                                      decoration: const BoxDecoration(
+                                                          color: kTextoo,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          8.0))),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                                .symmetric(
+                                                            horizontal: 15.0,
+                                                            vertical: 10.0),
+                                                        child: Row(
+                                                          children: [
+                                                            Text(
+                                                              "${snapshot.data['data'][index]['status'][0].toUpperCase()}${snapshot.data['data'][index]['status'].substring(1).toLowerCase()}",
+                                                              style: GoogleFonts
+                                                                  .getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                            ),
+                                                            const Spacer(),
+                                                            Row(
+                                                              children: [
+                                                                Text(
+                                                                  DateFormat(
+                                                                          'dd MMMM yyyy')
+                                                                      .format(DateTime.parse(snapshot.data['data']
+                                                                                  [
+                                                                                  index]
+                                                                              [
+                                                                              'start_date']) ??
+                                                                          DateTime
+                                                                              .now()),
+                                                                  style: GoogleFonts.getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 5.0,
+                                                                ),
+                                                                Text(
+                                                                  "-",
+                                                                  style: GoogleFonts.getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 5.0,
+                                                                ),
+                                                                Text(
+                                                                  DateFormat(
+                                                                          'dd MMMM yyyy')
+                                                                      .format(DateTime.parse(snapshot.data['data']
+                                                                                  [
+                                                                                  index]
+                                                                              [
+                                                                              'end_date']) ??
+                                                                          DateTime
+                                                                              .now()),
+                                                                  style: GoogleFonts.getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                                ),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      width: double.infinity,
+                                                      height: 70.0,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                bottomRight:
+                                                                    Radius.circular(
+                                                                        8.0),
+                                                                bottomLeft: Radius
+                                                                    .circular(8.0)),
+                                                      ),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                                .symmetric(
+                                                            vertical: 10.0,
+                                                            horizontal: 15.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Alasan",
+                                                              style: GoogleFonts
+                                                                  .getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 5.0,
+                                                            ),
+                                                            Text(
+                                                              truncateText(
+                                                                  snapshot.data[
+                                                                              'data']
+                                                                          [index][
+                                                                      'type_description'],
+                                                                  60),
+                                                              maxLines: 2,
+                                                              style: GoogleFonts
+                                                                  .getFont(
+                                                                      'Montserrat',
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontSize:
+                                                                          10.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w300),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ));
+                                      });
+                                } else {
+                                  return ListView.builder(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: 3,
                                     itemBuilder: (context, index) {
-                                      print(snapshot.data['data']);
-                                      return GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context)
-                                                .push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailCuti(
-                                                        absen: snapshot
-                                                            .data['data'][index],
-                                                      )),
-                                            )
-                                                .then((result) {
-                                              if (result == 'refresh') {
-                                                refreshData(); // Call your refresh logic
-                                              }
-                                            });
-                                          },
+                                      return Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 30.0),
                                             child: Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 10),
-                                              decoration:
-                                                  BoxDecoration(boxShadow: [
-                                                BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.25),
-                                                    spreadRadius: 0,
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 1))
-                                              ]),
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    width: double.infinity,
-                                                    height: 40.0,
-                                                    decoration: const BoxDecoration(
-                                                        color: kTextoo,
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                                topRight: Radius
-                                                                    .circular(
-                                                                        8.0),
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        8.0))),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 15.0,
-                                                          vertical: 10.0),
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            "${snapshot.data['data'][index]['status'][0].toUpperCase()}${snapshot.data['data'][index]['status'].substring(1).toLowerCase()}",
-                                                            style: GoogleFonts
-                                                                .getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                          ),
-                                                          const Spacer(),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                DateFormat(
-                                                                        'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(snapshot.data['data']
-                                                                                [
-                                                                                index]
-                                                                            [
-                                                                            'start_date']) ??
-                                                                        DateTime
-                                                                            .now()),
-                                                                style: GoogleFonts.getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5.0,
-                                                              ),
-                                                              Text(
-                                                                "-",
-                                                                style: GoogleFonts.getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5.0,
-                                                              ),
-                                                              Text(
-                                                                DateFormat(
-                                                                        'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(snapshot.data['data']
-                                                                                [
-                                                                                index]
-                                                                            [
-                                                                            'end_date']) ??
-                                                                        DateTime
-                                                                            .now()),
-                                                                style: GoogleFonts.getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    width: double.infinity,
-                                                    height: 70.0,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                              bottomRight:
-                                                                  Radius.circular(
-                                                                      8.0),
-                                                              bottomLeft: Radius
-                                                                  .circular(8.0)),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          vertical: 10.0,
-                                                          horizontal: 15.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Alasan",
-                                                            style: GoogleFonts
-                                                                .getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .black,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 5.0,
-                                                          ),
-                                                          Text(
-                                                            truncateText(
-                                                                snapshot.data[
-                                                                            'data']
-                                                                        [index][
-                                                                    'type_description'],
-                                                                60),
-                                                            maxLines: 2,
-                                                            style: GoogleFonts
-                                                                .getFont(
-                                                                    'Montserrat',
-                                                                    color: Colors
-                                                                        .black,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w300),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  )
+                                              margin:
+                                                  const EdgeInsets.only(bottom: 10),
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.25),
+                                                      spreadRadius: 0,
+                                                      blurRadius: 4,
+                                                      offset: const Offset(0, 1))
                                                 ],
+                                              ),
+                                              child: Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor: Colors.grey[100]!,
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      height: 40.0,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.grey[300],
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .only(
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          8.0))),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                                .symmetric(
+                                                            horizontal: 15.0,
+                                                            vertical: 10.0),
+                                                        child: Row(
+                                                          children: [
+                                                            Container(
+                                                              width:
+                                                                  60, // Arbitrary width for status text
+                                                              height: 10.0,
+                                                              color:
+                                                                  Colors.grey[300],
+                                                            ),
+                                                            const Spacer(),
+                                                            Row(
+                                                              children: [
+                                                                Container(
+                                                                  width:
+                                                                      50, // Arbitrary width for date text
+                                                                  height: 10.0,
+                                                                  color: Colors
+                                                                      .grey[300],
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 5.0),
+                                                                Container(
+                                                                  width:
+                                                                      5, // Arbitrary width for '-' text
+                                                                  height: 10.0,
+                                                                  color: Colors
+                                                                      .grey[300],
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 5.0),
+                                                                Container(
+                                                                  width:
+                                                                      50, // Arbitrary width for date text
+                                                                  height: 10.0,
+                                                                  color: Colors
+                                                                      .grey[300],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      width: double.infinity,
+                                                      height: 70.0,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey[300],
+                                                        borderRadius:
+                                                            const BorderRadius.only(
+                                                                bottomRight:
+                                                                    Radius.circular(
+                                                                        8.0),
+                                                                bottomLeft:
+                                                                    Radius.circular(
+                                                                        8.0)),
+                                                      ),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                                .symmetric(
+                                                            vertical: 10.0,
+                                                            horizontal: 15.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width:
+                                                                  40, // Arbitrary width for 'Alasan' text
+                                                              height: 10.0,
+                                                              color:
+                                                                  Colors.grey[300],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 5.0),
+                                                            Container(
+                                                              width: double
+                                                                  .infinity, // Max width for description text
+                                                              height: 10.0,
+                                                              color:
+                                                                  Colors.grey[300],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 5.0),
+                                                            Container(
+                                                              width: double
+                                                                  .infinity, // Max width for description text
+                                                              height: 10.0,
+                                                              color:
+                                                                  Colors.grey[300],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ));
-                                    });
-                              } else {
-                                return ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: 3,
-                                  itemBuilder: (context, index) {
-                                    return Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 30.0),
-                                          child: Container(
-                                            margin:
-                                                const EdgeInsets.only(bottom: 10),
-                                            decoration: BoxDecoration(
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.25),
-                                                    spreadRadius: 0,
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 1))
-                                              ],
-                                            ),
-                                            child: Shimmer.fromColors(
-                                              baseColor: Colors.grey[300]!,
-                                              highlightColor: Colors.grey[100]!,
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    width: double.infinity,
-                                                    height: 40.0,
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.grey[300],
-                                                        borderRadius:
-                                                            const BorderRadius
-                                                                    .only(
-                                                                topRight: Radius
-                                                                    .circular(
-                                                                        8.0),
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        8.0))),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 15.0,
-                                                          vertical: 10.0),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                60, // Arbitrary width for status text
-                                                            height: 10.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          const Spacer(),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width for date text
-                                                                height: 10.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5.0),
-                                                              Container(
-                                                                width:
-                                                                    5, // Arbitrary width for '-' text
-                                                                height: 10.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5.0),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width for date text
-                                                                height: 10.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    width: double.infinity,
-                                                    height: 70.0,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey[300],
-                                                      borderRadius:
-                                                          const BorderRadius.only(
-                                                              bottomRight:
-                                                                  Radius.circular(
-                                                                      8.0),
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                      8.0)),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          vertical: 10.0,
-                                                          horizontal: 15.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                40, // Arbitrary width for 'Alasan' text
-                                                            height: 10.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 5.0),
-                                                          Container(
-                                                            width: double
-                                                                .infinity, // Max width for description text
-                                                            height: 10.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 5.0),
-                                                          Container(
-                                                            width: double
-                                                                .infinity, // Max width for description text
-                                                            height: 10.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ));
-                                  },
-                                );
-                              }
-                            }),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  )
-                ],
+                                    },
+                                  );
+                                }
+                              }),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+              ),
               ),
             ),
           ),

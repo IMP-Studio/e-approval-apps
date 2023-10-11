@@ -55,16 +55,15 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   Future<void> initializePage() async {
     try {
       await getUserData();
-      await fetchName();
-      await fetchId();
+
 
       if (widget.profile['facepoint'] != null) {
         data = jsonDecode(widget.profile['facepoint']);
       }
 
-      print('desc :' + widget.arguments['description']);
+      // print('desc :' + widget.arguments['description']);
 
-      print('file guach : ${widget.arguments['file'].toString()}');
+      // print('file guach : ${widget.arguments['file'].toString()}');
 
       await _updateLocationAndAddress();
       if (_isLocationFetched) {
@@ -81,17 +80,17 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   SharedPreferences? preferences;
 
-  Future<void> fetchName() async {
-    nama_lengkap = preferences?.getString('nama_lengkap') ?? 'Mahesa';
-    print(nama_lengkap);
-    setState(() {});
-  }
+  // Future<void> fetchName() async {
+  //   nama_lengkap = preferences?.getString('nama_lengkap') ?? 'Mahesa';
+  //   print(nama_lengkap);
+  //   setState(() {});
+  // }
 
-  Future<void> fetchId() async {
-    user_id = preferences?.getInt('user_id') ?? 2;
-    print(user_id);
-    setState(() {});
-  }
+  // Future<void> fetchId() async {
+  //   user_id = preferences?.getInt('user_id') ?? 2;
+  //   print(user_id);
+  //   setState(() {});
+  // }
   // Future<void> fetchFace() async {
   //   String? facepointString = preferences?.getString('facepoint') ?? 'MAHESA';
   //   if (facepointString != null) {
@@ -217,7 +216,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
     try {
       print('Button pressed');
-      final String nameFromArguments = nama_lengkap;
+      final String nameFromArguments = widget.profile['nama_lengkap'];
       data[nameFromArguments] = e1;
 
       print('Before storeAbsen()');
@@ -415,7 +414,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     var request = http.MultipartRequest('POST', uri);
 
     Map<String, String> fields = {
-      "user_id": user_id.toString(),
+      "user_id": widget.profile['user_id'].toString(),
       "category": widget.arguments['category'].toString(),
       "exit_time": '00:00:00',
       "latitude": _position!.latitude.toString(),

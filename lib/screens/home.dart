@@ -811,7 +811,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
   }
 
   Future getAbsensiToday() async {
-    await Future.delayed(const Duration(seconds: 3));
+    // await Future.delayed(const Duration(seconds: 3));
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
