@@ -69,151 +69,157 @@ class _PrivasiPageState extends State<PrivasiPage> with WidgetsBindingObserver{
         centerTitle: true,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          child: ListView(
-            scrollDirection: Axis.vertical,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            children: [
-              // email
-              Padding(
-                padding: const EdgeInsets.only(top: 14, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (overscroll) {
+              overscroll.disallowIndicator();
+              return true;
+            },
+        child: SafeArea(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              children: [
+                // email
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10, left: 10),
+                        child: Text('Email',
+                            style: GoogleFonts.montserrat(
+                              fontSize: MediaQuery.of(context).size.width * 0.035,
+                              color: kTextgrey,
+                              fontWeight: FontWeight.w400,
+                            )),
+                      ),
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          children: [
+                            Text('${preferences?.getString('email')}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                )),
+                            const Spacer(),
+                            const Icon(
+                              LucideIcons.mail,
+                              color: kBorder,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // password
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10, left: 10),
+                        child: Text(
+                          'Password',
+                          style: GoogleFonts.montserrat(
+                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                            color: kTextgrey,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: 'inipassword',
+                                enabled: false,
+                                obscureText:
+                                    true, // Ini akan menyembunyikan input password
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                decoration: const InputDecoration(
+                                  hintText:
+                                      'Enter your password', // Ganti dengan teks yang sesuai
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            const Icon(
+                              LucideIcons.lock,
+                              color: kBorder,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.01,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text('Email',
+                    InkWell(
+                     onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const ForgetPassword(),
+                                            ),
+                                          );
+                                    },
+                      child: Text("Lupa password",
+                          style: GoogleFonts.montserrat(
+                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                            color: kTextBlocker,
+                            fontWeight: FontWeight.w400,
+                          )),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RubahPassword(),
+                              ),
+                            );
+                      },
+                      child: Text("Ubah password",
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.035,
                             color: kTextgrey,
                             fontWeight: FontWeight.w400,
                           )),
                     ),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Text('${preferences?.getString('email')}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              )),
-                          const Spacer(),
-                          const Icon(
-                            LucideIcons.mail,
-                            color: kBorder,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
-              ),
-              // password
-              Padding(
-                padding: const EdgeInsets.only(top: 14, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text(
-                        'Password',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextgrey,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: 'inipassword',
-                              enabled: false,
-                              obscureText:
-                                  true, // Ini akan menyembunyikan input password
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: const InputDecoration(
-                                hintText:
-                                    'Enter your password', // Ganti dengan teks yang sesuai
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          const Icon(
-                            LucideIcons.lock,
-                            color: kBorder,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.01,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  InkWell(
-                   onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const ForgetPassword(),
-                                          ),
-                                        );
-                                  },
-                    child: Text("Lupa password",
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextBlocker,
-                          fontWeight: FontWeight.w400,
-                        )),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RubahPassword(),
-                            ),
-                          );
-                    },
-                    child: Text("Ubah password",
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          color: kTextgrey,
-                          fontWeight: FontWeight.w400,
-                        )),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

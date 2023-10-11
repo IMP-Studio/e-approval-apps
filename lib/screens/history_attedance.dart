@@ -1342,182 +1342,188 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
         child: SafeArea(
           child: RefreshIndicator(
             onRefresh: _refreshContent,
-            child: ListView(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.width * 0.35,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [kTextoo, kTextoo])),
-                  child: Row(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20.0),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.15,
-                              height: MediaQuery.of(context).size.width * 0.007,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20.0)),
+            child: NotificationListener<OverscrollIndicatorNotification>(
+            onNotification: (overscroll) {
+              overscroll.disallowIndicator();
+              return true;
+              },
+              child: ListView(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.width * 0.35,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [kTextoo, kTextoo])),
+                    child: Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.15,
+                                height: MediaQuery.of(context).size.width * 0.007,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20.0)),
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10.0,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 20.0,
+                            const SizedBox(
+                              height: 10.0,
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Riwayat Absensi",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      textStyle: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.055,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white)),
-                                ),
-                                const SizedBox(
-                                  height: 5.0,
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  child: Text(
-                                    "Work From Anywhere, Pekerjaan Dinas, Work From Office",
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 20.0,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Riwayat Absensi",
                                     style: GoogleFonts.getFont('Montserrat',
                                         textStyle: TextStyle(
                                             fontSize: MediaQuery.of(context)
                                                     .size
                                                     .width *
-                                                0.028,
+                                                0.055,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.white)),
+                                  ),
+                                  const SizedBox(
+                                    height: 5.0,
+                                  ),
+                                  Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.5,
+                                    child: Text(
+                                      "Work From Anywhere, Pekerjaan Dinas, Work From Office",
+                                      style: GoogleFonts.getFont('Montserrat',
+                                          textStyle: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.028,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: SvgPicture.asset(
+                            "assets/img/hero-image-ha.svg",
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery.of(context).size.width * 0.3,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                     Container(
+                      padding: EdgeInsets.only(left: 20),
+                      child:  Text(
+                                    "Riwayat",
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        color: hitamText,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.048,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                     ),
+                                  Spacer(),
+                      Container(
+                    padding: EdgeInsets.only(right: 20.0),
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            final historyArgs = {
+                              'user_id': preferences?.getInt('user_id') ?? 0
+                              };
+                            print(historyArgs);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailHistoryResume(
+                                    arguments : historyArgs
+                                  ),
+                                ));
+                          },
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            width: 150.0,
+                            height: 40.0,
+                            decoration: BoxDecoration(
+                                color: kTextoo,
+                                borderRadius: BorderRadius.circular(25.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                      color: Colors.black.withOpacity(0.25),
+                                      offset: Offset(0, 2))
+                                ]),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.0),
+                                  child: Text(
+                                    "Lihat Resume",
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        color: Colors.white,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.034,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                                Spacer(),
+                                Container(
+                                  height: 45,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      color: kTextooAgakGelap,
+                                      borderRadius: BorderRadius.circular(25.0)),
+                                  child: Icon(
+                                    LucideIcons.clipboard,
+                                    color: Colors.white,
+                                    size:
+                                        MediaQuery.of(context).size.width * 0.054,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: SvgPicture.asset(
-                          "assets/img/hero-image-ha.svg",
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          height: MediaQuery.of(context).size.width * 0.3,
-                          fit: BoxFit.cover,
                         ),
-                      )
+                      ],
+                    ),
+                  ),
                     ],
                   ),
-                ),
-                Row(
-                  children: [
-                   Container(
-                    padding: EdgeInsets.only(left: 20),
-                    child:  Text(
-                                  "Riwayat",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: hitamText,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.048,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                   ),
-                                Spacer(),
-                    Container(
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          final historyArgs = {
-                            'user_id': preferences?.getInt('user_id') ?? 0
-                            };
-                          print(historyArgs);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailHistoryResume(
-                                  arguments : historyArgs
-                                ),
-                              ));
-                        },
-                        child: Container(
-                          alignment: Alignment.centerLeft,
-                          width: 140.0,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                              color: kTextoo,
-                              borderRadius: BorderRadius.circular(25.0),
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                    color: Colors.black.withOpacity(0.25),
-                                    offset: Offset(0, 2))
-                              ]),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Text(
-                                  "Lihat Resume",
-                                  style: GoogleFonts.getFont('Montserrat',
-                                      color: Colors.white,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.034,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                              Spacer(),
-                              Container(
-                                height: 45,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                    color: kTextooAgakGelap,
-                                    borderRadius: BorderRadius.circular(25.0)),
-                                child: Icon(
-                                  LucideIcons.clipboard,
-                                  color: Colors.white,
-                                  size:
-                                      MediaQuery.of(context).size.width * 0.054,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    height: 10,
                   ),
-                ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                _jadwalContainer(),
-                const SizedBox(
-                  height: 10,
-                )
-              ],
+                  _jadwalContainer(),
+                  const SizedBox(
+                    height: 10,
+                  )
+                ],
+              ),
             ),
           ),
         ),
