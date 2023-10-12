@@ -63,7 +63,7 @@ class _RequestScreenState extends State<RequestScreen> {
           '&status=pending,rejected,allowed&permission=ordinary_employee';
     } else if (widget.profile['permission'] == 'human_resource') {
       specificParams =
-          '&status=allow_HT,rejected,allowed&permission=head_of_tribe,ordinary_employee';
+          '&status=preliminary,rejected,allowed&permission=head_of_tribe,ordinary_employee';
     } else {
       specificParams = '';
     }
@@ -210,7 +210,7 @@ class _RequestScreenState extends State<RequestScreen> {
           textColor = kGreen; // Your green color for text
           text = 'Allowed';
           break;
-        case 'allow_HT':
+        case 'preliminary':
           containerColor = Color(0xffFFEFC6);
           textColor =
               Color(0xffFFC52D); // Black usually matches well with yellow.
@@ -297,10 +297,10 @@ class _RequestScreenState extends State<RequestScreen> {
           ],
         ),
         body: NotificationListener<OverscrollIndicatorNotification>(
-            onNotification: (overscroll) {
-              overscroll.disallowIndicator();
-              return true;
-              },
+          onNotification: (overscroll) {
+            overscroll.disallowIndicator();
+            return true;
+          },
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -326,7 +326,8 @@ class _RequestScreenState extends State<RequestScreen> {
                             style: GoogleFonts.getFont('Montserrat',
                                 textStyle: TextStyle(
                                     fontSize:
-                                        MediaQuery.of(context).size.width * 0.044,
+                                        MediaQuery.of(context).size.width *
+                                            0.044,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.black)),
                           ),
@@ -338,7 +339,8 @@ class _RequestScreenState extends State<RequestScreen> {
                             style: GoogleFonts.getFont('Montserrat',
                                 textStyle: TextStyle(
                                     fontSize:
-                                        MediaQuery.of(context).size.width * 0.044,
+                                        MediaQuery.of(context).size.width *
+                                            0.044,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.black)),
                           ),
@@ -382,7 +384,7 @@ class _RequestScreenState extends State<RequestScreen> {
                           );
                         }
                         var limitedData = snapshot.data['data'].toList();
-        
+
                         return Column(
                           children: <Widget>[
                             GFAccordion(
@@ -434,7 +436,8 @@ class _RequestScreenState extends State<RequestScreen> {
                                                   style: GoogleFonts.getFont(
                                                       "Montserrat",
                                                       color: kTextBlcknw,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       fontSize:
                                                           MediaQuery.of(context)
                                                                   .size
@@ -464,7 +467,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                   snapshot.data['data'][index]
                                                           ['status'] ??
                                                       '';
-        
+
                                               Widget statusWidget =
                                                   getStatusRow(currentStatus);
                                               print(snapshot.data['data']);
@@ -476,15 +479,15 @@ class _RequestScreenState extends State<RequestScreen> {
                                               //     .data['status'][index];
                                               // Widget statusWidget =
                                               //     getStatusRow(currentStatus);
-        
+
                                               return GestureDetector(
                                                 onTap: () {
                                                   String category = snapshot
                                                           .data['data'][index][
                                                       'category']; // Assuming your data has a 'category' key.
-        
+
                                                   Widget detailPage;
-        
+
                                                   switch (category) {
                                                     case 'WFO':
                                                       detailPage = DetailWfo(
@@ -496,31 +499,36 @@ class _RequestScreenState extends State<RequestScreen> {
                                                       detailPage =
                                                           DetailRequestWfa(
                                                               absen: snapshot
-                                                                      .data[
-                                                                  'data'][index]);
+                                                                          .data[
+                                                                      'data']
+                                                                  [index]);
                                                       break;
                                                     case 'work_trip':
                                                       detailPage =
                                                           DetailRequestPerjadin(
                                                               absen: snapshot
-                                                                      .data[
-                                                                  'data'][index]);
+                                                                          .data[
+                                                                      'data']
+                                                                  [index]);
                                                       break;
                                                     case 'leave':
                                                       detailPage =
                                                           DetailRequestCuti(
                                                               absen: snapshot
-                                                                      .data[
-                                                                  'data'][index]);
+                                                                          .data[
+                                                                      'data']
+                                                                  [index]);
                                                       break;
                                                     default:
-                                                      detailPage = DetailAbsensi(
-                                                          absen: snapshot
-                                                                  .data['data']
-                                                              [index]);
+                                                      detailPage =
+                                                          DetailAbsensi(
+                                                              absen: snapshot
+                                                                          .data[
+                                                                      'data']
+                                                                  [index]);
                                                       break;
                                                   }
-        
+
                                                   Navigator.of(context)
                                                       .push(MaterialPageRoute(
                                                     builder: (context) =>
@@ -558,8 +566,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                     'nama_lengkap'],
                                                                 style: GoogleFonts.getFont(
                                                                     "Montserrat",
-                                                                    fontSize: MediaQuery.of(
-                                                                                context)
+                                                                    fontSize: MediaQuery.of(context)
                                                                             .size
                                                                             .width *
                                                                         0.034,
@@ -585,7 +592,8 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                       [index]
                                                                   ['category'],
                                                               snapshot.data[
-                                                                  'data'][index]),
+                                                                      'data']
+                                                                  [index]),
                                                           SizedBox(
                                                             height: 8.0,
                                                           ),
@@ -595,8 +603,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                 "JENIS",
                                                                 style: GoogleFonts.getFont(
                                                                     "Montserrat",
-                                                                    fontSize: MediaQuery.of(
-                                                                                context)
+                                                                    fontSize: MediaQuery.of(context)
                                                                             .size
                                                                             .width *
                                                                         0.025,
@@ -613,8 +620,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                 ":",
                                                                 style: GoogleFonts.getFont(
                                                                     "Montserrat",
-                                                                    fontSize: MediaQuery.of(
-                                                                                context)
+                                                                    fontSize: MediaQuery.of(context)
                                                                             .size
                                                                             .width *
                                                                         0.025,
@@ -631,11 +637,11 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                 categoryText(snapshot
                                                                             .data[
                                                                         'data'][index]
-                                                                    ['category']),
+                                                                    [
+                                                                    'category']),
                                                                 style: GoogleFonts.getFont(
                                                                     "Montserrat",
-                                                                    fontSize: MediaQuery.of(
-                                                                                context)
+                                                                    fontSize: MediaQuery.of(context)
                                                                             .size
                                                                             .width *
                                                                         0.025,
@@ -655,7 +661,8 @@ class _RequestScreenState extends State<RequestScreen> {
                                                           Container(
                                                             padding: EdgeInsets
                                                                 .symmetric(
-                                                                    vertical: 10),
+                                                                    vertical:
+                                                                        10),
                                                             child: Column(
                                                               children: [
                                                                 Row(
@@ -668,9 +675,8 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                               .now()),
                                                                       style: GoogleFonts.getFont(
                                                                           "Montserrat",
-                                                                          fontSize:
-                                                                              MediaQuery.of(context).size.width *
-                                                                                  0.025,
+                                                                          fontSize: MediaQuery.of(context).size.width *
+                                                                              0.025,
                                                                           color:
                                                                               kTextBlcknw,
                                                                           fontWeight:

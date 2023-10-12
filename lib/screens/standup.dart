@@ -2173,7 +2173,7 @@ class _StandUpState extends State<StandUp>
                         onPressed: () async {
                           var responseStatus = await checkAbsensi();
                           if (responseStatus == 'checkedIn' ||
-                              responseStatus == 'checkedOut') {
+                              responseStatus == 'checkedOut' || responseStatus == 'Perjadin') {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -2182,8 +2182,8 @@ class _StandUpState extends State<StandUp>
                             );
                           } else if (responseStatus == 'pendingStatus') {
                             final snackBar = showSnackbarWarning(
-                                "Wait for a moment...",
-                                "Your request is still pending.",
+                                "Tunggu sebentar...",
+                                "Request dalam status pending.",
                                 kYelw,
                                 Icon(
                                   LucideIcons.alertCircle,
@@ -2213,7 +2213,7 @@ class _StandUpState extends State<StandUp>
                           } else {
                             final SnackBar = showSnackbarWarning(
                                 "Wait...",
-                                "Absen terlebih dahulu sebelum melakukan stand up.",
+                                "Absen terlebih dahulu.",
                                 kYelw,
                                 Icon(
                                   LucideIcons.alertCircle,

@@ -39,6 +39,13 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
+String capitalizeFirstLetter(String text) {
+  if (text == null || text.isEmpty) {
+    return text;
+  }
+  return text[0].toUpperCase() + text.substring(1);
+}
+
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -183,10 +190,10 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   }
 
   final List<String> jenisItems = [
-    'Kesehatan',
-    'Keluarga',
-    'Pendidikan',
-    'Other',
+    'kesehatan',
+    'keluarga',
+    'pendidikan',
+    'other',
   ];
 
   String? selectedValue;
@@ -398,8 +405,9 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
                   .map((item) => DropdownMenuItem<String>(
                         value: item, // <-- Set item value here
                         child: Text(
-                          item,
-                          style: const TextStyle(
+                          capitalizeFirstLetter(item),
+                          style: GoogleFonts.montserrat(
+                            
                             fontSize: 14,
                           ),
                         ),
@@ -419,7 +427,7 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
               selectedItemBuilder: (BuildContext context) {
                 return jenisItems.map<Widget>((String item) {
                   return Text(
-                    item,
+                    capitalizeFirstLetter(item),
                     style: GoogleFonts.montserrat(fontSize: 14),
                   );
                 }).toList();

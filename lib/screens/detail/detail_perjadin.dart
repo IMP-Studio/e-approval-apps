@@ -251,7 +251,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
               0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
-        case 'allow_HT':
+        case 'preliminary':
           containerColor = const Color(0xffFFEFC6);
           textColor = const Color(
               0xffFFC52D); // Black usually matches well with yellow.
@@ -499,7 +499,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                             children: [
                               Text(
                                 truncateFileName(
-                                    widget.absen['file'],
+                                    widget.absen['originalFile'],
                                     (MediaQuery.of(context).size.width * 0.1)
                                         .toInt()),
                                 style: GoogleFonts.montserrat(
@@ -512,7 +512,6 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
-                             
                             ],
                           ),
                         ),
@@ -520,48 +519,22 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                     ),
                   ),
 
-                  // SizedBox(
-                  //   height: MediaQuery.of(context).size.height * 0.02,
-                  // ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  ),
+
+                  
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 20, bottom: 35),
+                        padding: const EdgeInsets.only( bottom: 35),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Visibility(
-                              visible: widget.absen['status'] == 'pending',
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: kTextBlocker,
-                                  side: const BorderSide(
-                                    color: kTextBlocker,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  destroyPresence().then((value) {
-                                    setState(() {
-                                      Navigator.pop(context, 'refresh');
-                                    });
-                                    // scaffold an asli nanti gua coba0
-                                  });
-                                },
-                                child: Text(
-                                  "Delete",
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.035,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.05,
-                            ),
+                            //SEMENTARA DI COMMENT
+                            
                             Visibility(
                               visible: widget.absen['status'] == 'pending',
                               child: FutureBuilder(
@@ -638,6 +611,41 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 },
                               ),
                             ),
+
+                             SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.01,
+                  ),
+
+                            Visibility(
+                              visible: widget.absen['status'] == 'pending',
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: kTextBlocker,
+                                  side: const BorderSide(
+                                    color: kTextBlocker,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  destroyPresence().then((value) {
+                                    setState(() {
+                                      Navigator.pop(context, 'refresh');
+                                    });
+                                    // scaffold an asli nanti gua coba0
+                                  });
+                                },
+                                child: Text(
+                                  "Delete",
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.035,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            
                           ],
                         ),
                       ),

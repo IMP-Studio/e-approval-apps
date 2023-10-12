@@ -7,11 +7,13 @@ import 'package:imp_approval/screens/detail/detail_daftarproject_beforestandup.d
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
+
 
 class CreateStandup extends StatefulWidget {
   const CreateStandup({super.key});
@@ -31,9 +33,13 @@ class _CreateStandupState extends State<CreateStandup>
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    
+
     getUserData().then((_) {
       _dataFuture = getProject();
     });
+
+  
   }
 
   bool isLoading = false;
@@ -56,6 +62,12 @@ class _CreateStandupState extends State<CreateStandup>
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
+  }
+
+    int computeDaysLeft(String endDate) {
+    DateTime end = DateTime.parse(endDate);
+    DateTime current = DateTime.now();
+    return end.difference(current).inDays;
   }
 
   String truncateText(String text, int maxLength) {
@@ -282,6 +294,7 @@ class _CreateStandupState extends State<CreateStandup>
                                 itemCount: 7,
                                 padding: EdgeInsets.symmetric(horizontal: 20),
                                 itemBuilder: (context, index) {
+                                  
                                   return Container(
                                     margin: const EdgeInsets.only(bottom: 10.0),
                                     child: Shimmer.fromColors(
@@ -311,6 +324,7 @@ class _CreateStandupState extends State<CreateStandup>
 
                             var projects = snapshot.data['data'] as List;
 
+
                             // Filtering the projects based on the search query.
                             if (_searchQuery.isNotEmpty) {
                               projects = projects.where((project) {
@@ -330,7 +344,8 @@ class _CreateStandupState extends State<CreateStandup>
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: projects.length,
                                 itemBuilder: (context, index) {
-                                  var project = projects[index];
+                                                              var project = projects[index];
+                                  int daysLeft = computeDaysLeft(project['end_date']);
                                   print(project);
                                   return Stack(
                                     children: [
@@ -410,7 +425,7 @@ class _CreateStandupState extends State<CreateStandup>
                                                   height: 10.0,
                                                 ),
                                                 Text(
-                                                  "28 hari lagi",
+                                                 '$daysLeft hari lagi' ,
                                                   style: GoogleFonts.getFont(
                                                       'Montserrat',
                                                       color: kTextBlcknw,
@@ -437,7 +452,9 @@ class _CreateStandupState extends State<CreateStandup>
                                                 topRight: Radius.circular(10.0),
                                                 bottomRight:
                                                     Radius.circular(10.0)),
-                                            child: SvgPicture.asset(
+                                            child:
+                                            project['status'] == 'Aktif'
+                                                ? SvgPicture.asset(
                                               "assets/img/aktif.svg",
                                               height: MediaQuery.of(context)
                                                       .size
@@ -448,7 +465,21 @@ class _CreateStandupState extends State<CreateStandup>
                                                       .width *
                                                   0.2,
                                               fit: BoxFit.cover,
+                                            )
+
+                                                : SvgPicture.asset(
+                                              "assets/img/nonaktif.svg",
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.19,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.2,
+                                              fit: BoxFit.cover,
                                             ),
+                                             
                                           ),
                                         ),
                                       )

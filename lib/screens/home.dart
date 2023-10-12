@@ -11,6 +11,7 @@ import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
 import 'package:imp_approval/screens/face_recognition.dart';
+import 'package:imp_approval/screens/edit/face_recognition_perjadin.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imp_approval/screens/map_wfo.dart';
 import 'package:imp_approval/screens/request.dart';
@@ -48,9 +49,11 @@ enum AttendanceStatus {
   completed,
   pendingStatus,
   Perjadin,
+  notAttendedWT,
+  perjadinCheckin,
   leaveStatus,
   canReAttend,
-  Bolos,
+  Skipped,
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
@@ -79,6 +82,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool showAtributModalCheckin = true;
 
   bool showAtributModalCheckOut = true;
+  bool showAtributModalWorktrip = true;
 
   bool showModalWfa = false;
   String selectedOption = '';
@@ -86,6 +90,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   double _tinggimodal = 320;
+  double _tinggimodalwt = 350;
 
   Position? _position;
   late bool servicePermission = false;
@@ -119,7 +124,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return '$formattedStartDay-$formattedEndDay $formattedMonth $formattedYear';
   }
 
-  Future<String> checkAbsensi() async {
+  Future<String?> checkAbsensi() async {
     int userId = preferences?.getInt('user_id') ?? 0;
 
     final urlj = 'https://testing.impstudio.id/approvall/api/presence/$userId';
@@ -129,6 +134,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       var jsonData = jsonDecode(response.body);
       print('Server Response Status: ${jsonData['status']}'); // Debug line
       return jsonData['status'];
+    } else if (response.statusCode == 429) {
+      // Return 'loading' for Too Many Requests status.
+      return 'loading';
     } else {
       throw Exception('Failed to load attendance status');
     }
@@ -143,6 +151,42 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     print(response.body);
     return jsonDecode(response.body);
   }
+
+  Future<Map<String, dynamic>?> getPresenceID() async {
+    int userId = preferences?.getInt('user_id') ?? 0;
+    final String urlj =
+        'https://testing.impstudio.id/approvall/api/presence/today/user/$userId';
+    var response = await http.get(Uri.parse(urlj));
+    var jsonResponse = jsonDecode(response.body);
+    print('Response from getPresenceID: $jsonResponse');
+
+    if (jsonResponse != null && jsonResponse.containsKey('presence_id')) {
+      return jsonResponse;
+    }
+    return null;
+}
+
+
+  Map<String, dynamic>? presenceId;
+  Map<String, dynamic>? profile;
+
+  Future<void> fetchPresenceId() async {
+    presenceId = await getPresenceID();
+  }
+
+ Future<void> fetchData() async {
+    await fetchPresenceId(); // This will set the presenceId based on the getPresenceID() method
+    
+    Map<String, dynamic>? userProfileResponse = await getProfil(); // Fetch profile data
+
+    if (userProfileResponse != null && userProfileResponse['data'] != null && userProfileResponse['data'].length > 0) {
+        setState(() {
+            profile = userProfileResponse['data'][0]; 
+            // You don't need to set presenceId here since it's already set by fetchPresenceId
+        });
+    }
+}
+
 
   Future emergencyChekout() async {
     int userId = preferences?.getInt('user_id') ?? 0;
@@ -168,10 +212,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void _fetchStatusAbsensi() async {
     try {
-      String status = await checkAbsensi();
+      String? status = await checkAbsensi();
 
       setState(() {
         switch (status) {
+          case 'loading':
+            _attendanceStatus =
+                AttendanceStatus.loading; // Handle the loading status
+            break;
           case 'checkedIn':
             _attendanceStatus = AttendanceStatus.checkedIn;
             break;
@@ -187,14 +235,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           case 'Perjadin':
             _attendanceStatus = AttendanceStatus.Perjadin;
             break;
-          case 'leaveStatus':
+          case 'notAttendedWT':
+            _attendanceStatus = AttendanceStatus.notAttendedWT;
+            break;
+          case 'perjadinCheckin':
+            _attendanceStatus = AttendanceStatus.perjadinCheckin;
+            break;
+          case 'Leave':
             _attendanceStatus = AttendanceStatus.leaveStatus;
             break;
           case 'canReAttend':
             _attendanceStatus = AttendanceStatus.canReAttend;
             break;
-          case 'Bolos':
-            _attendanceStatus = AttendanceStatus.Bolos;
+          case 'Skipped':
+            _attendanceStatus = AttendanceStatus.Skipped;
             break;
           default:
             _attendanceStatus = AttendanceStatus.notAttended;
@@ -224,13 +278,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildPendingButton();
       case AttendanceStatus.Perjadin:
         return _buildPerjadinButton();
+      case AttendanceStatus.notAttendedWT:
+        return _buildPerjadinCheckinButton();
+      case AttendanceStatus.perjadinCheckin:
+        return _buildPerjadinCheckinButton();
       case AttendanceStatus.leaveStatus:
         return _buildLeaveButton();
       case AttendanceStatus.checkedIn:
         return _buildCheckOutButton();
       case AttendanceStatus.checkedOut:
         return _buildCheckedOutButton();
-      case AttendanceStatus.Bolos:
+      case AttendanceStatus.Skipped:
         return _buildBolosButton();
       case AttendanceStatus.completed:
       default:
@@ -418,14 +476,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
-
     TimeOfDay morningLimit = const TimeOfDay(hour: 0, minute: 1);
     TimeOfDay eveningLimit = const TimeOfDay(hour: 17, minute: 30);
 
-bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTime!, eveningLimit) : false;
-  bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
+    bool isBeforeEveningLimit = _currentTime != null
+        ? isTimeOfDayBefore(_currentTime!, eveningLimit)
+        : false;
+    bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
 
-  bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
+    bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -508,58 +567,69 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.02,
                             ),
-                             isLoading
-          ? Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: double.infinity,
-                height: 45.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-              ),
-            )
-          : OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                elevation: isBeforeEveningLimit ? 0 : 3,
-                backgroundColor: isBeforeEveningLimit
-                    ? Colors.transparent
-                    : kButton,
-                foregroundColor: Colors.black,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                side: BorderSide(
-                  width: 1,
-                  color: isBeforeEveningLimit ? Colors.black : kButton,
-                ),
-                minimumSize: const Size(double.infinity, 45),
-              ),
-              onPressed: isBeforeEveningLimit && isAfterMorningLimit
-                  ? null
-                  : () {
-                      checkOutToday().then((_) {
-                        setState(() {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainLayout(),
-                            ),
-                          );
-                        });
-                      });
-                    },
-              child: Text(
-                "Pulang",
-                style: GoogleFonts.montserrat(
-                  fontSize: MediaQuery.of(context).size.width * 0.034,
-                  color: isBeforeEveningLimit ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+                            isLoading
+                                ? Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 45.0,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                    ),
+                                  )
+                                : OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      elevation: isBeforeEveningLimit ? 0 : 3,
+                                      backgroundColor: isBeforeEveningLimit
+                                          ? Colors.transparent
+                                          : kButton,
+                                      foregroundColor: Colors.black,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10)),
+                                      ),
+                                      side: BorderSide(
+                                        width: 1,
+                                        color: isBeforeEveningLimit
+                                            ? Colors.black
+                                            : kButton,
+                                      ),
+                                      minimumSize:
+                                          const Size(double.infinity, 45),
+                                    ),
+                                    onPressed: isBeforeEveningLimit &&
+                                            isAfterMorningLimit
+                                        ? null
+                                        : () {
+                                            checkOutToday().then((_) {
+                                              setState(() {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MainLayout(),
+                                                  ),
+                                                );
+                                              });
+                                            });
+                                          },
+                                    child: Text(
+                                      "Pulang",
+                                      style: GoogleFonts.montserrat(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.034,
+                                        color: isBeforeEveningLimit
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                           ],
                         ),
                       ),
@@ -577,8 +647,8 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
   Widget _buildCheckedOutButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-       backgroundColor: Colors.white,
-        shadowColor: Colors.black,
+          backgroundColor: Colors.white,
+          shadowColor: Colors.black,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -606,7 +676,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
           ),
           side: BorderSide(color: Colors.black, width: 1)),
       child: Text(
-        'Cuti',
+        'CUTI',
         style: GoogleFonts.inter(
           color: hitamText,
           fontSize: 14,
@@ -697,6 +767,133 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                         ],
                       ),
                     ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPerjadinCheckinButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: Text(
+        'Check In | Perjadin',
+        style: GoogleFonts.inter(
+          color: whiteText,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onPressed: () {
+        showModalBottomSheet<void>(
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15.0),
+              topRight: Radius.circular(15.0),
+            ),
+          ),
+          context: context,
+          builder: (BuildContext context) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: SizedBox(
+                height: _tinggimodalwt,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(top: 15, bottom: 10),
+                      width: 60,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.black12,
+                      ),
+                    ),
+                    if (showAtributModalWorktrip) _modalWorktripAttribute(),
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            child: SvgPicture.asset(
+                              "assets/img/bolos.svg",
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              height: MediaQuery.of(context).size.width * 0.4,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: kButton,
+                          foregroundColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          side: BorderSide(
+                            width: 1,
+                            color: kButton,
+                          ),
+                          minimumSize: const Size(double.infinity, 45),
+                        ),
+                        onPressed: () async {
+                          try {
+                            // Provide feedback to user
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            await fetchData(); // Fetch both presenceId and profile
+
+                            print(presenceId);
+                            print('presenceId: $presenceId');
+print('profile: $profile');
+
+                            if (presenceId != null && profile != null) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => FacePagePerjadin(presenceId: presenceId!, profile: profile!)
+    )
+  );
+} else {
+  print('Either presenceId or profile is null');
+}
+
+                          } catch (error) {
+                            print("Error: $error");
+                          } finally {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        },
+                        child: Text(
+                          "Check In",
+                          style: GoogleFonts.montserrat(
+                            fontSize: MediaQuery.of(context).size.width * 0.034,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -825,7 +1022,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
     switch (status) {
       case 'pending':
         return 'Pending';
-      case 'allow_HT':
+      case 'preliminary':
         return 'Diterima oleh';
       case 'allowed':
         return 'Diterima oleh';
@@ -847,7 +1044,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
       case 'leave':
         return 'Cuti';
       case 'skip':
-        return 'Cuti';
+        return 'Bolos';
       default:
         return 'Unknown';
     }
@@ -859,7 +1056,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
     switch (status) {
       case 'pending':
         return 'HT';
-      case 'allow_HT':
+      case 'preliminary':
         return 'HT';
       case 'allowed':
         return 'HT & HR';
@@ -900,24 +1097,24 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
       if (showModalWfa == 'true') {
         setState(() {
           _tinggimodal = 420;
+          _tinggimodalwt = 500;
         });
       }
     });
   }
 
   Future<void> _fetchNTPTime() async {
-  try {
-    DateTime ntpTime = await NTP.now(lookUpAddress: 'id.pool.ntp.org');
-    setState(() {
-      _currentTime = TimeOfDay(hour: ntpTime.hour, minute: ntpTime.minute);
-      isLoading = false;
-    });
-  } catch (e) {
-    print('Failed to fetch NTP time: $e');
-    // Handle the error appropriately here, maybe by showing an error message to the user
+    try {
+      DateTime ntpTime = await NTP.now(lookUpAddress: 'id.pool.ntp.org');
+      setState(() {
+        _currentTime = TimeOfDay(hour: ntpTime.hour, minute: ntpTime.minute);
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Failed to fetch NTP time: $e');
+      // Handle the error appropriately here, maybe by showing an error message to the user
+    }
   }
-}
-
 
   Future<void> refreshData() async {
     await getUserData().then((_) {
@@ -925,9 +1122,9 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
       print(preferences?.getInt('user_id'));
       print("Description: ${_descriptionController.text}");
       getAbsensiAll();
+      getAbsensiToday();
       checkAbsensi();
       _fetchStatusAbsensi();
-      getAbsensiToday();
     });
   }
 
@@ -1236,7 +1433,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "Kehadiran",
+                                      "Jenis Kehadiran",
                                       style: GoogleFonts.montserrat(
                                         fontSize:
                                             MediaQuery.of(context).size.width *
@@ -1279,7 +1476,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                               dataContainer(formatDateTime(data['exit_time']),
                                   "Check Out"),
                               const Spacer(),
-                              dataContainer('Bolos', "Kehadiran"),
+                              dataContainer('Bolos', "Jenis Kehadiran"),
                             ],
                           ),
                         );
@@ -1299,7 +1496,9 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                               dataContainer(formatDateTime(data['exit_time']),
                                   "Check Out"),
                               const Spacer(),
-                              dataContainer(data['category'], "Kehadiran"),
+                              dataContainer(
+                                  data['category'] ?? 'Unknown Category',
+                                  "Jenis Kehadiran"),
                             ],
                           ),
                         );
@@ -1373,8 +1572,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                   Container(
                       height: MediaQuery.of(context).size.height / 2.3,
                       child: FutureBuilder(
-                        future:
-                            getAbsensiAll(), // or getAbsensiToday() for the other one
+                        future: getAbsensiAll(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -1755,425 +1953,420 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                           } else if (!snapshot.hasData ||
                               snapshot.data == null) {
                             return Container(
-                              color: Colors.white,
+                              color: Colors.transparent,
                             );
                           } else {
                             // Handle the case when you have data
-                            var limitedData =
-                                snapshot.data['data'].take(3).toList();
-                            return ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: limitedData.length,
-                                itemBuilder: (context, index) {
-                                  print(snapshot.data['data']);
-                                  print(limitedData[index]['entry_time']);
-                                  print(snapshot.data['data'][index]
-                                      ['entry_time']);
-                                  return GestureDetector(
-                                    onTap: () {
-                                      String category = snapshot.data['data']
-                                              [index][
-                                          'category']; // Assuming your data has a 'category' key.
+                            if (snapshot.data != null &&
+                                snapshot.data['data'] != null) {
+                              var limitedData =
+                                  snapshot.data['data'].take(3).toList();
+                              return ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: limitedData.length,
+                                  itemBuilder: (context, index) {
+                                    print(snapshot.data['data']);
+                                    print(limitedData[index]['entry_time']);
+                                    print(snapshot.data['data'][index]
+                                        ['entry_time']);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        String category = snapshot.data['data']
+                                                [index][
+                                            'category']; // Assuming your data has a 'category' key.
 
-                                      Widget detailPage;
+                                        Widget detailPage;
 
-                                      switch (category) {
-                                        case 'WFO':
-                                          detailPage = DetailWfo(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                        case 'telework':
-                                          detailPage = DetailWfa(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                        case 'work_trip':
-                                          detailPage = DetailPerjadin(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                        case 'leave':
-                                          detailPage = DetailCuti(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                        case 'skip':
-                                          detailPage = DetailBolos(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                        default:
-                                          detailPage = DetailAbsensi(
-                                              absen: snapshot.data['data']
-                                                  [index]);
-                                          break;
-                                      }
+                                        switch (category) {
+                                          case 'WFO':
+                                            detailPage = DetailWfo(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                          case 'telework':
+                                            detailPage = DetailWfa(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                          case 'work_trip':
+                                            detailPage = DetailPerjadin(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                          case 'leave':
+                                            detailPage = DetailCuti(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                          case 'skip':
+                                            detailPage = DetailBolos(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                          default:
+                                            detailPage = DetailAbsensi(
+                                                absen: snapshot.data['data']
+                                                    [index]);
+                                            break;
+                                        }
 
-                                      Navigator.of(context)
-                                          .push(MaterialPageRoute(
-                                        builder: (context) => detailPage,
-                                      ));
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          right: 20, left: 20),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                                bottom: 15),
-                                            width: double.infinity,
-                                            height: 95,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                color: Colors.white,
-                                                border: Border.all(
-                                                    color: const Color(
-                                                            0xffC2C2C2)
-                                                        .withOpacity(0.30))),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                IntrinsicHeight(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 5,
-                                                            left: 10,
-                                                            right: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      top: 15,
-                                                                      bottom: 7,
-                                                                      right: 5),
-                                                              child: Container(
-                                                                padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                    vertical:
-                                                                        10),
-                                                                height: 2,
-                                                                width: 20,
-                                                                color: blueText,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              snapshot.data['data'][index]['category'] ==
-                                                                      'leave'
-                                                                  ? formatDateRange(
-                                                                      snapshot.data['data']
-                                                                              [index]
-                                                                          [
-                                                                          'start_date'],
-                                                                      snapshot.data['data']
-                                                                              [index]
-                                                                          [
-                                                                          'end_date'])
-                                                                  : DateFormat(
-                                                                          'dd MMMM yyyy')
-                                                                      .format(DateTime.parse(
-                                                                              snapshot.data['data'][index]['date']) ??
-                                                                          DateTime.now()),
-                                                              style: GoogleFonts
-                                                                  .montserrat(
-                                                                fontSize: 10,
-                                                                color: blueText,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 3,
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                const SizedBox(
-                                                                  height: 2,
-                                                                ),
-                                                                Text(
-                                                                    calculateTotalHours(
-                                                                        snapshot.data['data'][index]
-                                                                            [
-                                                                            'entry_time'],
-                                                                        snapshot.data['data'][index]
-                                                                            [
-                                                                            'exit_time']),
-                                                                    style: GoogleFonts
-                                                                        .montserrat(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .black,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700,
-                                                                    )),
-                                                                Text(
-                                                                    ' Total hours',
-                                                                    style: GoogleFonts
-                                                                        .montserrat(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .black,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w400,
-                                                                    )),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        const Spacer(),
-                                                        const Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 10),
-                                                          child:
-                                                              VerticalDivider(
-                                                            color: Color(
-                                                                0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                        ),
-                                                        const Spacer(),
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                top: 15,
-                                                                bottom: 7,
-                                                                left: 5,
-                                                              ),
-                                                              child: Container(
-                                                                height: 2,
-                                                                width: 20,
-                                                                color: blueText,
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              child: Row(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .end,
-                                                                children: [
-                                                                  Column(
-                                                                    children: [
-                                                                      Text(
-                                                                          'Check in',
-                                                                          style:
-                                                                              GoogleFonts.montserrat(
-                                                                            fontSize:
-                                                                                10,
-                                                                            color:
-                                                                                blueText,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
-                                                                          )),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            3,
-                                                                      ),
-                                                                      Text(
-                                                                          formatDateTime(snapshot.data['data'][index]
-                                                                              [
-                                                                              'entry_time']),
-                                                                          style:
-                                                                              GoogleFonts.montserrat(
-                                                                            fontSize:
-                                                                                11,
-                                                                            color:
-                                                                                Colors.black,
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
-                                                                          )),
-                                                                    ],
-                                                                  ),
-                                                                  const SizedBox(
-                                                                      width:
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) => detailPage,
+                                        ));
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 20, left: 20),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 15),
+                                              width: double.infinity,
+                                              height: 95,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                      color: const Color(
+                                                              0xffC2C2C2)
+                                                          .withOpacity(0.30))),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  IntrinsicHeight(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 5,
+                                                              left: 10,
+                                                              right: 10),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 15,
+                                                                        bottom:
+                                                                            7,
+                                                                        right:
+                                                                            5),
+                                                                child:
+                                                                    Container(
+                                                                  padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                      vertical:
                                                                           10),
-                                                                  Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .end,
-                                                                    children: [
-                                                                      Text(
-                                                                          'Check out',
-                                                                          style:
-                                                                              GoogleFonts.montserrat(
-                                                                            fontSize:
-                                                                                10,
-                                                                            color:
-                                                                                blueText,
-                                                                            fontWeight:
-                                                                                FontWeight.w600,
-                                                                          )),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            3,
-                                                                      ),
-                                                                      Text(
-                                                                          formatDateTime(snapshot.data['data'][index]
+                                                                  height: 2,
+                                                                  width: 20,
+                                                                  color:
+                                                                      blueText,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                snapshot.data[
+                                                                                'data'][index][
+                                                                            'category'] ==
+                                                                        'leave'
+                                                                    ? formatDateRange(
+                                                                        snapshot.data['data'][index]
+                                                                            [
+                                                                            'start_date'],
+                                                                        snapshot.data['data'][index]
+                                                                            [
+                                                                            'end_date'])
+                                                                    : DateFormat(
+                                                                            'dd MMMM yyyy')
+                                                                        .format(
+                                                                            DateTime.parse(snapshot.data['data'][index]['date']) ?? DateTime.now()),
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 10,
+                                                                  color:
+                                                                      blueText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  const SizedBox(
+                                                                    height: 2,
+                                                                  ),
+                                                                  Text(
+                                                                      calculateTotalHours(
+                                                                          snapshot.data['data'][index]
+                                                                              [
+                                                                              'entry_time'],
+                                                                          snapshot.data['data'][index]
                                                                               [
                                                                               'exit_time']),
-                                                                          style:
-                                                                              GoogleFonts.montserrat(
-                                                                            fontSize:
-                                                                                11,
-                                                                            color:
-                                                                                Colors.black,
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
-                                                                          )),
-                                                                    ],
-                                                                  ),
+                                                                      style: GoogleFonts
+                                                                          .montserrat(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight.w700,
+                                                                      )),
+                                                                  Text(
+                                                                      ' Total hours',
+                                                                      style: GoogleFonts
+                                                                          .montserrat(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight.w400,
+                                                                      )),
                                                                 ],
                                                               ),
+                                                            ],
+                                                          ),
+                                                          const Spacer(),
+                                                          const Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 10),
+                                                            child:
+                                                                VerticalDivider(
+                                                              color: Color(
+                                                                  0xffE6E6E6),
+                                                              thickness: 1,
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                                          ),
+                                                          const Spacer(),
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                  top: 15,
+                                                                  bottom: 7,
+                                                                  left: 5,
+                                                                ),
+                                                                child:
+                                                                    Container(
+                                                                  height: 2,
+                                                                  width: 20,
+                                                                  color:
+                                                                      blueText,
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                child: Row(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .end,
+                                                                  children: [
+                                                                    Column(
+                                                                      children: [
+                                                                        Text(
+                                                                            'Check in',
+                                                                            style:
+                                                                                GoogleFonts.montserrat(
+                                                                              fontSize: 10,
+                                                                              color: blueText,
+                                                                              fontWeight: FontWeight.w600,
+                                                                            )),
+                                                                        const SizedBox(
+                                                                          height:
+                                                                              3,
+                                                                        ),
+                                                                        Text(
+                                                                            formatDateTime(snapshot.data['data'][index][
+                                                                                'entry_time']),
+                                                                            style:
+                                                                                GoogleFonts.montserrat(
+                                                                              fontSize: 11,
+                                                                              color: Colors.black,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            )),
+                                                                      ],
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        width:
+                                                                            10),
+                                                                    Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .end,
+                                                                      children: [
+                                                                        Text(
+                                                                            'Check out',
+                                                                            style:
+                                                                                GoogleFonts.montserrat(
+                                                                              fontSize: 10,
+                                                                              color: blueText,
+                                                                              fontWeight: FontWeight.w600,
+                                                                            )),
+                                                                        const SizedBox(
+                                                                          height:
+                                                                              3,
+                                                                        ),
+                                                                        Text(
+                                                                            formatDateTime(snapshot.data['data'][index][
+                                                                                'exit_time']),
+                                                                            style:
+                                                                                GoogleFonts.montserrat(
+                                                                              fontSize: 11,
+                                                                              color: Colors.black,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            )),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                const Spacer(),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0xffD9D9D9)
-                                                            .withOpacity(0.15),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                      bottom: 10,
-                                                      top: 10,
-                                                      right: 10,
-                                                      left: 10,
+                                                  const Spacer(),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(
+                                                              0xffD9D9D9)
+                                                          .withOpacity(0.15),
                                                     ),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              categoryText(snapshot
-                                                                          .data[
-                                                                      'data'][index]
-                                                                  ['category']),
-                                                              style: GoogleFonts
-                                                                  .montserrat(
-                                                                fontSize: 8,
-                                                                color: const Color(
-                                                                    0xffB6B6B6),
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        bottom: 10,
+                                                        top: 10,
+                                                        right: 10,
+                                                        left: 10,
+                                                      ),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                categoryText(snapshot
+                                                                            .data[
+                                                                        'data'][index]
+                                                                    [
+                                                                    'category']),
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 8,
+                                                                  color: const Color(
+                                                                      0xffB6B6B6),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            Text(
-                                                              statusText(snapshot
-                                                                          .data[
-                                                                      'data'][index]
-                                                                  ['status']),
-                                                              style: GoogleFonts
-                                                                  .montserrat(
-                                                                fontSize: 8,
-                                                                color: const Color(
-                                                                    0xffB6B6B6),
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Text(
+                                                                statusText(snapshot
+                                                                            .data[
+                                                                        'data'][index]
+                                                                    ['status']),
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 8,
+                                                                  color: const Color(
+                                                                      0xffB6B6B6),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
                                                               ),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 5,
-                                                            ),
-                                                            Text(
-                                                              permissionText(
-                                                                  snapshot.data[
-                                                                              'data']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'status'],
-                                                                  snapshot.data[
-                                                                              'data']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'category'],
-                                                                  snapshot.data[
-                                                                              'data']
-                                                                          [
-                                                                          index]
-                                                                      [
-                                                                      'someKey']),
-                                                              style: GoogleFonts
-                                                                  .montserrat(
-                                                                fontSize: 8,
-                                                                color: const Color(
-                                                                    0xffB6B6B6),
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
+                                                              const SizedBox(
+                                                                width: 5,
                                                               ),
-                                                            ),
-                                                          ],
-                                                        )
-                                                      ],
+                                                              Text(
+                                                                permissionText(
+                                                                    snapshot.data['data']
+                                                                            [
+                                                                            index]
+                                                                        [
+                                                                        'status'],
+                                                                    snapshot.data['data']
+                                                                            [
+                                                                            index]
+                                                                        [
+                                                                        'category'],
+                                                                    snapshot.data['data']
+                                                                            [
+                                                                            index]
+                                                                        [
+                                                                        'someKey']),
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 8,
+                                                                  color: const Color(
+                                                                      0xffB6B6B6),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                });
+                                    );
+                                  });
+                            } else {
+                              return Container(
+                                color: Colors.white,
+                              );
+                            }
                           }
                         },
                       )),
@@ -2188,7 +2381,6 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                     height: 34,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                     
                       color: kButton,
                     ),
                     child: _buildButtonBasedOnStatus()),
@@ -2352,7 +2544,6 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
                 )),
           ),
         ),
-        
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.005,
         ),
@@ -2521,7 +2712,7 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.only( top: 16, bottom: 10),
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -2554,14 +2745,66 @@ bool isBeforeEveningLimit = _currentTime != null ? isTimeOfDayBefore(_currentTim
             Container(
               width: MediaQuery.of(context).size.width / 1.3,
               child: Text(
-              'Kamu sudah bolos hari ini, tolong untuk tidak melakukan lagi dihari berikutnya',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(          
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: const Color.fromRGBO(182, 182, 182, 1),
+                'Kamu sudah bolos hari ini, tolong untuk tidak melakukan lagi dihari berikutnya',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: const Color.fromRGBO(182, 182, 182, 1),
+                ),
               ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _modalWorktripAttribute() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Kamu',
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.039,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  ' Perjadin',
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.039,
+                    fontWeight: FontWeight.w500,
+                    color: kButton,
+                  ),
+                )
+              ],
             ),
+            const SizedBox(
+              height: 5,
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width / 1.3,
+              child: Text(
+                'Kamu sedang perjadin hari ini, jangan lupa untuk checkin',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: const Color.fromRGBO(182, 182, 182, 1),
+                ),
+              ),
             )
           ],
         ),

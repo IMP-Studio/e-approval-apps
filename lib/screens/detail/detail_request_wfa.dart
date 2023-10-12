@@ -152,7 +152,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
               0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
-        case 'allow_HT':
+        case 'preliminary':
           containerColor = const Color(0xffFFEFC6);
           textColor = const Color(
               0xffFFC52D); // Black usually matches well with yellow.

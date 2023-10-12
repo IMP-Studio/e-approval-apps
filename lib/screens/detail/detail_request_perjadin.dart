@@ -223,7 +223,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
               0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
-        case 'allow_HT':
+        case 'preliminary':
           containerColor = const Color(0xffFFEFC6);
           textColor = const Color(
               0xffFFC52D); // Black usually matches well with yellow.
@@ -477,7 +477,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
                             children: [
                               Text(
                                 truncateFileName(
-                                    widget.absen['file'],
+                                    widget.absen['originalFile'],
                                     (MediaQuery.of(context).size.width * 0.1)
                                         .toInt()),
                                 style: GoogleFonts.montserrat(
@@ -489,7 +489,6 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              
                             ],
                           ),
                         ),

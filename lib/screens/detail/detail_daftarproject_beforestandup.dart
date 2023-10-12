@@ -22,6 +22,8 @@ class DetailDaftarProject extends StatefulWidget {
 class _DetailDaftarProjectState extends State<DetailDaftarProject>
     with WidgetsBindingObserver {
   SharedPreferences? preferences;
+  int? differenceInDays;
+  String? displayString;
 
   void initState() {
     super.initState();
@@ -33,6 +35,11 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    DateTime startDate = DateTime.parse(widget.project['start_date']);
+    DateTime endDate = DateTime.parse(widget.project['end_date']);
+    DateTime currentDate = DateTime.now();
+    differenceInDays = endDate.difference(currentDate).inDays;
+    displayString = "Tersisa $differenceInDays hari lagi";
   }
 
   bool isLoading = false;
@@ -57,8 +64,13 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
     return jsonDecode(response.body);
   }
 
+  late Color statusColor;
+
   @override
   Widget build(BuildContext context) {
+    widget.project['status'] == 'Aktif'
+        ? statusColor = Color.fromARGB(255, 94, 202, 67)
+        : statusColor = Color.fromARGB(255, 202, 67, 67);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -157,9 +169,9 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     Spacer(),
                                     Text(
-                                      "Aktif",
+                                      widget.project['status'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
-                                          color: kGreen,
+                                          color: statusColor,
                                           fontSize: MediaQuery.of(context)
                                                   .size
                                                   .width *
@@ -194,7 +206,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     Spacer(),
                                     Text(
-                                      "12 Agustus 2023",
+                                      widget.project['start_date'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
                                           color: Colors.black,
                                           fontSize: MediaQuery.of(context)
@@ -231,7 +243,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     Spacer(),
                                     Text(
-                                      "24 Agustus 2023",
+                                      widget.project['end_date'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
                                           color: Colors.black,
                                           fontSize: MediaQuery.of(context)
@@ -270,7 +282,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                             CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "Tersisa 28 hari lagi",
+                                            displayString ?? 'Loading...',
                                             style: GoogleFonts.getFont(
                                                 'Montserrat',
                                                 color: kTextBlcknw,
@@ -379,7 +391,10 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               padding: const EdgeInsets.only(
                                                   left: 25.0),
                                               child: Text(
-                                                "IMP Studio",
+                                                widget.project['partner']
+                                                    .toString(),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: GoogleFonts.getFont(
                                                     'Montserrat',
                                                     color: Colors.black,
@@ -426,7 +441,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                           child:
                                                               SingleChildScrollView(
                                                             child: Text(
-                                                              "IMP Studio merupakan mitra dalam perencanaan, analisa dan partner pengembangan teknologi informasi pada bisnis anda. Ditangani oleh tim yang handal dengan pengalaman lebih dari 10 tahun. IMP Studio merupakan mitra dalam perencanaan, analisa dan partner pengembangan teknologi informasi pada bisnis anda. Ditangani oleh tim yang handal dengan pengalaman lebih dari 10 tahun.",
+                                                              widget.project[
+                                                                  'partner_description'],
                                                               textAlign:
                                                                   TextAlign
                                                                       .justify,

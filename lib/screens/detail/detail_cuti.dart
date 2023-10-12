@@ -10,6 +10,10 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
+import 'dart:math';
+import 'package:open_file/open_file.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 class DetailCuti extends StatefulWidget {
   final dynamic absen;
@@ -82,6 +86,78 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    print('idasnes}:' + widget.absen['id'].toString());
+  }
+
+  String truncateFileName(String fileName, int maxLength) {
+    if (fileName.length <= maxLength) {
+      return fileName;
+    } else {
+      final extensionIndex = fileName.lastIndexOf('.');
+      final name = fileName.substring(0, extensionIndex);
+      final extension = fileName.substring(extensionIndex);
+
+      final truncatedName = name.substring(0, maxLength - 3);
+      return truncatedName + '... ' + extension;
+    }
+  }
+
+  Future<File?> downloadFile(String url, String filename) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final downloadsDirectory = Directory('/storage/emulated/0/Download');
+
+        // Ensure the directory exists
+        if (!await downloadsDirectory.exists()) {
+          await downloadsDirectory.create(recursive: true);
+        }
+
+        final file = File('${downloadsDirectory.path}/$filename');
+        print(
+            "Attempting to save file to: ${file.path}"); // This will print out the exact path where the file is being saved
+
+        // Before writing to the file, let's check if the directory exists.
+        final parentDir = file.parent;
+        if (!await parentDir.exists()) {
+          await parentDir.create(
+              recursive: true); // Ensuring the directory structure exists.
+        }
+
+        return file.writeAsBytes(response.bodyBytes);
+      }
+    } catch (e) {
+      print("Error downloading file: $e");
+    }
+    return null;
+  }
+
+  Future<void> onDownloadButtonPressed() async {
+    final filess = widget.absen['file'].toString();
+    final url = 'https://testing.impstudio.id/approvall/storage/$filess';
+
+    if (filess.toLowerCase().endsWith(".pdf")) {
+      // Handle PDF files by downloading and then displaying
+      final downloadedFile = await downloadFile(url, filess);
+
+      if (downloadedFile != null && downloadedFile.existsSync()) {
+        print("File path: ${downloadedFile.path}");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                PDFViewerScreen(filePath: downloadedFile.path),
+          ),
+        );
+      } else {
+        print(
+            "Failed to fetch PDF file or file does not exist at expected path");
+        if (downloadedFile != null) {
+          print("Expected file path: ${downloadedFile.path}");
+        }
+      }
+    }
   }
 
   String formatDateRange(String startDate, String endDate) {
@@ -109,9 +185,23 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   Future editPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/leave/get/' +
         widget.absen['id'].toString();
-    var response = await http.get(Uri.parse(url));
-    print(response.body);
-    return json.decode(response.body);
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        if (data != null && data.containsKey('data')) {
+          return data;
+        } else {
+          throw Exception('Data not found or invalid format');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during fetching data: $e');
+      throw e;
+    }
   }
 
   Widget _category(BuildContext context) {
@@ -163,7 +253,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
           textColor = const Color(0xffFFC52D);
           text = 'Pending';
           break;
-        case 'allow_HT':
+        case 'preliminary':
           containerColor = const Color(0xffFFEFC6);
           textColor = const Color(0xffFFC52D);
           text = 'Pending';
@@ -285,7 +375,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                   color: kTextoo,
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
@@ -355,7 +445,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                           ),
                         ),
                         TextSpan(
-                          text: widget.absen['type_description'] ?? 'kocak',
+                          text: widget.absen['description_leave'] ?? '-',
                           style: GoogleFonts.montserrat(
                             color: greyText,
                             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -413,48 +503,72 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
+                  Visibility(
+                    visible: widget.absen['file'] != null,
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                  Visibility(
+                    visible: widget.absen['file'] != null,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        side: BorderSide(color: kBorder.withOpacity(0.5)),
+                        fixedSize:
+                            Size(MediaQuery.of(context).size.width * 1, 50),
+                      ),
+                      onPressed: onDownloadButtonPressed,
+                      child: Row(
+                        children: [
+                          const Padding(padding: EdgeInsets.only(left: 10)),
+                          Icon(
+                            LucideIcons.fileText,
+                            size: 24.0,
+                            color: kBorder.withOpacity(0.5),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  truncateFileName(
+                                      widget.absen['originalFile'] ?? 'unknown',
+                                      (MediaQuery.of(context).size.width * 0.1)
+                                          .toInt()),
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.03,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.01,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 20, bottom: 35),
+                        padding: const EdgeInsets.only(bottom: 35),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Visibility(
-                              visible: widget.absen['status'] == 'pending',
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: kTextBlocker,
-                                  side: const BorderSide(
-                                    color: kTextBlocker,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  destroyLeave().then((value) {
-                                    setState(() {
-                                      Navigator.pop(context, 'refresh');
-                                    });
-                                    // scaffold an asli nanti gua coba0
-                                  });
-                                },
-                                child: Text(
-                                  "Delete",
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.035,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.05,
-                            ),
+                            //SEMENTARA DI COMMENT
+
                             Visibility(
                               visible: widget.absen['status'] == 'pending',
                               child: FutureBuilder(
@@ -529,6 +643,39 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                                 },
                               ),
                             ),
+
+                            SizedBox(
+                              width: 8,
+                            ),
+
+                            Visibility(
+                              visible: widget.absen['status'] == 'pending',
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: kTextBlocker,
+                                  side: const BorderSide(
+                                    color: kTextBlocker,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  destroyLeave().then((value) {
+                                    setState(() {
+                                      Navigator.pop(context, 'refresh');
+                                    });
+                                    // scaffold an asli nanti gua coba0
+                                  });
+                                },
+                                child: Text(
+                                  "Delete",
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.035,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -539,6 +686,92 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class PDFViewerScreen extends StatefulWidget {
+  final String filePath;
+
+  PDFViewerScreen({required this.filePath});
+
+  @override
+  _PDFViewerScreenState createState() => _PDFViewerScreenState();
+}
+
+class _PDFViewerScreenState extends State<PDFViewerScreen> {
+  late PDFViewController _pdfViewController;
+  int _currentPage = 0;
+  int _totalPages = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    // Extracting the filename from the full file path
+    String fileName = widget.filePath.split('/').last;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF003366),
+        title: Text(
+          fileName, // Display the name of the file here
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          PDFView(
+            filePath: widget.filePath,
+            onViewCreated: (PDFViewController pdfViewController) {
+              _pdfViewController = pdfViewController;
+            },
+            onPageChanged: (int? page, int? totalPages) {
+              if (page != null && totalPages != null) {
+                if (_totalPages == 0) {
+                  _totalPages = totalPages;
+                }
+                setState(() {
+                  _currentPage = page + 1; // PDF's page index starts from 0
+                });
+              }
+            },
+            onRender: (pages) {
+              if (pages != null) {
+                setState(() {
+                  _totalPages = pages;
+                  _currentPage = 1; // Set the initial page number
+                });
+              }
+            },
+          ),
+          Positioned(
+            bottom: 20.0,
+            left: 0.0,
+            right: 0.0,
+            child: Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Text(
+                  '$_currentPage/$_totalPages',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

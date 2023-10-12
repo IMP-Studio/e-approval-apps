@@ -33,6 +33,8 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
+
     getUserData().then((_) {});
   }
 
@@ -573,6 +575,8 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
                                       MaterialPageRoute(
                                           builder: (context) => MainLayout()));
                                 });
+                             
+
                               },
                               child: Text(
                                 'Kirim',

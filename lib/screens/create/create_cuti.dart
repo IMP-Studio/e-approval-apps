@@ -233,8 +233,8 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   TextEditingController tanggal_masuk = TextEditingController();
 
   Future<List<Map<String, dynamic>>> fetchLeaveOptions() async {
-    final response = await http.get(Uri.parse(
-        'https://d2ce-182-253-246-22.ngrok-free.app/api/leave/option'));
+    final response = await http.get(
+        Uri.parse('https://testing.impstudio.id/approvall/api/leave/option'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -248,10 +248,11 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   }
 
   Future<List<Map<String, dynamic>>> fetchSubtitue() async {
-    int divisionId = preferences?.getInt('division_id') ?? 0;
+
+
 
     final response = await http.get(Uri.parse(
-        'https://d2ce-182-253-246-22.ngrok-free.app/api/user?division=$divisionId'));
+        'https://testing.impstudio.id/approvall/api/user'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -298,7 +299,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
     }
 
     var uri =
-        Uri.parse('https://d2ce-182-253-246-22.ngrok-free.app/api/leave/store');
+        Uri.parse('https://testing.impstudio.id/approvall/api/leave/store');
 
     // Determine the correct selected value based on leave type
     String? leaveDetailId;
@@ -393,23 +394,6 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       }
     }
   }
-
-//   void _calculateEndAndEntryDates() {
-//   if (_mulaiTanggal != null && selectedValueExclusive != null) {
-//     var selectedLeaveOption = leaveOptions.firstWhere((option) => option['id'].toString() == selectedValueExclusive);
-//     int duration = selectedLeaveOption['days'];
-
-//     // calculate end date
-//     _selesaiTanggal = _mulaiTanggal!.add(Duration(days: duration - 1));
-
-//     // calculate entry date, skipping weekends
-//     DateTime potentialEntryDate = _selesaiTanggal!.add(Duration(days: 1));
-//     while (potentialEntryDate.weekday == DateTime.saturday || potentialEntryDate.weekday == DateTime.sunday) {
-//       potentialEntryDate = potentialEntryDate.add(Duration(days: 1));
-//     }
-//     _tanggalMasuknya = potentialEntryDate;
-//   }
-// }
 
   // date
   Future<void> _memulaiTanggal() async {
@@ -864,6 +848,20 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       showSnackbarWarning(
           "Fail...",
           "Pilih penggantimu",
+          kTextBlocker,
+          Icon(
+            LucideIcons.xCircle,
+            size: 26.0,
+            color: kTextBlocker,
+          ));
+      return false;
+    }
+
+    if (subtitueCont.text ==
+        preferences?.getString('nama_lengkap').toString()) {
+      showSnackbarWarning(
+          "Fail...",
+          "Tidak bisa menggantikan dengan diri sendiri",
           kTextBlocker,
           Icon(
             LucideIcons.xCircle,

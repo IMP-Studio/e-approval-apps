@@ -111,12 +111,13 @@ class _EditPerjadinState extends State<EditPerjadin>
     var uri = Uri.parse(
         'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
 
-    var request = http.MultipartRequest('PUT', uri)
-      ..fields['user_id'] = widget.absen['user_id'].toString()
-      ..fields['status'] = 'pending'
-      ..headers.addAll({
-        'Content-Type': 'multipart/form-data',
-      });
+    var request = http.MultipartRequest('POST', uri) 
+    ..fields['_method'] = 'PUT'  
+    ..fields['user_id'] = widget.absen['user_id'].toString()
+    ..fields['status'] = 'pending'
+    ..headers.addAll({
+      'Content-Type': 'multipart/form-data',
+    });
 
     // Add dates to the request only if they're not null
     if (_selectedDate != null) {
@@ -306,7 +307,7 @@ class _EditPerjadinState extends State<EditPerjadin>
                         child: Text(
                           _pickedFile != null
                               ? '${_pickedFile!.files.first.name}'
-                              : '${widget.absen['file']}',
+                              : '${widget.absen['originalFile']}',
                           overflow: TextOverflow.ellipsis, // Ellipsis overflow
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
@@ -510,8 +511,9 @@ class _EditPerjadinState extends State<EditPerjadin>
                       children: [
                         Container(
                           width: 110,
-                          child: ElevatedButton(
-                            onPressed: () {
+                          child: 
+                          ElevatedButton(
+                                         onPressed: () {
                               print(
                                 _pickedFile?.files.first.path,
                               );
@@ -520,21 +522,30 @@ class _EditPerjadinState extends State<EditPerjadin>
                               print(_tanggalKembali);
                               print(widget.absen['id']);
 
-                              // updatePresence().then((value) {
-                              //   Navigator.pop(context); // Pop once
-                              //   Navigator.pop(context, 'refresh'); // Pop again
-                              // });
+                              updatePresence().then((value) {
+                                Navigator.pop(context); // Pop once
+                                Navigator.pop(context, 'refresh'); // Pop again
+                              });
                             },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 2),
-                              backgroundColor: kButton,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text('Update Perjadin'),
-                          ),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    backgroundColor: kButton,
+                                    shadowColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Update Perjadin',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      color: whiteText,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                          
                         ),
                       ],
                     ),

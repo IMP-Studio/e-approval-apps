@@ -57,7 +57,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     String selectedType;
     switch (activeIndex) {
       case 0:
-        selectedType = 'WFO,telework,work_trip,skip,leave';
+        selectedType = 'WFO,telework,work_trip,skip';
         break;
       case 1:
         selectedType = 'telework';
@@ -66,7 +66,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
         selectedType = 'work_trip';
         break;
       default:
-        selectedType = ''; // or whatever default you'd like
+        selectedType = 'WFO,telework,work_trip,skip'; 
     }
     onTypeSelected(selectedType);
   }
@@ -144,7 +144,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     }
 
     String urlj =
-        'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed,pending,rejected&scope=self';
+        'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed,pending,preliminary,rejected&scope=self';
 
     // Check if either startDate or endDate is provided and handle accordingly
     if (startDate != null || endDate != null) {
@@ -273,7 +273,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     switch (status) {
       case 'pending':
         return 'Pending';
-      case 'allow_HT':
+      case 'preliminary':
         return 'Diterima oleh';
       case 'allowed':
         return 'Diterima oleh';
@@ -295,7 +295,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
       case 'leave':
         return 'Cuti';
       case 'skip':
-        return 'Cuti';
+        return 'Bolos';
       default:
         return 'Unknown';
     }
@@ -307,7 +307,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     switch (status) {
       case 'pending':
         return 'HT';
-      case 'allow_HT':
+      case 'preliminary':
         return 'HT';
       case 'allowed':
         return 'HT & HR';
@@ -403,7 +403,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                    .only(
+                                                                        .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
@@ -583,7 +583,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                    .only(
+                                                                        .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
@@ -825,14 +825,14 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                    .only(
+                                                                        .only(
                                                                     top: 15,
                                                                     bottom: 7,
                                                                     right: 5),
                                                             child: Container(
                                                               padding:
                                                                   const EdgeInsets
-                                                                      .symmetric(
+                                                                          .symmetric(
                                                                       vertical:
                                                                           10),
                                                               height: 2,
@@ -1187,7 +1187,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                             Padding(
                                                               padding:
                                                                   const EdgeInsets
-                                                                      .only(
+                                                                          .only(
                                                                       top: 15,
                                                                       bottom: 7,
                                                                       right: 5),
@@ -1343,9 +1343,9 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
           child: RefreshIndicator(
             onRefresh: _refreshContent,
             child: NotificationListener<OverscrollIndicatorNotification>(
-            onNotification: (overscroll) {
-              overscroll.disallowIndicator();
-              return true;
+              onNotification: (overscroll) {
+                overscroll.disallowIndicator();
+                return true;
               },
               child: ListView(
                 children: [
@@ -1368,7 +1368,8 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                               padding: const EdgeInsets.only(left: 20.0),
                               child: Container(
                                 width: MediaQuery.of(context).size.width * 0.15,
-                                height: MediaQuery.of(context).size.width * 0.007,
+                                height:
+                                    MediaQuery.of(context).size.width * 0.007,
                                 decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20.0)),
@@ -1433,86 +1434,87 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                   ),
                   Row(
                     children: [
-                     Container(
-                      padding: EdgeInsets.only(left: 20),
-                      child:  Text(
-                                    "Riwayat",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        color: hitamText,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.048,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                     ),
-                                  Spacer(),
                       Container(
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            final historyArgs = {
-                              'user_id': preferences?.getInt('user_id') ?? 0
-                              };
-                            print(historyArgs);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailHistoryResume(
-                                    arguments : historyArgs
-                                  ),
-                                ));
-                          },
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            width: 150.0,
-                            height: 40.0,
-                            decoration: BoxDecoration(
-                                color: kTextoo,
-                                borderRadius: BorderRadius.circular(25.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                      color: Colors.black.withOpacity(0.25),
-                                      offset: Offset(0, 2))
-                                ]),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
-                                  child: Text(
-                                    "Lihat Resume",
-                                    style: GoogleFonts.getFont('Montserrat',
-                                        color: Colors.white,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.034,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                                Spacer(),
-                                Container(
-                                  height: 45,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      color: kTextooAgakGelap,
-                                      borderRadius: BorderRadius.circular(25.0)),
-                                  child: Icon(
-                                    LucideIcons.clipboard,
-                                    color: Colors.white,
-                                    size:
-                                        MediaQuery.of(context).size.width * 0.054,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        padding: EdgeInsets.only(left: 20),
+                        child: Text(
+                          "Riwayat",
+                          style: GoogleFonts.getFont('Montserrat',
+                              color: hitamText,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.048,
+                              fontWeight: FontWeight.w600),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                      Spacer(),
+                      Container(
+                        padding: EdgeInsets.only(right: 20.0),
+                        child: Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                final historyArgs = {
+                                  'user_id': preferences?.getInt('user_id') ?? 0
+                                };
+                                print(historyArgs);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailHistoryResume(
+                                          arguments: historyArgs),
+                                    ));
+                              },
+                              child: Container(
+                                alignment: Alignment.centerLeft,
+                                width: 150.0,
+                                height: 40.0,
+                                decoration: BoxDecoration(
+                                    color: kTextoo,
+                                    borderRadius: BorderRadius.circular(25.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                          color: Colors.black.withOpacity(0.25),
+                                          offset: Offset(0, 2))
+                                    ]),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 10.0),
+                                      child: Text(
+                                        "Lihat Resume",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            color: Colors.white,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      height: 45,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: kTextooAgakGelap,
+                                          borderRadius:
+                                              BorderRadius.circular(25.0)),
+                                      child: Icon(
+                                        LucideIcons.clipboard,
+                                        color: Colors.white,
+                                        size:
+                                            MediaQuery.of(context).size.width *
+                                                0.054,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(
