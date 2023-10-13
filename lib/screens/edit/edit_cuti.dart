@@ -393,21 +393,25 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
           widget.absen['entry_date'].toString();
 
 // For file upload
-    if (_pickedFile != null && _pickedFile!.files.isNotEmpty) {
-      if (_pickedFile!.files.first.size > (5 * 1024 * 1024)) {
+    if (selectedValueType != 'yearly' && _pickedFile != null && _pickedFile!.files.isNotEmpty) {
+    if (_pickedFile!.files.first.size > (5 * 1024 * 1024)) {
         print("Error: The file is too large.");
         return;
-      }
-
-      request.files.add(await http.MultipartFile.fromPath(
-        'file',
-        _pickedFile!.files.first.path!,
-      ));
-    } else {
-      print("Warning: No file selected or file is empty.");
-      // If you require a file to always be present, you can return here.
-      // Otherwise, you can proceed without the file.
     }
+
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      _pickedFile!.files.first.path!,
+    ));
+} else if (selectedValueType == 'yearly') {
+    request.fields['file'] = ''; 
+// Explicitly setting file to null for yearly type
+} else {
+    print("Warning: No file selected, file is empty.");
+    // If you require a file to always be present for other types, you can return here.
+    // Otherwise, you can proceed without the file.
+}
+
 
     try {
       http.StreamedResponse response = await request.send();
@@ -1250,27 +1254,29 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
                 return null;
               },
               onChanged: (value) {
-                setState(() {
-                  selectedValueType = value;
-                  if (selectedValueType == 'yearly') {
-                    isButtonDisabled = false;
-                    _pickedFile = null;
-                    _selesaiTanggal = null;
-                    _tanggalMasuknya = null;
-                  } else if (selectedValueType == 'exclusive') {
-                    isButtonDisabled = true;
-                    selectedValueEmergency = null;
-                    // Call a function here to set _selesaiTanggal and _tanggalMasuknya based on _mulaiTanggal
-                    // _calculateEndAndEntryDates();
-                  } else if (selectedValueType == 'emergency') {
-                    selectedValueExclusive = null;
-                    // _calculateEndAndEntryDates();
-                  }
+  setState(() {
+    selectedValueType = value;
 
-                  isKhususSelected = selectedValueType == 'exclusive';
-                  isDaruratSelected = selectedValueType == 'emergency';
-                });
-              },
+    if (selectedValueType == 'yearly' || selectedValueType == '1') {
+      isButtonDisabled = false;
+      _pickedFile = null; // Set file to null when 'yearly' is selected
+      _selesaiTanggal = null;
+      _tanggalMasuknya = null;
+    } else if (selectedValueType == 'exclusive') {
+      isButtonDisabled = true;
+      selectedValueEmergency = null;
+      // Call a function here to set _selesaiTanggal and _tanggalMasuknya based on _mulaiTanggal
+      // _calculateEndAndEntryDates();
+    } else if (selectedValueType == 'emergency') {
+      selectedValueExclusive = null;
+      // _calculateEndAndEntryDates();
+    }
+
+    isKhususSelected = selectedValueType == 'exclusive';
+    isDaruratSelected = selectedValueType == 'emergency';
+  });
+},
+
               icon: const Icon(LucideIcons.arrowDownCircle,
                   color: Color(0xffB6B6B6), size: 17),
             ),

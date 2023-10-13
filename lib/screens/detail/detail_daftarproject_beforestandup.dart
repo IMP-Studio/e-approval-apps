@@ -495,56 +495,49 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 1.0),
                               child: GestureDetector(
-                                onTap: () {
-                                  // if (status == null) {
+  onTap: widget.project['status'] != 'Tidak Aktif'
+      ? () {
+          setState(() {
+            final project = {
+              'projectname': widget.project['project'],
+              'projectid': widget.project['id'],
+            };
 
-                                  // } else {
-                                  setState(() {
-                                    final project = {
-                                      'projectname': widget.project['project'],
-                                      'projectid': widget.project['id'],
-                                    };
+            print(project);
 
-                                    print(project);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateDetailStandup(
+                  project: project,
+                ),
+              ),
+            );
+          });
+        }
+      : null,  // Null onTap disables the GestureDetector
+  child: Container(
+    width: MediaQuery.of(context).size.width * 0.86,
+    padding: EdgeInsets.symmetric(vertical: 10.0),
+    decoration: BoxDecoration(
+      color: widget.project['status'] == 'Tidak Aktif' ? Colors.white : kTextoo,
+      border: Border.all(
+          color: widget.project['status'] == 'Tidak Aktif' ? kTextBlcknw : kTextoo, width: 1),
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    ),
+    child: Center(
+      child: Text(
+        "Stand Up",
+        style: GoogleFonts.getFont('Montserrat',
+            color: widget.project['status'] == 'Tidak Aktif' ? kTextBlcknw : Colors.white,
+            fontSize: MediaQuery.of(context).size.width * 0.044,
+            fontWeight: FontWeight.w600),
+      ),
+    ),
+  ),
+))
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            CreateDetailStandup(
-                                          project: project,
-                                        ),
-                                      ),
-                                    );
-                                  });
-                                  // }
-                                },
-                                child: Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.86,
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  decoration: BoxDecoration(
-                                    color: kTextoo,
-                                    border:
-                                        Border.all(color: kTextoo, width: 1),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8.0)),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Stand Up",
-                                      style: GoogleFonts.getFont('Montserrat',
-                                          color: Colors.white,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.044,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ),
-                              )),
-                        ],
+                        ]
                       ),
                     ),
                   ],
