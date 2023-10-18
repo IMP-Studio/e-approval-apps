@@ -56,7 +56,7 @@ void initState() {
     if (response['status'] == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           content: Text(response['message']),
         ),
       );
@@ -65,7 +65,7 @@ void initState() {
     else{
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           content: Text(response['message'].toString()),
         ),
       );
@@ -118,7 +118,7 @@ void initState() {
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               )),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           CupertinoTextField(
             controller: validateOldPass,
             obscureText: true, // Gunakan status _isPasswordVisible
@@ -154,7 +154,7 @@ void initState() {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(LucideIcons.chevronLeft),
+          icon: const Icon(LucideIcons.chevronLeft),
         ),
         title: Text(
           'Privasi',
@@ -174,14 +174,14 @@ void initState() {
             },
         child: SafeArea(
           child: Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: ListView(
               scrollDirection: Axis.vertical,
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               children: [
                 // password
                 Padding(
-                  padding: EdgeInsets.only(top: 18, bottom: 5),
+                  padding: const EdgeInsets.only(top: 18, bottom: 5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -197,9 +197,9 @@ void initState() {
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         width: double.infinity,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                           color: Colors.white,
                         ),
@@ -248,7 +248,7 @@ void initState() {
       
                 // konfirmasi password
                 Padding(
-                  padding: EdgeInsets.only(top: 18, bottom: 5),
+                  padding: const EdgeInsets.only(top: 18, bottom: 5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -264,9 +264,9 @@ void initState() {
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         width: double.infinity,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                           color: Colors.white,
                         ),
@@ -302,7 +302,7 @@ void initState() {
                                     ? Icons.visibility
                                     : Icons.visibility_off,
                                 color: kBorder,
-                                shadows: [
+                                shadows: const [
                                   Shadow(color: Colors.transparent),
                                 ],
                               ),
@@ -333,7 +333,7 @@ void initState() {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           backgroundColor: kButton,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(

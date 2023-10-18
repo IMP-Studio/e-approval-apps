@@ -155,8 +155,8 @@ class _CutiScreenState extends State<CutiScreen>
         String type = leave['type'];
 
         for (var day = startDate;
-            day.isBefore(endDate.add(Duration(days: 1)));
-            day = day.add(Duration(days: 1))) {
+            day.isBefore(endDate.add(const Duration(days: 1)));
+            day = day.add(const Duration(days: 1))) {
           leaveDays[day] = type;
         }
       }
@@ -243,7 +243,7 @@ class _CutiScreenState extends State<CutiScreen>
             3,
             (index) => Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 3.5),
+                padding: const EdgeInsets.symmetric(horizontal: 3.5),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(width: 1, color: Colors.grey[400]!),
@@ -254,19 +254,19 @@ class _CutiScreenState extends State<CutiScreen>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 7),
+                      const SizedBox(height: 7),
                       Container(
                         color: Colors.grey,
                         height: MediaQuery.of(context).size.width * 0.028,
                         width: 80,
                       ),
-                      SizedBox(height: 7),
+                      const SizedBox(height: 7),
                       Container(
                         color: Colors.grey,
                         height: 1,
                         width: double.infinity,
                       ),
-                      SizedBox(height: 7),
+                      const SizedBox(height: 7),
                       Container(
                         color: Colors.grey,
                         height: MediaQuery.of(context).size.width * 0.044,
@@ -474,7 +474,7 @@ class _CutiScreenState extends State<CutiScreen>
                                   const SizedBox(
                                     height: 5.0,
                                   ),
-                                  Container(
+                                  SizedBox(
                                     width: MediaQuery.of(context).size.width *
                                         0.55,
                                     child: Text(
@@ -489,7 +489,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               color: Colors.white)),
                                     ),
                                   ),
-                                  Container(
+                                  SizedBox(
                                     width: MediaQuery.of(context).size.width *
                                         0.55,
                                     child: Text(
@@ -526,7 +526,7 @@ class _CutiScreenState extends State<CutiScreen>
                     height: 20.0,
                   ),
                   Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: FutureBuilder(
                         future: _cutiDays,
                         builder:
@@ -565,7 +565,7 @@ class _CutiScreenState extends State<CutiScreen>
                                         Container(
                                           child: Column(
                                             children: [
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
                                               Text(
@@ -582,10 +582,10 @@ class _CutiScreenState extends State<CutiScreen>
                                                             FontWeight.w500,
                                                         color: kTextoo)),
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
-                                              Divider(
+                                              const Divider(
                                                 color: kTextoo,
                                                 thickness: 1,
                                                 height: 1,
@@ -594,7 +594,7 @@ class _CutiScreenState extends State<CutiScreen>
                                           ),
                                         ),
                                         Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 vertical: 7),
                                             alignment: Alignment.center,
                                             child: Row(
@@ -678,7 +678,7 @@ class _CutiScreenState extends State<CutiScreen>
                                         Container(
                                           child: Column(
                                             children: [
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
                                               Text(
@@ -695,10 +695,10 @@ class _CutiScreenState extends State<CutiScreen>
                                                             FontWeight.w500,
                                                         color: kTextoo)),
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
-                                              Divider(
+                                              const Divider(
                                                 color: kTextoo,
                                                 thickness: 1,
                                                 height: 1,
@@ -708,7 +708,7 @@ class _CutiScreenState extends State<CutiScreen>
                                         ),
                                         Container(
                                           padding:
-                                              EdgeInsets.symmetric(vertical: 7),
+                                              const EdgeInsets.symmetric(vertical: 7),
                                           alignment: Alignment.center,
                                           child: Row(
                                             mainAxisAlignment:
@@ -768,7 +768,7 @@ class _CutiScreenState extends State<CutiScreen>
                                         Container(
                                           child: Column(
                                             children: [
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
                                               Text(
@@ -785,10 +785,10 @@ class _CutiScreenState extends State<CutiScreen>
                                                             FontWeight.w500,
                                                         color: kTextoo)),
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 7,
                                               ),
-                                              Divider(
+                                              const Divider(
                                                 color: kTextoo,
                                                 thickness: 1,
                                                 height: 1,
@@ -798,7 +798,7 @@ class _CutiScreenState extends State<CutiScreen>
                                         ),
                                         Container(
                                           padding:
-                                              EdgeInsets.symmetric(vertical: 7),
+                                              const EdgeInsets.symmetric(vertical: 7),
                                           alignment: Alignment.center,
                                           child: Row(
                                             mainAxisAlignment:
@@ -881,7 +881,7 @@ class _CutiScreenState extends State<CutiScreen>
                                   default:
                                     textStyle = GoogleFonts.getFont(
                                       'Montserrat',
-                                      textStyle: TextStyle(
+                                      textStyle: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -1096,7 +1096,7 @@ class _CutiScreenState extends State<CutiScreen>
                   const SizedBox(
                     height: 20.0,
                   ),
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height / 2.0,
                     child: isLoading
                         ? ListView.builder(

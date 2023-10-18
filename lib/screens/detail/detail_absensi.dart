@@ -32,7 +32,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: Colors.white,
                       radius: 100 / 2,
                       child: Icon(
@@ -56,12 +56,12 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                 ),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Container(
-                    padding: EdgeInsets.only(top: 30),
+                    padding: const EdgeInsets.only(top: 30),
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+                          const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
 
                       width: MediaQuery.of(context)
                           .size
@@ -73,7 +73,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                             color: Colors.black.withOpacity(0.25),
                             spreadRadius: 0,
                             blurRadius: 8,
-                            offset: Offset(0, 1),
+                            offset: const Offset(0, 1),
                           ),
                         ],
                         borderRadius: BorderRadius.circular(20),
@@ -87,7 +87,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                               Text(
                                 'Fauzan Alghifari',
                                 style: GoogleFonts.montserrat(
-                                  color: Color(0xff3E3E3E),
+                                  color: const Color(0xff3E3E3E),
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -140,7 +140,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             'Jenis',
                                             textAlign: TextAlign.left,
                                             style: GoogleFonts.montserrat(
-                                              color: Color(0xffB6B6B6),
+                                              color: const Color(0xffB6B6B6),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -176,7 +176,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             'Check In',
                                             textAlign: TextAlign.left,
                                             style: GoogleFonts.montserrat(
-                                              color: Color(0xffB6B6B6),
+                                              color: const Color(0xffB6B6B6),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -219,7 +219,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             'Kategori',
                                             textAlign: TextAlign.left,
                                             style: GoogleFonts.montserrat(
-                                              color: Color(0xffB6B6B6),
+                                              color: const Color(0xffB6B6B6),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -255,7 +255,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             'Check Out',
                                             textAlign: TextAlign.left,
                                             style: GoogleFonts.montserrat(
-                                              color: Color(0xffB6B6B6),
+                                              color: const Color(0xffB6B6B6),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -304,7 +304,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             'Surat Perjadin',
                                             textAlign: TextAlign.left,
                                             style: GoogleFonts.montserrat(
-                                              color: Color(0xffB6B6B6),
+                                              color: const Color(0xffB6B6B6),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -314,11 +314,11 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                       const SizedBox(height: 5),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: Color(0xffEEEEEE),
+                                          color: const Color(0xffEEEEEE),
                                           borderRadius:
                                               BorderRadius.circular(2),
                                         ),
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 5),
                                         child: Row(
                                           children: [
@@ -336,7 +336,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                               '2MB',
                                               textAlign: TextAlign.left,
                                               style: GoogleFonts.montserrat(
-                                                color: Color(0xffB6B6B6),
+                                                color: const Color(0xffB6B6B6),
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -371,7 +371,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                               bottomRight: Radius.circular(2),
                                             ),
                                           ),
-                                          padding: EdgeInsets.only(
+                                          padding: const EdgeInsets.only(
                                               right: 15, left: 25),
                                           height: _tinggidesc,
                                           child: Column(
@@ -421,7 +421,7 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                                             ],
                                           )),
                                       Container(
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: blueText,
                                         ),
                                         width: 15,
@@ -445,10 +445,10 @@ class _DetailAbsensiState extends State<DetailAbsensi> {
                               children: [
                                 ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 30, vertical: 10),
                                       backgroundColor: Colors.white,
-                                      side: BorderSide(color: blueText),
+                                      side: const BorderSide(color: blueText),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:imp_approval/screens/edit/edit_wfa.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -329,8 +326,8 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                             width: MediaQuery.of(context).size.width * 0.16,
                             decoration: BoxDecoration(
                                 border: Border.all(
-                                    width: 0.8, color: Color(0xffCA4343)),
-                                color: Color(0xffF9DCDC),
+                                    width: 0.8, color: const Color(0xffCA4343)),
+                                color: const Color(0xffF9DCDC),
                                 borderRadius: BorderRadius.circular(
                                     MediaQuery.of(context).size.width * 0.030)),
                             child: Text(
@@ -338,7 +335,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                               style: GoogleFonts.getFont("Montserrat",
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.025,
-                                  color: Color(0xffCA4343),
+                                  color: const Color(0xffCA4343),
                                   fontWeight: FontWeight.w600),
                             ),
                           ),
@@ -349,7 +346,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -385,14 +382,14 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                         'Bolos',
                         style: GoogleFonts.montserrat(
                           fontSize: MediaQuery.of(context).size.width * 0.039,
-                          color: Color(0xffCA4343),
+                          color: const Color(0xffCA4343),
                           fontWeight: FontWeight.w600,
                         ),
                       )
                     ],
                   )),
                   Container(
-                      margin: EdgeInsets.only(top: 1.5),
+                      margin: const EdgeInsets.only(top: 1.5),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -421,7 +418,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                   'Detail waktu : ',
                   style: GoogleFonts.montserrat(
                     fontSize: MediaQuery.of(context).size.width * 0.028,
-                    color: Color(0xff727272),
+                    color: const Color(0xff727272),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -430,7 +427,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                       DateTime.parse(widget.absen['date']) ?? DateTime.now()),
                   style: GoogleFonts.montserrat(
                     fontSize: MediaQuery.of(context).size.width * 0.028,
-                    color: Color(0xff727272),
+                    color: const Color(0xff727272),
                     fontWeight: FontWeight.w600,
                   ),
                 )

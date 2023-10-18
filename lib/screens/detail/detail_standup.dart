@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +24,7 @@ class _DetailStandUpState extends State<DetailStandUp>
 
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -74,6 +73,7 @@ class _DetailStandUpState extends State<DetailStandUp>
     print('Response status: ${response.statusCode}');
     return json.decode(response.body);
   }
+  @override
 
   Widget build(BuildContext context) {
     return MaterialApp(

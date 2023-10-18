@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:imp_approval/dependency_injection.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
-import 'package:imp_approval/screens/create/create_standup.dart';
-import 'package:imp_approval/screens/create/emergency_chekout.dart';
-import 'package:imp_approval/screens/cuti.dart';
-import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
-import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
-import 'package:imp_approval/screens/detail/detail_resume_history.dart';
-import 'package:imp_approval/screens/face_recognition.dart';
-import 'package:imp_approval/screens/home.dart';
-import 'package:imp_approval/screens/detail/detail_infoapp.dart';
 import 'package:imp_approval/screens/login.dart';
-import 'package:imp_approval/screens/map_wfo.dart';
-import 'package:imp_approval/screens/notification_page.dart';
-import 'package:imp_approval/screens/request.dart';
-import 'package:imp_approval/screens/standup.dart';
 import 'package:imp_approval/splash_screen/splash.dart';
-import 'package:imp_approval/screens/history_attedance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:get/get.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,25 +42,26 @@ class MainApp extends StatelessWidget {
           ),
           scrollBehavior: _getScrollBehavior(),
           home: FutureBuilder(
-              future: SharedPreferences.getInstance(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return const Text('Some error has Occurred');
-                } else if (snapshot.hasData) {
-                  final token = snapshot.data!.getString('token');
-                  if (token != null) {
-                    return MainLayout();
-                  } else {
-                    return const SplashScreen();
-                  }
-                } else {
-                  return const LoginScreen();
-                }
-              }),
+    future: SharedPreferences.getInstance(),
+    builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+            final token = (snapshot.data as SharedPreferences).getString('token');
+            if (token != null && token.isNotEmpty) {
+                return MainLayout();
+            } else {
+                return const LoginScreen();
+            }
+        } else if (snapshot.hasError) {
+            print(snapshot.error); // Debugging
+            return const Text('Some error has Occurred');
+        } else {
+            return const Center(
+                child: CircularProgressIndicator(),
+            );
+        }
+    }
+)
+
         ));
   }
 
@@ -93,7 +78,6 @@ class MainApp extends StatelessWidget {
 }
 
 class NoBounceBehavior extends ScrollBehavior {
-  @override
   Widget buildViewportChrome(
       BuildContext context, Widget child, AxisDirection axisDirection) {
     return child;
@@ -101,7 +85,6 @@ class NoBounceBehavior extends ScrollBehavior {
 }
 
 class NoGlowBehavior extends ScrollBehavior {
-  @override
   Widget buildViewportChrome(
       BuildContext context, Widget child, AxisDirection axisDirection) {
     return child;

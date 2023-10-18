@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
@@ -19,11 +17,11 @@ class EditStandUp extends StatefulWidget {
 }
 
 class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
-  @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
 
   SharedPreferences? preferences;
+  @override
 
   void initState() {
     super.initState();

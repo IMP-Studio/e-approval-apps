@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
-import 'package:imp_approval/screens/home.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -11,19 +10,15 @@ import 'package:camera/camera.dart';
 import 'package:imp_approval/faceModule/model.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:imp_approval/screens/standup.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:quiver/collection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:imp_approval/faceModule/detector.dart';
 import '/faceModule/utils.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 
 class FacePagePerjadin extends StatefulWidget {
   final Map<String, dynamic> profile;
@@ -462,7 +457,7 @@ presenceId: widget.presenceId!['presence_id'],
 
                 if (!_faceFound) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                         content: Text(
                             'No face detected. Ensure your face is in view.')),
                   );

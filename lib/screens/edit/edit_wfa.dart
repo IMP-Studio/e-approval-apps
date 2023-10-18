@@ -4,10 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -46,6 +43,7 @@ String capitalizeFirstLetter(String text) {
   return text[0].toUpperCase() + text.substring(1);
 }
 
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -68,7 +66,7 @@ String capitalizeFirstLetter(String text) {
 
     int secondsRemaining = 1; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -93,10 +91,23 @@ String capitalizeFirstLetter(String text) {
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -106,7 +117,7 @@ String capitalizeFirstLetter(String text) {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
@@ -130,7 +141,7 @@ String capitalizeFirstLetter(String text) {
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(
@@ -151,26 +162,13 @@ String capitalizeFirstLetter(String text) {
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 50,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -183,7 +181,7 @@ String capitalizeFirstLetter(String text) {
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -454,7 +452,7 @@ String capitalizeFirstLetter(String text) {
                                   "Fail...",
                                   "Deskripsi masih kosong",
                                   kTextBlocker,
-                                  Icon(
+                                  const Icon(
                                     LucideIcons.xCircle,
                                     size: 26.0,
                                     color: kTextBlocker,
@@ -464,12 +462,12 @@ String capitalizeFirstLetter(String text) {
                                   "Success",
                                   "Berhasil diubah",
                                   kTextoo,
-                                  Icon(
+                                  const Icon(
                                     LucideIcons.checkCircle2,
                                     size: 26.0,
                                     color: kTextoo,
                                   ));
-                              Future.delayed(Duration(seconds: 2), (() {
+                              Future.delayed(const Duration(seconds: 2), (() {
                                 print(selectedValue);
                                 print(descriptionController);
                                 updateWfa().then((value) {

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:imp_approval/screens/login.dart';
 import 'dart:math' as math;
 
-import 'package:imp_approval/screens/standup.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,7 +26,7 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: SplashScreen(),
     );
   }
@@ -58,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     _animationController = AnimationController(
-      duration: Duration(
+      duration: const Duration(
           milliseconds: 2500), // Adjusted duration for all three phases
       vsync: this,
     );
@@ -82,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
     _sizeAnimation = Tween<double>(begin: 100.0, end: 134.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Interval(0.0, 0.33, curve: Curves.easeInOut),
+        curve: const Interval(0.0, 0.33, curve: Curves.easeInOut),
       ),
     );
 
@@ -168,7 +167,7 @@ class _SplashScreenState extends State<SplashScreen>
     _shrinkAnimation = Tween<double>(begin: 134.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Interval(0.33, 0.66, curve: Curves.easeInOut),
+        curve: const Interval(0.33, 0.66, curve: Curves.easeInOut),
       ),
     );
 
@@ -176,19 +175,19 @@ class _SplashScreenState extends State<SplashScreen>
       // Adjust the end value as needed
       CurvedAnimation(
         parent: _animationController,
-        curve: Interval(0.66, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.66, 1.0, curve: Curves.easeInOut),
       ),
     );
 
     _textOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Interval(0.9, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.9, 1.0, curve: Curves.easeInOut),
       ),
     );
 
     // Start the animation
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         _isTextVisible = true;
       });
@@ -198,18 +197,18 @@ class _SplashScreenState extends State<SplashScreen>
               .animate(
         CurvedAnimation(
           parent: _animationController,
-          curve: Interval(0.66, 1.0, curve: Curves.easeInOut),
+          curve: const Interval(0.66, 1.0, curve: Curves.easeInOut),
         ),
       );
 
       _animationController.forward().then((_) {
-        Future.delayed(Duration(seconds: 1), () {
+        Future.delayed(const Duration(seconds: 1), () {
           // Updated to match the new animation duration
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  LoginScreen(),
+                  const LoginScreen(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 const begin = 0.0;
@@ -224,7 +223,7 @@ class _SplashScreenState extends State<SplashScreen>
                 );
               },
               transitionDuration:
-                  Duration(milliseconds: 500), // Customize the duration here
+                  const Duration(milliseconds: 500), // Customize the duration here
             ),
           );
         });
@@ -274,8 +273,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  Color(0xff246DC1),
-                                  Color(0xff246DC1).withOpacity(0.5),
+                                  const Color(0xff246DC1),
+                                  const Color(0xff246DC1).withOpacity(0.5),
                                 ],
                               ),
                             ),

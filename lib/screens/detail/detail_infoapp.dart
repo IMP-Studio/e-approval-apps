@@ -16,7 +16,7 @@ class _InfoAppState extends State<InfoApp> {
       body: Container(
         // margin: EdgeInsets.only(top: 50.0),
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/img/InformasiAplikasi.png'),
                 fit: BoxFit.cover)),
@@ -32,7 +32,7 @@ class _InfoAppState extends State<InfoApp> {
                     color: Colors.white,
                     fontWeight: FontWeight.w500),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5.0,
               ),
               Text(
@@ -42,13 +42,13 @@ class _InfoAppState extends State<InfoApp> {
                     color: kTextUnselected,
                     fontWeight: FontWeight.w400),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5.0,
               ),
               Container(
                 height: 120.0,
                 width: 120.0,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     image:
                         DecorationImage(image: AssetImage('assets/img/logo.png'))),
               )

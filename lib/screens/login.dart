@@ -33,7 +33,10 @@ class _LoginScreenState extends State<LoginScreen>
   late Timer _timer; // Define the timer
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
+  bool _obscureText = true;
 
+
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -46,6 +49,15 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  
+  void _toggle() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  
+
   void showSnackbarWarning(String message, String submessage,
       Color backgroundColor, Icon customIcon) {
     if (_isSnackbarVisible) {
@@ -56,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     int secondsRemaining = 3; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -81,10 +93,23 @@ class _LoginScreenState extends State<LoginScreen>
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -94,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
@@ -118,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(truncateText(submessage, 48),
@@ -138,26 +163,13 @@ class _LoginScreenState extends State<LoginScreen>
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 49,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -170,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen>
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -212,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen>
           "Success",
           response['message'],
           kTextoo,
-          Icon(
+          const Icon(
             LucideIcons.checkCircle2,
             size: 26.0,
             color: kTextoo,
@@ -225,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen>
           "Fail..",
           response['message'],
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -245,11 +257,11 @@ class _LoginScreenState extends State<LoginScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500), // Animation duration
+      duration: const Duration(milliseconds: 1500), // Animation duration
     );
 
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
-    _positionAnimation = Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0))
+    _positionAnimation = Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward(); // Start the animation when the widget is initialized
@@ -290,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen>
                   child: FadeTransition(
                     opacity: _animation,
                     child: Container(
-                      margin: EdgeInsets.only(top: 30),
+                      margin: const EdgeInsets.only(top: 30),
                       width: 300,
                       child: Image.asset('assets/img/imp-logo.png'),
                     ),
@@ -298,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 20),
                 child: SlideTransition(
                   position: _positionAnimation,
                   child: FadeTransition(
@@ -308,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen>
                         Container(
                           width: double.infinity,
                           padding:
-                              EdgeInsets.only(right: 30, left: 30, bottom: 10),
+                              const EdgeInsets.only(right: 30, left: 30, bottom: 10),
                           decoration: const BoxDecoration(
                             color: kBackground,
                             borderRadius:
@@ -317,10 +329,10 @@ class _LoginScreenState extends State<LoginScreen>
                           child: Column(
                             children: [
                               Container(
-                                margin: EdgeInsets.only(top: 20),
+                                margin: const EdgeInsets.only(top: 20),
                                 width: 55,
                                 height: 5,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.black12,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10.0)),
@@ -427,7 +439,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   filled: true,
                                   fillColor: Colors.transparent,
                                   prefixIcon: const Align(
-                                    widthFactor: 3,
+                                    widthFactor: 1,
                                     heightFactor: 1.0,
                                     child: Icon(
                                       Icons.email_outlined,
@@ -471,7 +483,7 @@ class _LoginScreenState extends State<LoginScreen>
       
                               TextFormField(
                                 controller: password,
-                                obscureText: true,
+                                obscureText: _obscureText,
                                 style: GoogleFonts.montserrat(
                                   color: kText,
                                   fontSize:
@@ -489,7 +501,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   filled: true,
                                   fillColor: Colors.transparent,
                                   prefixIcon: const Align(
-                                    widthFactor: 3,
+                                    widthFactor: 1,
                                     heightFactor: 1.0,
                                     child: Icon(
                                       Icons.lock,
@@ -510,8 +522,29 @@ class _LoginScreenState extends State<LoginScreen>
                                       width: 1,
                                     ),
                                   ),
+
+                                  suffixIcon: IconButton(
+                    
+            icon: Icon(
+              
+              // Based on passwordVisible state choose the icon
+               _obscureText
+               ? Icons.visibility
+               : Icons.visibility_off,
+               color: kIcon,
+               ),
+            onPressed: () {
+             
+               setState(() {
+                   _obscureText = !_obscureText;
+               });
+             },
+            ),
+
+                                  
                                 ),
                               ),
+
                               // SizedBox(height: 5),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -521,7 +554,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ForgetPassword(),
+                                          builder: (context) => const ForgetPassword(),
                                         ),
                                       );
                                     },
@@ -551,7 +584,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   loginUser();
                                 },
                                 child: Container(
-                                  margin: EdgeInsets.only(bottom: 40),
+                                  margin: const EdgeInsets.only(bottom: 40),
                                   width: double.infinity,
                                   height: 40,
                                   decoration: BoxDecoration(

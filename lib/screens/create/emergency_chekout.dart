@@ -3,13 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
-import 'package:imp_approval/screens/create/create_detail_standup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:imp_approval/data/data.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 
 class Emergency extends StatefulWidget {
@@ -22,6 +19,7 @@ class Emergency extends StatefulWidget {
 class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -60,8 +58,8 @@ class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
     return json.decode(response.body);
   }
 
-  @override
   final double _tinggidesc = 150;
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -156,7 +154,7 @@ class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
                               const SizedBox(
                                 height: 5.0,
                               ),
-                              Container(
+                              SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.5,
                                 child: Text(
                                   "Memungkinkan karyawan untuk check out lebih awal, karena situasi darurat",
@@ -279,7 +277,7 @@ class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 110,
                       child: ElevatedButton(
                         onPressed: () {

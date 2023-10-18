@@ -31,6 +31,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -53,7 +54,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
 
     int secondsRemaining = 3; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -79,17 +80,30 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                     Expanded(
                       child: Row(
                         children: [
                           Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [customIcon]),
-                          SizedBox(width: 15),
+                          const SizedBox(width: 15),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +125,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                                   softWrap: true,
                                 ),
                               ),
-                              Padding(
+                              const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2)),
                               Text(
                                 submessage,
@@ -129,26 +143,13 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 50,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -161,7 +162,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 3), // Reduced duration
+      duration: const Duration(seconds: 3), // Reduced duration
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -210,7 +211,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'],
+      allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
     );
 
     if (result != null) {
@@ -414,10 +415,10 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
 
 // Helper function to calculate entry date while skipping weekends
   DateTime _calculateEntryDate(DateTime endDate) {
-    DateTime entryDate = endDate.add(Duration(days: 1));
+    DateTime entryDate = endDate.add(const Duration(days: 1));
     while (entryDate.weekday == DateTime.saturday ||
         entryDate.weekday == DateTime.sunday) {
-      entryDate = entryDate.add(Duration(days: 1));
+      entryDate = entryDate.add(const Duration(days: 1));
     }
     return entryDate;
   }
@@ -470,9 +471,9 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   }
 
   DateTime calculateEntryDate(DateTime endDate) {
-    DateTime entryDate = endDate.add(Duration(days: 1));
+    DateTime entryDate = endDate.add(const Duration(days: 1));
     while (isWeekend(entryDate)) {
-      entryDate = entryDate.add(Duration(days: 1));
+      entryDate = entryDate.add(const Duration(days: 1));
     }
     return entryDate;
   }
@@ -610,7 +611,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailSyaratCutiKhusus(),
+                      builder: (context) => const DetailSyaratCutiKhusus(),
                     ));
               },
               child: Text(
@@ -763,7 +764,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailSyaratCutiDarurat(),
+                      builder: (context) => const DetailSyaratCutiDarurat(),
                     ));
               },
               child: Text(
@@ -836,7 +837,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "Fail...",
           "Jenis cuti belum dipilih",
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -849,7 +850,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "Fail...",
           "Pilih penggantimu",
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -863,7 +864,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "Fail...",
           "Tidak bisa menggantikan dengan diri sendiri",
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -876,7 +877,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "Fail...",
           "Tanggal mulai atau akhir belum diisi",
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -889,7 +890,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           "Fail...",
           "Tanggal masuk belum diisi",
           kTextBlocker,
-          Icon(
+          const Icon(
             LucideIcons.xCircle,
             size: 26.0,
             color: kTextBlocker,
@@ -903,7 +904,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             "Fail...",
             "Cuti khusus belum dipilih",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -914,18 +915,18 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             "Fail...",
             "File belum dipilih",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
             ));
         return false;
-      } else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
+      } else if (_mulaiTanggal!.isBefore(now.add(const Duration(days: 4)))) {
         showSnackbarWarning(
             "Fail...",
-            "Pengajuan cuti khusus harus H-2",
+            "Pengajuan cuti khusus harus H-5",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -941,17 +942,17 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             "Fail...",
             "Cuti tahunan mu sudah habis ",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
             ));
-      } else if (_mulaiTanggal!.isBefore(now.add(Duration(days: 1)))) {
+      } else if (_mulaiTanggal!.isBefore(now.add(const Duration(days: 4)))) {
         showSnackbarWarning(
             "Fail...",
-            "Pengajuan cuti khusus harus H-2",
+            "Pengajuan cuti khusus harus H-5",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -964,7 +965,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
               "Fail...",
               "Maksimal cuti berturut adalah 3 hari.",
               kTextBlocker,
-              Icon(
+              const Icon(
                 LucideIcons.xCircle,
                 size: 26.0,
                 color: kTextBlocker,
@@ -980,7 +981,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             "Fail...",
             "Cuti darurat belum dipilih",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -991,7 +992,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             "Fail...",
             "File belum dipilih",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -1201,7 +1202,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
             ),
             TypeAheadField(
               debounceDuration:
-                  Duration(milliseconds: 300), // debouncing of 300ms
+                  const Duration(milliseconds: 300), // debouncing of 300ms
               textFieldConfiguration: TextFieldConfiguration(
                 controller: subtitueCont,
                 style: GoogleFonts.montserrat(

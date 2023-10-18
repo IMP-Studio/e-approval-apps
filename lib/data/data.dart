@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:sizer/sizer.dart';
 
 const Color kText2 = Color.fromRGBO(250, 250, 250, 1);
 const Color kBackground2 = Color(0xFFC6EAFB);

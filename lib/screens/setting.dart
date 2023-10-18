@@ -1,16 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
 import 'package:imp_approval/screens/detail/detail_privasi.dart';
 import 'package:imp_approval/screens/detail/detail_faq.dart';
-import 'package:imp_approval/screens/home.dart';
 import 'package:imp_approval/screens/detail/detail_infoapp.dart';
-import 'package:imp_approval/screens/request.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imp_approval/screens/login.dart';
@@ -31,6 +27,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
   late Timer _timer; // Define the timer
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
+
+  @override
 
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -54,7 +52,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
 
     int secondsRemaining = 3; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -78,10 +76,23 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -91,7 +102,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
@@ -115,7 +126,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(
@@ -136,26 +147,13 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 49,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -168,7 +166,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -185,6 +183,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
     });
   }
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -202,6 +201,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
     await getUserData();
   }
 
+@override
   Widget build(BuildContext context) {
     TextEditingController _validpassController = TextEditingController();
     bool validasilogout = true;
@@ -221,7 +221,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
         preferences.remove('token');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => LoginScreen(),
+            builder: (context) => const LoginScreen(),
           ),
         );
       } else {
@@ -229,7 +229,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
             "Logout gagal",
             "Password salah.",
             kTextBlocker,
-            Icon(
+            const Icon(
               LucideIcons.xCircle,
               size: 26.0,
               color: kTextBlocker,
@@ -282,7 +282,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 )),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             CupertinoTextField(
               controller: _validpassController,
               obscureText: true, // Gunakan status _isPasswordVisible
@@ -334,7 +334,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
             children: [
               Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Container(
@@ -344,29 +344,16 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                         // card profile \\
                         Container(
                           margin:
-                              EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                           child: ClipRRect(
   borderRadius: BorderRadius.circular(30),
-  child: (preferences?.getString('avatar') ?? '').isNotEmpty
-      ? Image.network(
-          'https://testing.impstudio.id/approvall/storage/files/' +
-              preferences!.getString('avatar')!,
-          height: 58,
-          width: 58,
-          fit: BoxFit.cover,
-          errorBuilder: (BuildContext context, Object exception,
-              StackTrace? stackTrace) {
-            return Image.asset('assets/img/pfp-default.jpg',
-                height: 58, width: 58, fit: BoxFit.cover);
-          },
-        )
-      : Image.asset('assets/img/pfp-default.jpg',
+  child: Image.asset('assets/img/pfp-default.jpg',
           height: 58, width: 58, fit: BoxFit.cover),
 )
 
                         ),
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               vertical: 20), // Add vertical padding
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +365,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5,
                               ),
                               Text(
@@ -394,7 +381,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   // list menu setting \\
@@ -406,7 +393,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => InformasiPribadi(),
+                              builder: (context) => const InformasiPribadi(),
                             ),
                           );
                         },
@@ -416,14 +403,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.user,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -438,8 +425,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),
@@ -461,14 +448,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.bell,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -483,8 +470,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),
@@ -501,7 +488,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PrivasiPage(),
+                              builder: (context) => const PrivasiPage(),
                             ),
                           );
                         },
@@ -511,14 +498,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.shield,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -533,8 +520,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),
@@ -551,7 +538,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => InfoApp(),
+                              builder: (context) => const InfoApp(),
                             ),
                           );
                         },
@@ -561,14 +548,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.info,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -583,8 +570,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),
@@ -601,7 +588,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FaqScreen(),
+                              builder: (context) => const FaqScreen(),
                             ),
                           );
                         },
@@ -611,14 +598,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.helpCircle,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -633,8 +620,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),
@@ -667,14 +654,14 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       LucideIcons.logOut,
                                       color: kTextgrey,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Container(
@@ -689,8 +676,8 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Icon(
+                                    const Spacer(),
+                                    const Icon(
                                       LucideIcons.chevronRight,
                                       color: kBorder,
                                     ),

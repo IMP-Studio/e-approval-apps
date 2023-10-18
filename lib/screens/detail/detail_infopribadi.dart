@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:imp_approval/screens/detail/detail_infopribadi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
@@ -30,6 +28,7 @@ class _InformasiPribadiState extends State<InformasiPribadi> with WidgetsBinding
     });
   }
 
+@override
   void initState() {
     super.initState();
      WidgetsBinding.instance!.addObserver(this);

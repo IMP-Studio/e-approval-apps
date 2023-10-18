@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_detail_standup.dart';
-import 'package:imp_approval/screens/create/create_standup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +24,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
   int? differenceInDays;
   String? displayString;
 
+  @override
   void initState() {
     super.initState();
     getUserData().then((_) {
@@ -69,8 +69,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
   @override
   Widget build(BuildContext context) {
     widget.project['status'] == 'Aktif'
-        ? statusColor = Color.fromARGB(255, 94, 202, 67)
-        : statusColor = Color.fromARGB(255, 202, 67, 67);
+        ? statusColor = const Color.fromARGB(255, 94, 202, 67)
+        : statusColor = const Color.fromARGB(255, 202, 67, 67);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -131,7 +131,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                             0.028,
                                     fontWeight: FontWeight.w500),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5.0,
                               ),
                               Container(
@@ -144,12 +144,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                         fontWeight: FontWeight.w600,
                                         color: Colors.black)),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10.0,
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(vertical: 10.0),
-                                decoration: BoxDecoration(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
                                             color: kTextUnselectedOpa,
@@ -167,7 +167,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               0.028,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Text(
                                       widget.project['status'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
@@ -181,12 +181,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10.0,
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(vertical: 10.0),
-                                decoration: BoxDecoration(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
                                             color: kTextUnselectedOpa,
@@ -204,7 +204,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               0.028,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Text(
                                       widget.project['start_date'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
@@ -218,12 +218,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10.0,
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(vertical: 10.0),
-                                decoration: BoxDecoration(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
                                             color: kTextUnselectedOpa,
@@ -241,7 +241,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               0.028,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Text(
                                       widget.project['end_date'].toString(),
                                       style: GoogleFonts.getFont('Montserrat',
@@ -255,7 +255,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 15.0,
                               ),
                               Row(
@@ -269,11 +269,11 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                       width: MediaQuery.of(context).size.width *
                                           0.86,
                                       padding:
-                                          EdgeInsets.symmetric(vertical: 10.0),
+                                          const EdgeInsets.symmetric(vertical: 10.0),
                                       decoration: BoxDecoration(
                                           border: Border.all(
                                               color: kTextBlcknw, width: 1),
-                                          borderRadius: BorderRadius.all(
+                                          borderRadius: const BorderRadius.all(
                                               Radius.circular(8.0))),
                                       child: Row(
                                         mainAxisAlignment:
@@ -298,7 +298,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                   ),
                                 ],
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 15.0,
                               ),
                               Column(
@@ -320,10 +320,10 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                       .withOpacity(0.5),
                                                   blurRadius: 4,
                                                   spreadRadius: 0,
-                                                  offset: Offset(0, 1))
+                                                  offset: const Offset(0, 1))
                                             ],
                                             color: kTextoo,
-                                            borderRadius: BorderRadius.only(
+                                            borderRadius: const BorderRadius.only(
                                                 topLeft: Radius.circular(10.0),
                                                 topRight:
                                                     Radius.circular(10.0))),
@@ -342,10 +342,10 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                       .withOpacity(0.5),
                                                   blurRadius: 4,
                                                   spreadRadius: 0,
-                                                  offset: Offset(0, 1))
+                                                  offset: const Offset(0, 1))
                                             ],
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.only(
+                                            borderRadius: const BorderRadius.only(
                                                 bottomLeft:
                                                     Radius.circular(10.0),
                                                 bottomRight:
@@ -418,7 +418,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               },
                                               child: SingleChildScrollView(
                                                 physics:
-                                                    NeverScrollableScrollPhysics(),
+                                                    const NeverScrollableScrollPhysics(),
                                                 child: IntrinsicHeight(
                                                   child: Column(
                                                     children: [
@@ -518,12 +518,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
       : null,  // Null onTap disables the GestureDetector
   child: Container(
     width: MediaQuery.of(context).size.width * 0.86,
-    padding: EdgeInsets.symmetric(vertical: 10.0),
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
     decoration: BoxDecoration(
       color: widget.project['status'] == 'Tidak Aktif' ? Colors.white : kTextoo,
       border: Border.all(
           color: widget.project['status'] == 'Tidak Aktif' ? kTextBlcknw : kTextoo, width: 1),
-      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
     ),
     child: Center(
       child: Text(

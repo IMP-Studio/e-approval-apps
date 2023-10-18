@@ -41,6 +41,7 @@ class _StandUpState extends State<StandUp>
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -56,7 +57,7 @@ class _StandUpState extends State<StandUp>
 
     int secondsRemaining = 3; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -80,10 +81,23 @@ class _StandUpState extends State<StandUp>
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -93,7 +107,7 @@ class _StandUpState extends State<StandUp>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
@@ -117,7 +131,7 @@ class _StandUpState extends State<StandUp>
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(
@@ -138,26 +152,13 @@ class _StandUpState extends State<StandUp>
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 49,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -170,7 +171,7 @@ class _StandUpState extends State<StandUp>
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -193,7 +194,7 @@ class _StandUpState extends State<StandUp>
   }
 
   void startTimer() {
-    Duration duration = Duration(seconds: 4);
+    Duration duration = const Duration(seconds: 4);
     Future.delayed(duration, hideButton);
   }
 
@@ -296,14 +297,14 @@ class _StandUpState extends State<StandUp>
               return true;
             },
             child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
                   Container(
                     width: double.infinity,
                     height: MediaQuery.of(context).size.width * 0.35,
-                    margin: EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: const BoxDecoration(
                         gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -316,7 +317,7 @@ class _StandUpState extends State<StandUp>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: 20.0),
+                              padding: const EdgeInsets.only(left: 20.0),
                               child: Container(
                                 width: MediaQuery.of(context).size.width * 0.15,
                                 height: MediaQuery.of(context).size.width * 0.007,
@@ -325,11 +326,11 @@ class _StandUpState extends State<StandUp>
                                     borderRadius: BorderRadius.circular(20.0)),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10.0,
                             ),
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 left: 20.0,
                               ),
                               child: Column(
@@ -346,7 +347,7 @@ class _StandUpState extends State<StandUp>
                                             fontWeight: FontWeight.w600,
                                             color: Colors.white)),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 5.0,
                                   ),
                                   Container(
@@ -384,7 +385,7 @@ class _StandUpState extends State<StandUp>
                             ),
                           ],
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: SvgPicture.asset(
@@ -400,11 +401,11 @@ class _StandUpState extends State<StandUp>
                   SingleChildScrollView(
                     child: Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 21, right: 21),
+                          padding: const EdgeInsets.only(left: 21, right: 21),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -424,12 +425,12 @@ class _StandUpState extends State<StandUp>
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => GeneralStandUp()),
+                                          builder: (context) => const GeneralStandUp()),
                                     );
                                   });
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 5),
                                   decoration: BoxDecoration(
                                     color: activeIndex == 0
@@ -465,7 +466,7 @@ class _StandUpState extends State<StandUp>
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         FutureBuilder<List<dynamic>>(
@@ -483,11 +484,11 @@ class _StandUpState extends State<StandUp>
                                     highlightColor: Colors.grey[100]!,
                                     child: Padding(
                                       padding:
-                                          EdgeInsets.only(right: 20, left: 20),
+                                          const EdgeInsets.only(right: 20, left: 20),
                                       child: Column(
                                         children: [
                                           Container(
-                                            margin: EdgeInsets.only(bottom: 15),
+                                            margin: const EdgeInsets.only(bottom: 15),
                                             width: double.infinity,
                                             height: 95,
                                             decoration: BoxDecoration(
@@ -495,7 +496,7 @@ class _StandUpState extends State<StandUp>
                                                     BorderRadius.circular(8),
                                                 color: Colors.white,
                                                 border: Border.all(
-                                                    color: Color(0xffC2C2C2)
+                                                    color: const Color(0xffC2C2C2)
                                                         .withOpacity(0.30))),
                                             child: Column(
                                               crossAxisAlignment:
@@ -531,7 +532,7 @@ class _StandUpState extends State<StandUp>
                                                                     .grey[300],
                                                               ),
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               height: 3,
                                                             ),
                                                             Container(
@@ -541,7 +542,7 @@ class _StandUpState extends State<StandUp>
                                                               color: Colors
                                                                   .grey[300],
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               height: 3,
                                                             ),
                                                             Container(
@@ -553,13 +554,13 @@ class _StandUpState extends State<StandUp>
                                                             ),
                                                           ],
                                                         ),
-                                                        Spacer(),
-                                                        VerticalDivider(
+                                                        const Spacer(),
+                                                        const VerticalDivider(
                                                           color:
                                                               Color(0xffE6E6E6),
                                                           thickness: 1,
                                                         ),
-                                                        Spacer(),
+                                                        const Spacer(),
                                                         Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
@@ -572,7 +573,7 @@ class _StandUpState extends State<StandUp>
                                                               color: Colors
                                                                   .grey[300],
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               height: 3,
                                                             ),
                                                             Container(
@@ -588,9 +589,9 @@ class _StandUpState extends State<StandUp>
                                                     ),
                                                   ),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 Container(
-                                                  color: Color(0xffD9D9D9)
+                                                  color: const Color(0xffD9D9D9)
                                                       .withOpacity(0.15),
                                                   child: Padding(
                                                     padding:
@@ -622,7 +623,7 @@ class _StandUpState extends State<StandUp>
                                                               color: Colors
                                                                   .grey[300],
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               width: 5,
                                                             ),
                                                             Container(
@@ -656,11 +657,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -668,7 +669,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -704,7 +705,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -714,7 +715,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -726,13 +727,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -745,7 +746,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -761,9 +762,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -796,7 +797,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -824,11 +825,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -836,7 +837,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -872,7 +873,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -882,7 +883,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -894,13 +895,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -913,7 +914,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -929,9 +930,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -964,7 +965,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -992,11 +993,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1004,7 +1005,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -1040,7 +1041,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1050,7 +1051,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1062,13 +1063,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -1081,7 +1082,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1097,9 +1098,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -1132,7 +1133,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -1160,11 +1161,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1172,7 +1173,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -1208,7 +1209,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1218,7 +1219,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1230,13 +1231,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -1249,7 +1250,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1265,9 +1266,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -1300,7 +1301,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -1328,11 +1329,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1340,7 +1341,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -1376,7 +1377,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1386,7 +1387,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1398,13 +1399,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -1417,7 +1418,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1433,9 +1434,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -1468,7 +1469,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -1496,11 +1497,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1508,7 +1509,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -1544,7 +1545,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1554,7 +1555,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1566,13 +1567,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -1585,7 +1586,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1601,9 +1602,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -1636,7 +1637,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -1664,11 +1665,11 @@ class _StandUpState extends State<StandUp>
                                       highlightColor: Colors.grey[100]!,
                                       child: Padding(
                                         padding:
-                                            EdgeInsets.only(right: 20, left: 20),
+                                            const EdgeInsets.only(right: 20, left: 20),
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets.only(bottom: 15),
+                                              margin: const EdgeInsets.only(bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1676,7 +1677,7 @@ class _StandUpState extends State<StandUp>
                                                       BorderRadius.circular(8),
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: Color(0xffC2C2C2)
+                                                      color: const Color(0xffC2C2C2)
                                                           .withOpacity(0.30))),
                                               child: Column(
                                                 crossAxisAlignment:
@@ -1712,7 +1713,7 @@ class _StandUpState extends State<StandUp>
                                                                       .grey[300],
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1722,7 +1723,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1734,13 +1735,13 @@ class _StandUpState extends State<StandUp>
                                                               ),
                                                             ],
                                                           ),
-                                                          Spacer(),
-                                                          VerticalDivider(
+                                                          const Spacer(),
+                                                          const VerticalDivider(
                                                             color:
                                                                 Color(0xffE6E6E6),
                                                             thickness: 1,
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Column(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
@@ -1753,7 +1754,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 height: 3,
                                                               ),
                                                               Container(
@@ -1769,9 +1770,9 @@ class _StandUpState extends State<StandUp>
                                                       ),
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Container(
-                                                    color: Color(0xffD9D9D9)
+                                                    color: const Color(0xffD9D9D9)
                                                         .withOpacity(0.15),
                                                     child: Padding(
                                                       padding:
@@ -1804,7 +1805,7 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 5,
                                                               ),
                                                               Container(
@@ -1836,7 +1837,7 @@ class _StandUpState extends State<StandUp>
                                   child: Container(color: Colors.white));
                             } else {
                               return ListView(
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 children: snapshot.data!.map<Widget>((itemData) {
                                   return GestureDetector(
@@ -1864,7 +1865,7 @@ class _StandUpState extends State<StandUp>
                                       }
                                     },
                                     child: Container(
-                                      margin: EdgeInsets.only(bottom: 10),
+                                      margin: const EdgeInsets.only(bottom: 10),
                                       alignment: Alignment.center,
                                       width: double.infinity,
                                       child: Stack(
@@ -1891,8 +1892,8 @@ class _StandUpState extends State<StandUp>
                                                                   'blocker'] ==
                                                               null
                                                           ? [
-                                                              Color(0xff4381CA),
-                                                              Color(0xff4381CA)!
+                                                              const Color(0xff4381CA),
+                                                              const Color(0xff4381CA)!
                                                             ] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
@@ -1907,7 +1908,7 @@ class _StandUpState extends State<StandUp>
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 22.0),
                                             child: Container(
-                                              margin: EdgeInsets.only(left: 12.0),
+                                              margin: const EdgeInsets.only(left: 12.0),
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width *
@@ -1920,7 +1921,7 @@ class _StandUpState extends State<StandUp>
                                                   color: Colors.white,
                                                   border: Border.all(
                                                       color: kTextUnselectedOpa),
-                                                  borderRadius: BorderRadius.only(
+                                                  borderRadius: const BorderRadius.only(
                                                       topRight:
                                                           Radius.circular(10.0),
                                                       bottomRight:
@@ -1943,7 +1944,7 @@ class _StandUpState extends State<StandUp>
                                                                   .width *
                                                               0.044,
                                                         ),
-                                                        SizedBox(width: 5.0),
+                                                        const SizedBox(width: 5.0),
                                                         Text(
                                                           itemData[
                                                               'nama_lengkap'],
@@ -1976,7 +1977,7 @@ class _StandUpState extends State<StandUp>
                                                           height: 4.0,
                                                           width: 4.0,
                                                           decoration: BoxDecoration(
-                                                              gradient: LinearGradient(
+                                                              gradient: const LinearGradient(
                                                                   begin: Alignment
                                                                       .topCenter,
                                                                   end: Alignment
@@ -1990,7 +1991,7 @@ class _StandUpState extends State<StandUp>
                                                                       .circular(
                                                                           2.0)),
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                           width: 5.0,
                                                         ),
                                                         itemData['blocker'] ==
@@ -2054,7 +2055,7 @@ class _StandUpState extends State<StandUp>
                                                       ],
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
@@ -2078,7 +2079,7 @@ class _StandUpState extends State<StandUp>
                                                                       .width *
                                                                   0.044,
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               width: 5.0,
                                                             ),
                                                             Text(
@@ -2098,7 +2099,7 @@ class _StandUpState extends State<StandUp>
                                                             )
                                                           ],
                                                         ),
-                                                        Spacer(),
+                                                        const Spacer(),
                                                         Text(
                                                           DateFormat('dd MMM')
                                                               .format(DateTime.parse(
@@ -2177,7 +2178,7 @@ class _StandUpState extends State<StandUp>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CreateStandup(),
+                                builder: (context) => const CreateStandup(),
                               ),
                             );
                           } else if (responseStatus == 'pendingStatus') {
@@ -2185,7 +2186,7 @@ class _StandUpState extends State<StandUp>
                                 "Tunggu sebentar...",
                                 "Request dalam status pending.",
                                 kYelw,
-                                Icon(
+                                const Icon(
                                   LucideIcons.alertCircle,
                                   size: 26.0,
                                   color: kYelw,
@@ -2195,7 +2196,7 @@ class _StandUpState extends State<StandUp>
                                 "Kamu sedang cuti",
                                 "Nikmati liburanmu sejenak.",
                                 kYelw,
-                                Icon(
+                                const Icon(
                                   LucideIcons.alertCircle,
                                   size: 26.0,
                                   color: kYelw,
@@ -2205,7 +2206,7 @@ class _StandUpState extends State<StandUp>
                                 "Kamu sedang bolos",
                                 "Tolong jangan diulangi lagi.",
                                 kTextBlocker,
-                                Icon(
+                                const Icon(
                                   LucideIcons.xCircle,
                                   size: 26.0,
                                   color: kTextBlocker,
@@ -2215,14 +2216,14 @@ class _StandUpState extends State<StandUp>
                                 "Wait...",
                                 "Absen terlebih dahulu.",
                                 kYelw,
-                                Icon(
+                                const Icon(
                                   LucideIcons.alertCircle,
                                   size: 26.0,
                                   color: kYelw,
                                 ));
                           }
                         },
-                        child: Icon(LucideIcons.users),
+                        child: const Icon(LucideIcons.users),
                         backgroundColor: kTextooAgakGelap,
                         elevation: 0,
                         hoverElevation: 0,

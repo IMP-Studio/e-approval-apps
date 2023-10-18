@@ -8,9 +8,6 @@ import 'package:imp_approval/screens/detail/detail_resume_history.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
-import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
-import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_perjadin.dart';
@@ -357,7 +354,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: 7,
-                              separatorBuilder: (context, index) => SizedBox(
+                              separatorBuilder: (context, index) => const SizedBox(
                                 height: 10,
                               ),
                               itemBuilder: (context, index) {
@@ -537,7 +534,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: 7,
-                              separatorBuilder: (context, index) => SizedBox(
+                              separatorBuilder: (context, index) => const SizedBox(
                                 height: 10,
                               ),
                               itemBuilder: (context, index) {
@@ -1435,7 +1432,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                   Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.only(left: 20),
+                        padding: const EdgeInsets.only(left: 20),
                         child: Text(
                           "Riwayat",
                           style: GoogleFonts.getFont('Montserrat',
@@ -1445,9 +1442,9 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                               fontWeight: FontWeight.w600),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Container(
-                        padding: EdgeInsets.only(right: 20.0),
+                        padding: const EdgeInsets.only(right: 20.0),
                         child: Stack(
                           children: [
                             GestureDetector(
@@ -1475,12 +1472,12 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                           blurRadius: 4,
                                           spreadRadius: 0,
                                           color: Colors.black.withOpacity(0.25),
-                                          offset: Offset(0, 2))
+                                          offset: const Offset(0, 2))
                                     ]),
                                 child: Row(
                                   children: [
                                     Padding(
-                                      padding: EdgeInsets.only(left: 10.0),
+                                      padding: const EdgeInsets.only(left: 10.0),
                                       child: Text(
                                         "Lihat Resume",
                                         style: GoogleFonts.getFont('Montserrat',
@@ -1492,7 +1489,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                             fontWeight: FontWeight.w500),
                                       ),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     Container(
                                       height: 45,
                                       width: 40,
@@ -1517,7 +1514,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   _jadwalContainer(),

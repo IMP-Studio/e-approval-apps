@@ -6,11 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 
@@ -27,6 +25,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -49,7 +48,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
 
     int secondsRemaining = 3; // Set the initial duration to 10 seconds
     _timer.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -73,10 +72,23 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
+                padding: const EdgeInsets.all(4.0),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -86,14 +98,14 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
+                              SizedBox(
                                   width:
                                       MediaQuery.of(context).size.width * 0.65,
                                   child: Text(
@@ -110,7 +122,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(
@@ -131,26 +143,14 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
+                
               ),
               Container(
                 width: 5,
                 height: 50,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -163,7 +163,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -176,6 +176,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
     'Other',
   ];
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -357,7 +358,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
-                  Container(
+                  SizedBox(
                     width: 200,
                     child: Text(
                       "Work From Anywhere akan di proses oleh HT & Management.",
@@ -444,7 +445,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 120,
                         child: FutureBuilder(
                           future: getProfil(),
@@ -464,7 +465,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                                           "Fail...",
                                           "Opsi belum dipilih",
                                           kTextBlocker,
-                                          Icon(
+                                          const Icon(
                                             LucideIcons.xCircle,
                                             size: 26.0,
                                             color: kTextBlocker,
@@ -475,7 +476,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                                           "Fail...",
                                           "Deskripsi masih kosong",
                                           kTextBlocker,
-                                          Icon(
+                                          const Icon(
                                             LucideIcons.checkCircle2,
                                             size: 26.0,
                                             color: kTextBlocker,

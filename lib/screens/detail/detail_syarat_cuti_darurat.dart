@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 
@@ -19,6 +15,7 @@ class DetailSyaratCutiDarurat extends StatefulWidget {
 }
 
 class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
+  @override
   void initState() {
     super.initState();
     getDarurat();
@@ -127,9 +124,9 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -142,7 +139,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                             0.028,
                                     fontWeight: FontWeight.w500),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               Text(
                                 "Hari",
                                 style: GoogleFonts.getFont('Montserrat',
@@ -155,7 +152,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         FutureBuilder(
@@ -172,10 +169,10 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                   itemCount: 15, // number of mock items
                                   itemBuilder: (context, index) {
                                     return Container(
-                                      margin: EdgeInsets.only(bottom: 10),
+                                      margin: const EdgeInsets.only(bottom: 10),
                                       padding:
-                                          EdgeInsets.symmetric(vertical: 10.0),
-                                      decoration: BoxDecoration(
+                                          const EdgeInsets.symmetric(vertical: 10.0),
+                                      decoration: const BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
                                               color: kTextUnselectedOpa,
@@ -196,7 +193,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                             height:
                                                 20, // giving it a height to simulate a line of text
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                           Container(
                                             color: Colors
                                                 .grey[300], // placeholder color
@@ -225,10 +222,10 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                   itemCount: 15, // number of mock items
                                   itemBuilder: (context, index) {
                                     return Container(
-                                      margin: EdgeInsets.only(bottom: 10),
+                                      margin: const EdgeInsets.only(bottom: 10),
                                       padding:
-                                          EdgeInsets.symmetric(vertical: 10.0),
-                                      decoration: BoxDecoration(
+                                          const EdgeInsets.symmetric(vertical: 10.0),
+                                      decoration: const BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
                                               color: kTextUnselectedOpa,
@@ -249,7 +246,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                             height:
                                                 20, // giving it a height to simulate a line of text
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                           Container(
                                             color: Colors
                                                 .grey[300], // placeholder color
@@ -282,9 +279,9 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                               itemCount: limitedData.length,
                               itemBuilder: (context, index) {
                                 return Container(
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                                  decoration: BoxDecoration(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                  decoration: const BoxDecoration(
                                       border: Border(
                                           bottom: BorderSide(
                                               color: kTextUnselectedOpa,
@@ -309,7 +306,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(right: 5),

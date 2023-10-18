@@ -8,15 +8,11 @@ import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
-import 'package:imp_approval/screens/home.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
-import 'dart:math';
-import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 
 class RequestScreen extends StatefulWidget {
@@ -30,6 +26,7 @@ class RequestScreen extends StatefulWidget {
 class _RequestScreenState extends State<RequestScreen> {
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     getUserData().then((_) {
@@ -189,15 +186,15 @@ class _RequestScreenState extends State<RequestScreen> {
 
       switch (status) {
         case 'rejected':
-          containerColor = Color(0xffF9DCDC);
+          containerColor = const Color(0xffF9DCDC);
           textColor =
-              Color(0xffCA4343); // Or any color that matches well with red.
+              const Color(0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
-          containerColor = Color(0xffFFEFC6);
+          containerColor = const Color(0xffFFEFC6);
           textColor =
-              Color(0xffFFC52D); // Black usually matches well with yellow.
+              const Color(0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -211,9 +208,9 @@ class _RequestScreenState extends State<RequestScreen> {
           text = 'Allowed';
           break;
         case 'preliminary':
-          containerColor = Color(0xffFFEFC6);
+          containerColor = const Color(0xffFFEFC6);
           textColor =
-              Color(0xffFFC52D); // Black usually matches well with yellow.
+              const Color(0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         default:
@@ -225,7 +222,7 @@ class _RequestScreenState extends State<RequestScreen> {
       return Row(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(vertical: 4.0),
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
             alignment: Alignment.center,
             width: MediaQuery.of(context).size.width * 0.15,
             decoration: BoxDecoration(
@@ -268,7 +265,7 @@ class _RequestScreenState extends State<RequestScreen> {
                       color: kTextoo,
                       size: MediaQuery.of(context).size.width * 0.050,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 6.0,
                     ),
                     Text(
@@ -316,7 +313,7 @@ class _RequestScreenState extends State<RequestScreen> {
                             color: kTextoo,
                             borderRadius: BorderRadius.circular(20.0)),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10.0,
                       ),
                       Row(
@@ -331,7 +328,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                     fontWeight: FontWeight.w700,
                                     color: Colors.black)),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5.0,
                           ),
                           Text(
@@ -346,7 +343,7 @@ class _RequestScreenState extends State<RequestScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 5.0),
+                      const SizedBox(height: 5.0),
                       Text(
                         "Pantau permintaan WFA,",
                         style: GoogleFonts.getFont('Montserrat',
@@ -368,7 +365,7 @@ class _RequestScreenState extends State<RequestScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5.0,
                 ),
                 FutureBuilder(
@@ -393,11 +390,11 @@ class _RequestScreenState extends State<RequestScreen> {
                                   isExpanded = isExpandedNow;
                                 });
                               },
-                              collapsedIcon: Icon(
+                              collapsedIcon: const Icon(
                                 Icons.abc,
                                 color: Colors.transparent,
                               ),
-                              expandedIcon: Icon(
+                              expandedIcon: const Icon(
                                 Icons.abc,
                                 color: Colors.transparent,
                               ),
@@ -405,9 +402,9 @@ class _RequestScreenState extends State<RequestScreen> {
                               expandedTitleBackgroundColor: Colors.transparent,
                               contentBackgroundColor: Colors.transparent,
                               titleChild: Container(
-                                  padding: EdgeInsets.only(bottom: 10.0),
+                                  padding: const EdgeInsets.only(bottom: 10.0),
                                   // height: 55.0,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                       border: Border(
                                           bottom: BorderSide(
                                               color: kTextUnselectedOpa,
@@ -428,7 +425,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                   size: 16,
                                                   color: kTextBlcknw,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 5.0,
                                                 ),
                                                 Text(
@@ -475,10 +472,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                   ['entry_time']);
                                               print(snapshot.data['data'][index]
                                                   ['entry_time']);
-                                              // String currentStatus = snapshot
-                                              //     .data['status'][index];
-                                              // Widget statusWidget =
-                                              //     getStatusRow(currentStatus);
+
 
                                               return GestureDetector(
                                                 onTap: () {
@@ -537,9 +531,9 @@ class _RequestScreenState extends State<RequestScreen> {
                                                 },
                                                 child: Container(
                                                   // margin: EdgeInsets.only(right: 5.0),
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets.symmetric(
                                                       vertical: 10.0),
-                                                  decoration: BoxDecoration(
+                                                  decoration: const BoxDecoration(
                                                       border: Border(
                                                           bottom: BorderSide(
                                                               width: 1.0,
@@ -594,7 +588,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                               snapshot.data[
                                                                       'data']
                                                                   [index]),
-                                                          SizedBox(
+                                                          const SizedBox(
                                                             height: 8.0,
                                                           ),
                                                           Row(
@@ -613,7 +607,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                         FontWeight
                                                                             .w600),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 2.0,
                                                               ),
                                                               Text(
@@ -630,7 +624,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                         FontWeight
                                                                             .w600),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 2.0,
                                                               ),
                                                               Text(
@@ -655,11 +649,11 @@ class _RequestScreenState extends State<RequestScreen> {
                                                           )
                                                         ],
                                                       ),
-                                                      Spacer(),
+                                                      const Spacer(),
                                                       Column(
                                                         children: [
                                                           Container(
-                                                            padding: EdgeInsets
+                                                            padding: const EdgeInsets
                                                                 .symmetric(
                                                                     vertical:
                                                                         10),
@@ -720,11 +714,11 @@ class _RequestScreenState extends State<RequestScreen> {
                                 isExpanded = isExpandedNow;
                               });
                             },
-                            collapsedIcon: Icon(
+                            collapsedIcon: const Icon(
                               Icons.abc,
                               color: Colors.transparent,
                             ),
-                            expandedIcon: Icon(
+                            expandedIcon: const Icon(
                               Icons.abc,
                               color: Colors.transparent,
                             ),
@@ -732,8 +726,8 @@ class _RequestScreenState extends State<RequestScreen> {
                             expandedTitleBackgroundColor: Colors.transparent,
                             contentBackgroundColor: Colors.transparent,
                             titleChild: Container(
-                              padding: EdgeInsets.only(bottom: 10.0),
-                              decoration: BoxDecoration(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              decoration: const BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
                                     color: kTextUnselectedOpa,
@@ -743,7 +737,7 @@ class _RequestScreenState extends State<RequestScreen> {
                               ),
                               child: Column(
                                 children: [
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 6.0,
                                   ),
                                   Row(
@@ -760,7 +754,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                               size: 16,
                                               color: kTextBlcknw,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 5.0,
                                             ),
                                             Container(

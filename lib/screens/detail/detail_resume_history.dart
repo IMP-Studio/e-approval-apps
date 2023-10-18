@@ -5,8 +5,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +23,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Column(children: [
-        SizedBox(
+        const SizedBox(
           height: 10.0,
         ),
         Container(
@@ -37,7 +35,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20.0,
         ),
         Container(
@@ -49,7 +47,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20.0,
         ),
         Container(
@@ -61,7 +59,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20.0,
         ),
         Container(
@@ -73,7 +71,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20.0,
         ),
         Container(
@@ -85,7 +83,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20.0,
         ),
       ]),
@@ -94,6 +92,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
 
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -149,7 +148,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
             } else if (snapshot.hasData) {
               return Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 10.0,
                   ),
                   Padding(
@@ -157,7 +156,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                     child: Container(
                       width: double.infinity,
                       height: MediaQuery.of(context).size.width * 0.26,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: kTextoo,
                           borderRadius:
                               BorderRadius.all(Radius.circular(10.0))),
@@ -190,7 +189,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                           0.074,
                                                   fontWeight: FontWeight.w600),
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 5.0,
                                             ),
                                             Text(
@@ -213,7 +212,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                   width: 1.0,
                                   height: 40.0,
                                   decoration:
-                                      BoxDecoration(color: Colors.white),
+                                      const BoxDecoration(color: Colors.white),
                                 ),
                                 Expanded(
                                   child: Container(
@@ -238,7 +237,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                           0.074,
                                                   fontWeight: FontWeight.w600),
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 5.0,
                                             ),
                                             Text(
@@ -264,7 +263,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20.0,
                   ),
                   Padding(
@@ -278,7 +277,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                                  const BorderRadius.all(Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -301,7 +300,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 12.0,
                                     ),
                                     Row(
@@ -319,18 +318,18 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 7.0,
                                     ),
                                     Row(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlcknw)),
@@ -382,7 +381,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15.0,
                   ),
                   Padding(
@@ -396,7 +395,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                                  const BorderRadius.all(Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -419,7 +418,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 12.0,
                                     ),
                                     Row(
@@ -437,18 +436,18 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 7.0,
                                     ),
                                     Row(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kGreen)),
@@ -464,16 +463,16 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 10.0,
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextOren)),
@@ -489,16 +488,16 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 10.0,
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextUngu)),
@@ -550,7 +549,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15.0,
                   ),
                   Padding(
@@ -564,7 +563,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                                  const BorderRadius.all(Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -587,7 +586,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 12.0,
                                     ),
                                     Row(
@@ -605,18 +604,18 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 7.0,
                                     ),
                                     Row(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlcknw)),
@@ -668,7 +667,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15.0,
                   ),
                   Padding(
@@ -682,7 +681,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                                  const BorderRadius.all(Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -705,7 +704,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 12.0,
                                     ),
                                     Row(
@@ -723,18 +722,18 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 7.0,
                                     ),
                                     Row(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kGreen)),
@@ -750,16 +749,16 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 10.0,
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextoo)),
@@ -775,16 +774,16 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 10.0,
                                         ),
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
                                           constraints:
-                                              BoxConstraints(maxWidth: 100.0),
+                                              const BoxConstraints(maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlocker)),
@@ -836,7 +835,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15.0,
                   ),
                 ],

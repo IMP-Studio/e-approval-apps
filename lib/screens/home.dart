@@ -6,11 +6,7 @@ import 'package:imp_approval/screens/create/create_perjadin.dart';
 import 'package:imp_approval/screens/create/emergency_chekout.dart';
 import 'package:imp_approval/screens/detail/detail_absensi.dart';
 import 'package:imp_approval/screens/detail/detail_bolos.dart';
-import 'package:imp_approval/screens/detail/detail_request_cuti.dart';
-import 'package:imp_approval/screens/detail/detail_request_perjadin.dart';
-import 'package:imp_approval/screens/detail/detail_request_wfa.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
-import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:imp_approval/screens/edit/face_recognition_perjadin.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imp_approval/screens/map_wfo.dart';
@@ -20,10 +16,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:imp_approval/main.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_perjadin.dart';
@@ -653,7 +647,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          side: BorderSide(color: Colors.black, width: 1)),
+          side: const BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'Completed',
         style: GoogleFonts.inter(
@@ -674,7 +668,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          side: BorderSide(color: Colors.black, width: 1)),
+          side: const BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'CUTI',
         style: GoogleFonts.inter(
@@ -695,7 +689,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          side: BorderSide(color: Colors.black, width: 1)),
+          side: const BorderSide(color: Colors.black, width: 1)),
       child: Text(
         'Unknown',
         style: GoogleFonts.inter(
@@ -837,7 +831,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                      margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           elevation: 0,
@@ -846,7 +840,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
-                          side: BorderSide(
+                          side: const BorderSide(
                             width: 1,
                             color: kButton,
                           ),

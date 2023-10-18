@@ -8,10 +8,8 @@ import 'package:imp_approval/screens/face_recognition.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 
@@ -35,6 +33,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
 
   bool _timerInitialized = false;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -146,6 +145,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     return 0; // Default value when the date is null
   }
 
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -173,7 +173,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
       _timer.cancel();
     }
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isMounted) {
         timer.cancel();
         return;
@@ -200,10 +200,23 @@ class _CreatePerjadinState extends State<CreatePerjadin>
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4.0),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                ),
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -213,7 +226,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [customIcon],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Column(
@@ -237,7 +250,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                                     maxLines: 1,
                                     softWrap: true,
                                   )),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2),
                               ),
                               Text(
@@ -258,26 +271,13 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                     )
                   ],
                 ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
               ),
               Container(
                 width: 5,
                 height: 50,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(10),
                     topLeft: Radius.circular(10),
                   ),
@@ -290,7 +290,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       elevation: 0,
-      duration: Duration(seconds: 10),
+      duration: const Duration(seconds: 10),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -299,7 +299,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
   bool areInputsValidForWorkTrip() {
     if (_pickedFile == null) {
       showSnackbarWarning("Fail...", "File belum dipilih", kTextBlocker,
-          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
     if (_selectedDate == null || _selesaiTanggal == null) {
@@ -307,12 +307,12 @@ class _CreatePerjadinState extends State<CreatePerjadin>
           "Fail...",
           "Tanggal mulai atau akhir belum diisi",
           kTextBlocker,
-          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
     if (_tanggalKembali == null) {
       showSnackbarWarning("Fail...", "Tanggal masuk belum diisi", kTextBlocker,
-          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
     if (differenceInDays < 0) {
@@ -320,7 +320,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
           "Fail...",
           "Tanggal mulai dan akhir tidak valid",
           kTextBlocker,
-          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
     if (differenceInDays2 > 3) {
@@ -328,12 +328,13 @@ class _CreatePerjadinState extends State<CreatePerjadin>
           "Fail...",
           "Maksimal untuk kembali adalah 2 hari",
           kTextBlocker,
-          Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
+          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
     return true;
   }
 
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,

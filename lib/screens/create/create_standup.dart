@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:imp_approval/screens/create/create_detail_standup.dart';
 import 'package:imp_approval/screens/detail/detail_daftarproject_beforestandup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:imp_approval/data/data.dart';
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 
@@ -26,6 +22,7 @@ class _CreateStandupState extends State<CreateStandup>
     with WidgetsBindingObserver {
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -78,8 +75,8 @@ class _CreateStandupState extends State<CreateStandup>
     }
   }
 
-  @override
   final double _tinggidesc = 68;
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -237,7 +234,7 @@ class _CreateStandupState extends State<CreateStandup>
                                   color: Colors.grey.withOpacity(0.3),
                                   spreadRadius: 0,
                                   blurRadius: 4,
-                                  offset: Offset(0, 1)),
+                                  offset: const Offset(0, 1)),
                             ],
                           ),
                           child: Row(
@@ -265,7 +262,7 @@ class _CreateStandupState extends State<CreateStandup>
                                   ),
                                 ),
                               ),
-                              Expanded(
+                              const Expanded(
                                 flex: 2,
                                 child: Icon(
                                   Icons.search,
@@ -277,14 +274,14 @@ class _CreateStandupState extends State<CreateStandup>
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20.0,
                       ),
                       FutureBuilder(
                           future: _dataFuture,
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
-                              return Center(child: Text('An error occurred!'));
+                              return const Center(child: Text('An error occurred!'));
                             }
 
                             if (!snapshot.hasData) {
@@ -292,7 +289,7 @@ class _CreateStandupState extends State<CreateStandup>
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: 7,
-                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
                                 itemBuilder: (context, index) {
                                   
                                   return Container(
@@ -302,7 +299,7 @@ class _CreateStandupState extends State<CreateStandup>
                                       highlightColor: Colors.grey[100]!,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
+                                          borderRadius: const BorderRadius.all(
                                               Radius.circular(10.0)),
                                           border: Border.all(
                                               color: Colors.grey[300]!,
@@ -336,7 +333,7 @@ class _CreateStandupState extends State<CreateStandup>
                             }
 
                             if (projects.isEmpty) {
-                              return Center(child: Text("No projects found."));
+                              return const Center(child: Text("No projects found."));
                             }
 
                             return ListView.builder(
@@ -361,13 +358,13 @@ class _CreateStandupState extends State<CreateStandup>
                                                 ));
                                           },
                                           child: Container(
-                                            margin: EdgeInsets.symmetric(
+                                            margin: const EdgeInsets.symmetric(
                                                 horizontal: 20, vertical: 5),
                                             padding:
-                                                EdgeInsets.only(left: 20.0),
+                                                const EdgeInsets.only(left: 20.0),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                   Radius.circular(10.0)),
                                               boxShadow: [
                                                 BoxShadow(
@@ -375,7 +372,7 @@ class _CreateStandupState extends State<CreateStandup>
                                                       .withOpacity(0.3),
                                                   spreadRadius: 0,
                                                   blurRadius: 4,
-                                                  offset: Offset(0, 1),
+                                                  offset: const Offset(0, 1),
                                                 ),
                                               ],
                                             ),
@@ -386,7 +383,7 @@ class _CreateStandupState extends State<CreateStandup>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Container(
+                                                SizedBox(
                                                   width: MediaQuery.of(context)
                                                           .size
                                                           .width *
@@ -421,7 +418,7 @@ class _CreateStandupState extends State<CreateStandup>
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10.0,
                                                 ),
                                                 Text(
@@ -443,12 +440,12 @@ class _CreateStandupState extends State<CreateStandup>
                                       Positioned(
                                         right: -1,
                                         child: Container(
-                                          margin: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.symmetric(
                                               horizontal: 20, vertical: 5),
                                           padding:
                                               const EdgeInsets.only(left: 2.0),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.only(
+                                            borderRadius: const BorderRadius.only(
                                                 topRight: Radius.circular(10.0),
                                                 bottomRight:
                                                     Radius.circular(10.0)),

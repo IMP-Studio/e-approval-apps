@@ -7,17 +7,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
-import 'package:open_file/open_file.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class DetailPerjadin extends StatefulWidget {
   final dynamic absen;
@@ -682,17 +676,17 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF003366),
+        backgroundColor: const Color(0xFF003366),
         title: Text(
           fileName, // Display the name of the file here
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -736,7 +730,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: Text(
                   '$_currentPage/$_totalPages',
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

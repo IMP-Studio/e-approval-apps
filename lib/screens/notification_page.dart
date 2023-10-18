@@ -13,6 +13,7 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -41,13 +42,13 @@ class _NotificationPageState extends State<NotificationPage>
             title: Text(
               'Notification',
               style: GoogleFonts.montserrat(
-                color: Color(0xff000000),
+                color: const Color(0xff000000),
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
             ),
             leading: IconButton(
-              icon: Icon(
+              icon: const Icon(
                  size: 20,
               Icons.arrow_back_rounded,
               color: Colors.black,
@@ -63,8 +64,8 @@ class _NotificationPageState extends State<NotificationPage>
             child: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.only(top: 20),
-                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  margin: const EdgeInsets.only(top: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
                   alignment: Alignment.topLeft,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -78,7 +79,7 @@ class _NotificationPageState extends State<NotificationPage>
                               elevation: 0,
                              
                               backgroundColor: blueText,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -95,7 +96,7 @@ class _NotificationPageState extends State<NotificationPage>
                               ),
                             )),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                        Container(
@@ -106,7 +107,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -123,7 +124,7 @@ class _NotificationPageState extends State<NotificationPage>
                               ),
                             )),
                        ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                         Container(
@@ -134,7 +135,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -152,7 +153,7 @@ class _NotificationPageState extends State<NotificationPage>
                             )),
                        ),
                        
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                        Container(
@@ -163,7 +164,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -180,7 +181,7 @@ class _NotificationPageState extends State<NotificationPage>
                               ),
                             )),
                        ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                        Container(
@@ -191,7 +192,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -208,7 +209,7 @@ class _NotificationPageState extends State<NotificationPage>
                               ),
                             )),
                        ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                        Container(
@@ -219,7 +220,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -236,7 +237,7 @@ class _NotificationPageState extends State<NotificationPage>
                               ),
                             )),
                        ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                        Container(
@@ -247,7 +248,7 @@ class _NotificationPageState extends State<NotificationPage>
                                elevation: 0,
                               
                               backgroundColor: Colors.white,
-                              side: BorderSide(color: blueText),
+                              side: const BorderSide(color: blueText),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -270,13 +271,13 @@ class _NotificationPageState extends State<NotificationPage>
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 22),
-                  margin: EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  margin: const EdgeInsets.only(top: 10),
                   height: MediaQuery.of(context).size.height * 2,
                   child: ListView(
                     children: [
                       Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top: 15,
                         ),
                         height: 60,
@@ -287,15 +288,15 @@ class _NotificationPageState extends State<NotificationPage>
                                 Text(
                                   "Check In Segera",
                                   style: GoogleFonts.montserrat(
-                                    textStyle: TextStyle(fontSize: 12.0),
+                                    textStyle: const TextStyle(fontSize: 12.0),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 Text(
                                   "Check In",
                                   style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(fontSize: 9.0),
+                                      textStyle: const TextStyle(fontSize: 9.0),
                                       fontWeight: FontWeight.w600,
                                       color: blueText),
                                 ),
@@ -309,7 +310,7 @@ class _NotificationPageState extends State<NotificationPage>
                                 Text(
                                   "4 Minute ago",
                                   style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(fontSize: 10.0),
+                                      textStyle: const TextStyle(fontSize: 10.0),
                                       fontWeight: FontWeight.w500,
                                       color: greyText),
                                 ),
@@ -328,7 +329,7 @@ class _NotificationPageState extends State<NotificationPage>
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.only(top: 15),
+                        padding: const EdgeInsets.only(top: 15),
                         height: 60,
                         child: Column(
                           children: [
@@ -337,15 +338,15 @@ class _NotificationPageState extends State<NotificationPage>
                                 Text(
                                   "Check In Segera",
                                   style: GoogleFonts.montserrat(
-                                    textStyle: TextStyle(fontSize: 12.0),
+                                    textStyle: const TextStyle(fontSize: 12.0),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 Text(
                                   "Check In",
                                   style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(fontSize: 9.0),
+                                      textStyle: const TextStyle(fontSize: 9.0),
                                       fontWeight: FontWeight.w600,
                                       color: blueText),
                                 ),
@@ -359,7 +360,7 @@ class _NotificationPageState extends State<NotificationPage>
                                 Text(
                                   "4 Minute ago",
                                   style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(fontSize: 10.0),
+                                      textStyle: const TextStyle(fontSize: 10.0),
                                       fontWeight: FontWeight.w500,
                                       color: greyText),
                                 ),

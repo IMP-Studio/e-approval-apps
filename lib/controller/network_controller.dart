@@ -35,10 +35,23 @@ class NetworkController extends GetxController {
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(4.0),
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 3,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
           child: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 15,
               ),
               Expanded(
@@ -48,7 +61,7 @@ class NetworkController extends GetxController {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [customIcon],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Column(
@@ -69,7 +82,7 @@ class NetworkController extends GetxController {
                             softWrap: true,
                           ),
                         ),
-                        Padding(
+                        const Padding(
                           padding: EdgeInsets.symmetric(vertical: 2),
                         ),
                         Text(
@@ -90,26 +103,13 @@ class NetworkController extends GetxController {
               )
             ],
           ),
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
         ),
         Container(
           width: 5,
           height: 49,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(10),
               topLeft: Radius.circular(10),
             ),
@@ -118,7 +118,7 @@ class NetworkController extends GetxController {
       ],
     ),
     backgroundColor: Colors.transparent,
-    duration: Duration(days: 365),
+    duration: const Duration(days: 365),
     snackPosition: SnackPosition.TOP,
     isDismissible: false,
   );

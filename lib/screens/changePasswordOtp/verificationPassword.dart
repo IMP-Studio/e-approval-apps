@@ -8,8 +8,6 @@ import 'package:imp_approval/methods/api.dart';
 import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:imp_approval/screens/changePasswordOtp/resetPassword.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizer/sizer.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class OTPPage extends StatefulWidget {
   const OTPPage({super.key});

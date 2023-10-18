@@ -6,7 +6,6 @@ import 'package:imp_approval/layout/mainlayout.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -20,12 +19,12 @@ class CreateDetailStandup extends StatefulWidget {
 
 class _CreateDetailStandupState extends State<CreateDetailStandup>
     with WidgetsBindingObserver {
-  @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
 
   SharedPreferences? preferences;
 
+@override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
@@ -71,6 +70,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
     return json.decode(response.body);
   }
 
+@override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
