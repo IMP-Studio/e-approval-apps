@@ -1,31 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/screens/face_recognition.dart';
+import 'package:imp_approval/layout/custom_appbar.dart';
 import 'package:imp_approval/screens/home.dart';
 import 'package:imp_approval/screens/standup.dart';
-import 'package:imp_approval/screens/login.dart';
 import 'package:imp_approval/screens/history_attedance.dart';
-import 'package:imp_approval/screens/profile.dart';
 import 'package:imp_approval/screens/cuti.dart';
-import 'package:imp_approval/main.dart';
 import 'package:imp_approval/screens/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
 class MainLayout extends StatefulWidget {
   @override
   _MainLayoutState createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> {
+class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    HomePage(),
-    StandUp(),
-    CutiScreen(),
-    HistoryAttendance(),
-    SettingPage(),
+    const HomePage(),
+    const StandUp(),
+    const CutiScreen(),
+    const HistoryAttendance(),
+    const SettingPage(),
   ];
 
   bool shouldShowAppBar(int index) {
@@ -34,77 +43,20 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final itemWidth = MediaQuery.of(context).size.width / _screens.length;
+    
+
+    
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: shouldShowAppBar(_currentIndex)
-            ? AppBar(
-                elevation: 1.5,
-                backgroundColor: Colors.white,
-                title: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * 0.04,
-                      backgroundImage: AssetImage(
-                        "assets/img/profil2.png",
-                      ),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.028,
-                    ),
-                    FutureBuilder<SharedPreferences>(
-                      future: SharedPreferences.getInstance(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<SharedPreferences> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('Error loading preferences');
-                        } else {
-                          String name =
-                              snapshot.data!.getString('nama_lengkap') ??
-                                  'Guest';
-                          String divisi =
-                              snapshot.data!.getString('divisi') ?? 'Guest';
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello, ' + name,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                divisi,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 10,
-                                  color: Colors.black45,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    ),
-                    Spacer(),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.notifications_none_sharp,
-                        color: Color.fromRGBO(67, 129, 202, 1),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            : null,
+       appBar: shouldShowAppBar(_currentIndex) 
+    ? PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: const CustomAppbarz(),
+      )
+    : null,
+
         body: SafeArea(
           child: IndexedStack(
             index: _currentIndex,
@@ -112,7 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
           ),
         ),
         bottomNavigationBar: PreferredSize(
-          preferredSize: Size.fromHeight(kBottomNavigationBarHeight + 5),
+          preferredSize: const Size.fromHeight(kBottomNavigationBarHeight + 5),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -131,7 +83,8 @@ class _MainLayoutState extends State<MainLayout> {
                   (index) {
                     return BottomNavigationBarItem(
                       icon: Icon(
-                        listOfIcons[index], // Replace with your actual icons
+                        listOfIcons[
+                            index], // Replace with your actual icons. listOfIcons data.dart
                         color:
                             _currentIndex == index ? Colors.blue : Colors.grey,
                       ),
@@ -141,8 +94,8 @@ class _MainLayoutState extends State<MainLayout> {
                 ),
               ),
               AnimatedPositioned(
-                duration:
-                    Duration(milliseconds: 300), // Adjust duration as needed
+                duration: const Duration(
+                    milliseconds: 300), // Adjust duration as needed
                 left: _currentIndex *
                         (MediaQuery.of(context).size.width / _screens.length) +
                     16.0, // Account for margin

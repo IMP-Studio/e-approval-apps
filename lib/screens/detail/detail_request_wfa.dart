@@ -3,9 +3,14 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class DetailRequestWfa extends StatefulWidget {
-  const DetailRequestWfa({super.key});
+  final dynamic absen;
+  DetailRequestWfa({required this.absen});
 
   @override
   State<DetailRequestWfa> createState() => _DetailRequestWfaState();
@@ -44,7 +49,7 @@ Widget _modalvalidasireject(BuildContext context) {
           height: MediaQuery.of(context).size.height * 0.010,
         ),
         CupertinoTextField(
-          padding: EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -65,9 +70,129 @@ Widget _modalvalidasireject(BuildContext context) {
   );
 }
 
-class _DetailRequestWfaState extends State<DetailRequestWfa> {
+class _DetailRequestWfaState extends State<DetailRequestWfa>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  Widget _category(BuildContext context) {
+    if (widget.absen['category'] == 'telework') {
+      return Text('Work From Anywhere',
+          style: GoogleFonts.montserrat(
+            fontSize: MediaQuery.of(context).size.width * 0.040,
+            color: blueText,
+            fontWeight: FontWeight.w600,
+          ));
+    } else {
+      return const Text('Unknown category');
+    }
+  }
+
+  Future editPresence() async {
+    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+        widget.absen['id'].toString();
+    var response = await http.get(Uri.parse(url));
+    print(response.body);
+    return json.decode(response.body);
+  }
+
+  Future destroyPresence() async {
+    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+        widget.absen['id'].toString();
+    var response = await http.delete(Uri.parse(url));
+    print(response.body);
+    return json.decode(response.body);
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return '-- : --';
+    }
+
+    try {
+      List<String> parts = dateTimeStr.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+      String period = hour >= 12 ? 'PM' : 'AM';
+
+      if (hour > 12) hour -= 12;
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      return '-- : --';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget getStatusRow(String status) {
+      Color containerColor;
+      Color textColor;
+      String text;
+
+      switch (status) {
+        case 'rejected':
+          containerColor = const Color(0xffF9DCDC);
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
+          text = 'Rejected';
+          break;
+        case 'pending':
+          containerColor = const Color(0xffFFEFC6);
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
+          text = 'Pending';
+          break;
+        case 'preliminary':
+          containerColor = const Color(0xffFFEFC6);
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
+          text = 'Pending';
+          break;
+        case 'allowed':
+          containerColor = kGreenAllow; // Assuming kGreenAllow is green
+          textColor = kGreen; // Your green color for text
+          text = 'Allowed';
+          break;
+        default:
+          containerColor = Colors.grey;
+          textColor = Colors.white;
+          text = 'Unknown Status';
+      }
+
+      return Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5.5),
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.16,
+            decoration: BoxDecoration(
+                border: Border.all(width: 0.8, color: textColor),
+                color: containerColor,
+                borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.030)),
+            child: Text(
+              text,
+              style: GoogleFonts.getFont("Montserrat",
+                  fontSize: MediaQuery.of(context).size.width * 0.025,
+                  color: textColor,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      );
+    }
+
+    String currentStatus = widget.absen['status'];
+
+    Widget statusWidget = getStatusRow(currentStatus);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -98,7 +223,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                 ],
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Align(
               alignment: Alignment.center,
               child: Icon(
@@ -116,19 +241,21 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
           children: [
             Column(
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Request',
+                      'Detail ',
                       style: GoogleFonts.montserrat(
                         fontSize: MediaQuery.of(context).size.width * 0.070,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      'Employee',
+                      'Attendance',
                       style: GoogleFonts.montserrat(
                         color: kTextoo,
                         fontSize: MediaQuery.of(context).size.width * 0.070,
@@ -145,9 +272,10 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                   color: kTextoo,
                 ),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 20),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
                     top: BorderSide(color: kBorder, width: 1),
@@ -156,7 +284,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                     children: [
                       CircleAvatar(
                         radius: MediaQuery.of(context).size.width * 0.05,
-                        backgroundImage: AssetImage(
+                        backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
                       ),
@@ -167,7 +295,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Fauzan Alghifari',
+                            widget.absen['nama_lengkap'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -176,7 +304,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                             ),
                           ),
                           Text(
-                            'Backend Developer',
+                            widget.absen['posisi'],
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -186,117 +314,192 @@ class _DetailRequestWfaState extends State<DetailRequestWfa> {
                           ),
                         ],
                       ),
-                      Spacer(),
-                      Text(
-                        '08.43 AM',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.02,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      const Spacer(),
+                      getStatusRow(currentStatus)
                     ],
                   ),
                 ),
               ],
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    textAlign: TextAlign.justify,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '“',
-                          style: GoogleFonts.montserrat(
-                            color: kPrimary,
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
+                  Visibility(
+                    visible: widget.absen['category_description'] != null,
+                    child: RichText(
+                      textAlign: TextAlign.justify,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '“',
+                            style: GoogleFonts.montserrat(
+                              color: kPrimary,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.039,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text:
-                              'Sebagai karyawan, saya mengajukan permohonan untuk bekerja dari tempat lain karena kondisi kesehatan yang sedang saya hadapi. Sayangnya, penyakit yang saya alami saat ini membuat saya sulit untuk hadir di kantor secara fisik. Meskipun demikian, saya ingin menekankan bahwa komitmen saya terhadap pekerjaan dan tim tetap kuat.',
-                          style: GoogleFonts.montserrat(
-                            color: greyText,
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
+                          TextSpan(
+                            text: widget.absen['category_description'],
+                            style: GoogleFonts.montserrat(
+                              color: greyText,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.039,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: '”',
-                          style: GoogleFonts.montserrat(
-                            color: kPrimary,
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
+                          TextSpan(
+                            text: '”',
+                            style: GoogleFonts.montserrat(
+                              color: kPrimary,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.039,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.028,
+                  Visibility(
+                    visible: widget.absen['category_description'] != null,
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.028,
+                    ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Work From Anywhere',
                           style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.039,
+                            fontSize: MediaQuery.of(context).size.width * 0.044,
                             color: kTextoo,
                             fontWeight: FontWeight.w600,
                           )),
-                      Text('TYPE : Kesehatan',
+                      const SizedBox(
+                        height: 3,
+                      ),
+                      Text(
+                          DateFormat('dd MMMM yyyy').format(
+                              DateTime.parse(widget.absen['date']) ??
+                                  DateTime.now()),
                           style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.028,
-                            color: kTextgrey,
+                            fontSize: MediaQuery.of(context).size.width * 0.030,
+                            color: greyText,
                             fontWeight: FontWeight.w600,
                           )),
                     ],
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.005,
+                    height: MediaQuery.of(context).size.height * 0.04,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, bottom: 35),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: kTextBlocker,
-                                side: const BorderSide(
-                                  color: kTextBlocker,
-                                ),
-                              ),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return _modalvalidasireject(context);
-                                  },
-                                );
-                              },
-                              child: const Text("Reject"),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "TYPE",
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.03,
+                              fontWeight: FontWeight.w600,
+                              color: kTextUnselected,
                             ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.05,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.006,
+                          ),
+                          Text(
+                            "${widget.absen['telework_category']}"
+                                .toUpperCase(),
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04,
+                              fontWeight: FontWeight.w600,
                             ),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: kButton,
-                                side: const BorderSide(
-                                  color: kButton,
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: const Text("Approve"),
+                          ),
+                        ],
+                      ),
+                      // SizedBox(
+                      //   width: MediaQuery.of(context).size.width * 0.045,
+                      // ),
+                      const Spacer(),
+                      Container(
+                        width: 1,
+                        height: MediaQuery.of(context).size.width * 0.07,
+                        decoration: const BoxDecoration(color: kTextoo),
+                      ),
+                      // SizedBox(
+                      //   width: MediaQuery.of(context).size.width * 0.045,
+                      // ),
+                      const Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "IN",
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.03,
+                              fontWeight: FontWeight.w600,
+                              color: kTextUnselected,
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.006,
+                          ),
+                          Text(
+                            formatDateTime(widget.absen['entry_time']),
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // SizedBox(
+                      //   width: MediaQuery.of(context).size.width * 0.065,
+                      // ),
+                      const Spacer(),
+                      Container(
+                        width: 1,
+                        height: MediaQuery.of(context).size.width * 0.07,
+                        decoration: const BoxDecoration(color: kTextoo),
+                      ),
+                      // SizedBox(
+                      //   width: MediaQuery.of(context).size.width * 0.065,
+                      // ),
+                      const Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Out",
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.03,
+                              fontWeight: FontWeight.w600,
+                              color: kTextUnselected,
+                            ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.006,
+                          ),
+                          Text(
+                            formatDateTime(widget.absen['exit_time']),
+                            style: GoogleFonts.montserrat(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
