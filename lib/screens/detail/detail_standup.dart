@@ -7,9 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
-
+import 'package:imp_approval/models/standup_model.dart';
 class DetailStandUp extends StatefulWidget {
-  final Map standup;
+  final StandUps standup;
   const DetailStandUp({super.key, required this.standup});
 
   @override
@@ -33,9 +33,9 @@ class _DetailStandUpState extends State<DetailStandUp>
       DeviceOrientation.portraitDown,
     ]);
     getUserData().then((_) {
-      done.text = widget.standup['done'] ?? '';
-      doing.text = widget.standup['doing'] ?? '';
-      blocker.text = widget.standup['blocker'] ?? '';
+      done.text = widget.standup.done?? '';
+      doing.text = widget.standup.doing ?? '';
+      blocker.text = widget.standup.blocker ?? '';
     });
   }
 
@@ -55,7 +55,7 @@ class _DetailStandUpState extends State<DetailStandUp>
   TextEditingController blocker = TextEditingController();
 
   Future updateStandUp() async {
-    int idStandup = widget.standup['id'];
+    int idStandup = widget.standup.id;
     final response = await http.put(
         Uri.parse(
             'https://testing.impstudio.id/approvall/api/standup/update/$idStandup'),
@@ -66,7 +66,7 @@ class _DetailStandUpState extends State<DetailStandUp>
           "done": done.text,
           "doing": doing.text,
           "blocker": blocker.text,
-          "project_id": widget.standup['project_id'].toString(),
+          "project_id": widget.standup.projectId.toString(),
         });
 
     print(response.body);
@@ -256,7 +256,7 @@ class _DetailStandUpState extends State<DetailStandUp>
                                       alignment: WrapAlignment.start,
                                       children: [
                                         Text(
-                                          widget.standup['project'],
+                                          widget.standup.project ?? ' ',
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
                                             color: const Color.fromARGB(
