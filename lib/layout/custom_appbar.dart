@@ -99,9 +99,9 @@ class _CustomAppbarzState extends State<CustomAppbarz> {
               borderRadius: BorderRadius.circular(90),
               child: (_avatar ?? '').isNotEmpty
                   ? Image.network(
-                      'https://testing.impstudio.id/approvall/storage/files/' +
+                      'https://testing.impstudio.id/approvall/storage/' +
                           _avatar!,
-                      height: MediaQuery.of(context).size.height * 00.5,
+                      height: MediaQuery.of(context).size.height * 0.033,
                       fit: BoxFit.cover,
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {

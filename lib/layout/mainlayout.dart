@@ -6,10 +6,9 @@ import 'package:imp_approval/screens/standup.dart';
 import 'package:imp_approval/screens/history_attedance.dart';
 import 'package:imp_approval/screens/cuti.dart';
 import 'package:imp_approval/screens/setting.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
+
+
 
 class MainLayout extends StatefulWidget {
   @override
@@ -20,12 +19,16 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
   }
+
+
+
+  
 
   int _currentIndex = 0;
 

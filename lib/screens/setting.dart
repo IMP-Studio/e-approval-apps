@@ -347,7 +347,20 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                               const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                           child: ClipRRect(
   borderRadius: BorderRadius.circular(30),
-  child: Image.asset('assets/img/pfp-default.jpg',
+  child: (preferences?.getString('avatar') ?? '').isNotEmpty
+      ? Image.network(
+          'https://testing.impstudio.id/approvall/storage/' +
+              preferences!.getString('avatar')!,
+          height: 58,
+          width: 58,
+          fit: BoxFit.cover,
+          errorBuilder: (BuildContext context, Object exception,
+              StackTrace? stackTrace) {
+            return Image.asset('assets/img/pfp-default.jpg',
+                height: 58, width: 58, fit: BoxFit.cover);
+          },
+        )
+      : Image.asset('assets/img/pfp-default.jpg',
           height: 58, width: 58, fit: BoxFit.cover),
 )
 
