@@ -6,9 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
 
 class DetailWfo extends StatefulWidget {
-  final dynamic absen;
+  final Presences absen;
   DetailWfo({required this.absen});
 
   @override
@@ -27,7 +28,7 @@ void initState() {
 }
 
   Widget _category(BuildContext context) {
-    if (widget.absen['category'] == 'WFO') {
+    if (widget.absen.category == 'WFO') {
       return Text('Work From Office',
           style: GoogleFonts.montserrat(
             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -163,7 +164,7 @@ void initState() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.absen['nama_lengkap'],
+                            widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -172,7 +173,7 @@ void initState() {
                             ),
                           ),
                           Text(
-                            widget.absen['posisi'],
+                            widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -231,7 +232,7 @@ void initState() {
                             children: [
                               Text(
                                   DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(widget.absen['date']) ??
+                                      DateTime.parse(widget.absen.date ?? '0000-00-00') ??
                                           DateTime.now()),
                                   style: GoogleFonts.montserrat(
                                     fontSize:
@@ -307,7 +308,7 @@ void initState() {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                formatDateTime(widget.absen['entry_time']),
+                                formatDateTime(widget.absen.entryTime ?? '00:00'),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -346,7 +347,7 @@ void initState() {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                formatDateTime(widget.absen['exit_time']),
+                                formatDateTime(widget.absen.exitTime ?? '00:00'),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -382,7 +383,7 @@ void initState() {
             SizedBox(
               height: MediaQuery.of(context).size.width * 0.05,
             ),
-            widget.absen['emergency_description'] == null
+            widget.absen.emergencyDescription == null
                 ? Center(
                     child: Column(
                       children: [
@@ -437,7 +438,7 @@ void initState() {
                                 ),
                               ),
                               TextSpan(
-                                text: widget.absen['emergency_description'],
+                                text: widget.absen.emergencyDescription,
                                 style: GoogleFonts.montserrat(
                                   color: greyText,
                                   fontSize:

@@ -516,10 +516,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                     default:
                                                       detailPage =
                                                           DetailAbsensi(
-                                                              absen: snapshot
-                                                                          .data[
-                                                                      'data']
-                                                                  [index]);
+                                                              );
                                                       break;
                                                   }
 

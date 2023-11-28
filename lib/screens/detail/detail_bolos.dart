@@ -8,9 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
 
 class DetailBolos extends StatefulWidget {
-  final dynamic absen;
+  final Presences absen;
   DetailBolos({required this.absen});
 
   @override
@@ -83,7 +84,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
   }
 
   Widget _category(BuildContext context) {
-    if (widget.absen['category'] == 'telework') {
+    if (widget.absen.category == 'telework') {
       return Text('Work From Anywhere',
           style: GoogleFonts.montserrat(
             fontSize: MediaQuery.of(context).size.width * 0.040,
@@ -97,7 +98,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
 
   Future editPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
     return json.decode(response.body);
@@ -105,7 +106,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
 
   Future destroyPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
     return json.decode(response.body);
@@ -189,7 +190,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
       );
     }
 
-    String currentStatus = widget.absen['status'];
+    String currentStatus = widget.absen.status ?? 'Unknwon';
 
     Widget statusWidget = getStatusRow(currentStatus);
 
@@ -298,7 +299,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.absen['nama_lengkap'],
+                            widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -307,7 +308,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                             ),
                           ),
                           Text(
-                            widget.absen['posisi'],
+                            widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -424,7 +425,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                 ),
                 Text(
                   DateFormat('EEEE, dd MMMM yyyy').format(
-                      DateTime.parse(widget.absen['date']) ?? DateTime.now()),
+                      DateTime.parse(widget.absen.date ?? '0000-00-00') ?? DateTime.now()),
                   style: GoogleFonts.montserrat(
                     fontSize: MediaQuery.of(context).size.width * 0.028,
                     color: const Color(0xff727272),

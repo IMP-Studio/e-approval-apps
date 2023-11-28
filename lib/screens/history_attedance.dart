@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
 
 class HistoryAttendance extends StatefulWidget {
   const HistoryAttendance({super.key});
@@ -31,12 +32,13 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
   late TabController _tabController;
   DateTime date = DateTime.now();
   bool isButtonVisible = true;
-
+  DateTime? _lastRefreshTime;
   DateTime? startDate;
   DateTime? endDate;
   String? type;
 
-  Future? _dataFuture;
+  Future<List<Presences>>? _dataFuture;
+  
 
   onStartDateSelected(DateTime date) {
     setState(() {
@@ -121,61 +123,42 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
     return '$formattedStartDay-$formattedEndDay $formattedMonth $formattedYear';
   }
 
-  Future getAbsensiAll(
-      {DateTime? startDate, DateTime? endDate, int? activeIndex}) async {
-    int userId = preferences?.getInt('user_id') ?? 0;
 
-    // Determine type based on activeIndex
-    String? _type;
-    switch (activeIndex) {
-      case 1:
-        _type = 'WFA';
-        break;
-      case 2:
-        _type = 'PERJADIN';
-        break;
-      case 0:
-      default:
-        _type = '';
-        break;
-    }
+Future<void> _refreshContent({
+  DateTime? startDate,
+  DateTime? endDate,
+  int? activeIndex,
+}) async {
+  final DateTime now = DateTime.now();
+  final Duration cooldownDuration = Duration(seconds: 30);
 
-    String urlj =
-        'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed,pending,preliminary,rejected&scope=self';
-
-    // Check if either startDate or endDate is provided and handle accordingly
-    if (startDate != null || endDate != null) {
-      DateTime _startDate = startDate ?? DateTime.now();
-      DateTime _endDate = endDate ?? DateTime.now();
-      urlj += '&start_date=${formatDate(_startDate)}';
-      urlj += '&end_date=${formatDate(_endDate)}';
-    }
-
-    if (_type != null) {
-      urlj += '&type=$_type';
-    }
-
-    var response = await http.get(Uri.parse(urlj));
-    print("Constructed URL: $urlj");
-
-    print(response.body);
-    return jsonDecode(response.body);
+  if (_lastRefreshTime != null && now.difference(_lastRefreshTime!) < cooldownDuration) {
+    print('Cooldown period. Not refreshing content.');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please wait a bit before refreshing again.'))
+    );
+    return;
   }
 
-  Future<void> _refreshContent(
-      {DateTime? startDate, DateTime? endDate, int? activeIndex}) async {
-    print(
-        "Filter NYA BISA GA YAAAAA: $startDate to $endDate and index: $activeIndex");
+  print("Refreshing content started");
+int userIdnya = preferences?.getInt('user_id') ?? 0;
+      String userId = userIdnya.toString();
+  setState(() {
+    _dataFuture = fetchAndUpdateCache(
+      userId, // Pass your userId here
+      'self',
+      'allowed,pending,preliminary,rejected',
+      activeIndex,
+      startDate,
+      endDate,
+    );
+  });
 
-    setState(() {
-      _dataFuture = getAbsensiAll(
-          startDate: startDate, // Passing as it is, can be null or has a value.
-          endDate: endDate, // Passing as it is, can be null or has a value.
-          activeIndex:
-              activeIndex // Passing activeIndex to determine the type within getAbsensiAll
-          );
-    });
-  }
+  print('Content refreshed');
+  _lastRefreshTime = now;
+}
+
+
 
   void startTimer() {
     // Start a timer to hide the button after 4 seconds of inactivity
@@ -199,8 +182,17 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
 
     // Adjusted sequence
     getUserData().then((success) {
+      int userIdnya = preferences?.getInt('user_id') ?? 0;
+      String userId = userIdnya.toString();
       if (success) {
-        _dataFuture = getAbsensiAll();
+        _dataFuture = fetchAndUpdateCache(
+      userId, // Pass your userId here
+      'self',
+      'allowed,pending,preliminary,rejected',
+      activeIndex,
+      startDate,
+      endDate,
+    );
         _refreshContent();
         startTimer();
       }
@@ -709,66 +701,73 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                         );
                       } else {
                         if (snapshot.hasData) {
-                          if (snapshot.data?['data'] == null ||
-                              snapshot.data['data'].isEmpty) {
-                            // Return an Image or placeholder here
-                            return Center(
-                              child: Container(
-                                color: Colors.white,
+                          if (snapshot.data == null ||
+                              snapshot.data!.isEmpty) {
+
+                            return Container(   
+                                    margin: EdgeInsets.only(top:  MediaQuery.of(context).size.height * 0.08,),  
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                  "assets/img/EMPTY.svg",
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(height: 15,),
+                               Text(
+                                "Presensi Kosong",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        color: kTextBlcknw,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.044)),
                               ),
+                                  ],
+                                )
+                              
                             );
                           }
 
-                          var limitedData = snapshot.data['data'].toList();
                           return ListView.separated(
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: limitedData.length,
+                              itemCount: snapshot.data!.length,
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 10),
                               itemBuilder: (context, index) {
-                                print(snapshot.data['data']);
-                                print(limitedData[index]['entry_time']);
-                                print(
-                                    snapshot.data['data'][index]['entry_time']);
+                                var limitedData = snapshot.data![index];
+                                print(limitedData);
                                 return GestureDetector(
                                   onTap: () {
-                                    String category = snapshot.data['data']
-                                            [index][
-                                        'category']; // Assuming your data has a 'category' key.
+                                    String category = limitedData.category ?? ''; // Assuming your data has a 'category' key.
 
                                     Widget detailPage;
 
                                     switch (category) {
                                       case 'WFO':
                                         detailPage = DetailWfo(
-                                            absen: snapshot.data['data']
-                                                [index]);
+                                            absen: limitedData);
                                         break;
                                       case 'telework':
                                         detailPage = DetailWfa(
-                                            absen: snapshot.data['data']
-                                                [index]);
+                                            absen: limitedData);
                                         break;
                                       case 'work_trip':
                                         detailPage = DetailPerjadin(
-                                            absen: snapshot.data['data']
-                                                [index]);
-                                        break;
-                                      case 'leave':
-                                        detailPage = DetailCuti(
-                                            absen: snapshot.data['data']
-                                                [index]);
+                                            absen: limitedData);
                                         break;
                                       case 'skip':
                                         detailPage = DetailBolos(
-                                            absen: snapshot.data['data']
-                                                [index]);
+                                            absen: limitedData);
                                         break;
                                       default:
                                         detailPage = DetailAbsensi(
-                                            absen: snapshot.data['data']
-                                                [index]);
+                                        );
                                         break;
                                     }
 
@@ -838,21 +837,15 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                             ),
                                                           ),
                                                           Text(
-                                                            snapshot.data['data'][index]['category'] ==
+                                                            limitedData.category ==
                                                                     'leave'
                                                                 ? formatDateRange(
-                                                                    snapshot.data['data']
-                                                                            [index]
-                                                                        [
-                                                                        'start_date'],
-                                                                    snapshot.data['data']
-                                                                            [index]
-                                                                        [
-                                                                        'end_date'])
+                                                                    limitedData.startDate ?? 'YYYY:MM:DD',
+                                                                    limitedData.endDate ?? 'YYYY:MM:DD')
                                                                 : DateFormat(
                                                                         'dd MMMM yyyy')
                                                                     .format(DateTime.parse(
-                                                                            snapshot.data['data'][index]['date']) ??
+                                                                           limitedData.date ?? '2006-03-03') ??
                                                                         DateTime.now()),
                                                             style: GoogleFonts
                                                                 .montserrat(
@@ -873,16 +866,8 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                               ),
                                                               Text(
                                                                   calculateTotalHours(
-                                                                      snapshot.data['data']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'entry_time'],
-                                                                      snapshot.data['data']
-                                                                              [
-                                                                              index]
-                                                                          [
-                                                                          'exit_time']),
+                                                                      limitedData.entryTime ?? '00:00',
+                                                                      limitedData.exitTime ?? '00:00'),
                                                                   style: GoogleFonts
                                                                       .montserrat(
                                                                     fontSize:
@@ -963,9 +948,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                                       height: 3,
                                                                     ),
                                                                     Text(
-                                                                        formatDateTime(snapshot.data['data'][index]
-                                                                            [
-                                                                            'entry_time']),
+                                                                        formatDateTime(limitedData.entryTime ?? '00:00'),
                                                                         style: GoogleFonts
                                                                             .montserrat(
                                                                           fontSize:
@@ -999,9 +982,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                                       height: 3,
                                                                     ),
                                                                     Text(
-                                                                        formatDateTime(snapshot.data['data'][index]
-                                                                            [
-                                                                            'exit_time']),
+                                                                        formatDateTime(limitedData.exitTime ?? '00:00'),
                                                                         style: GoogleFonts
                                                                             .montserrat(
                                                                           fontSize:
@@ -1053,10 +1034,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            categoryText(snapshot
-                                                                        .data[
-                                                                    'data'][index]
-                                                                ['category']),
+                                                            categoryText(limitedData.category ?? ''),
                                                             style: GoogleFonts
                                                                 .montserrat(
                                                               fontSize: 8,
@@ -1078,10 +1056,7 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                                 .end,
                                                         children: [
                                                           Text(
-                                                            statusText(snapshot
-                                                                        .data[
-                                                                    'data'][index]
-                                                                ['status']),
+                                                            statusText(limitedData.status),
                                                             style: GoogleFonts
                                                                 .montserrat(
                                                               fontSize: 8,
@@ -1097,18 +1072,9 @@ class _HistoryAttendanceState extends State<HistoryAttendance>
                                                           ),
                                                           Text(
                                                             permissionText(
-                                                                snapshot.data[
-                                                                            'data']
-                                                                        [index]
-                                                                    ['status'],
-                                                                snapshot.data[
-                                                                            'data']
-                                                                        [index][
-                                                                    'category'],
-                                                                snapshot.data[
-                                                                            'data']
-                                                                        [index][
-                                                                    'someKey']),
+                                                                limitedData.status,
+                                                               limitedData.category ?? 'UNKOWN',
+                                                                ),
                                                             style: GoogleFonts
                                                                 .montserrat(
                                                               fontSize: 8,

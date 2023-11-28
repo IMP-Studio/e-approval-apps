@@ -28,6 +28,7 @@ class _EditPerjadinState extends State<EditPerjadin>
     ]);
   }
 
+  bool _isButtonPressed = false;
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   DateTime? _tanggalKembali;
