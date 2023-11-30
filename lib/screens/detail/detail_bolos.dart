@@ -76,7 +76,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -190,9 +190,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
       );
     }
 
-    String currentStatus = widget.absen.status ?? 'Unknwon';
 
-    Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -425,7 +423,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
                 ),
                 Text(
                   DateFormat('EEEE, dd MMMM yyyy').format(
-                      DateTime.parse(widget.absen.date ?? '0000-00-00') ?? DateTime.now()),
+                      DateTime.parse(widget.absen.date ?? '0000-00-00')),
                   style: GoogleFonts.montserrat(
                     fontSize: MediaQuery.of(context).size.width * 0.028,
                     color: const Color(0xff727272),

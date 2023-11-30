@@ -21,7 +21,6 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
-  @override
   SharedPreferences? preferences;
 
   late Timer _timer; // Define the timer
@@ -186,7 +185,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
 @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -225,6 +224,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
           ),
         );
       } else {
+        // ignore: unused_local_variable
         final snackBar = showSnackbarWarning(
             "Logout gagal",
             "Password salah.",

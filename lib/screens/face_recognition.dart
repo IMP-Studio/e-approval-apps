@@ -39,7 +39,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -56,17 +56,13 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
         data = jsonDecode(widget.profile['facepoint']);
       }
 
-      // print('desc :' + widget.arguments['description']);
-
-      // print('file guach : ${widget.arguments['file'].toString()}');
-
       await _updateLocationAndAddress();
       if (_isLocationFetched) {
         _start(); // Starting the camera once
       }
 
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        await _updateLocationAndAddress(); // Just updating location in the timer
+        await _updateLocationAndAddress(); 
       });
     } catch (e) {
       print("Error in initializePage: $e");
@@ -75,26 +71,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   SharedPreferences? preferences;
 
-  // Future<void> fetchName() async {
-  //   nama_lengkap = preferences?.getString('nama_lengkap') ?? 'Mahesa';
-  //   print(nama_lengkap);
-  //   setState(() {});
-  // }
-
-  // Future<void> fetchId() async {
-  //   user_id = preferences?.getInt('user_id') ?? 2;
-  //   print(user_id);
-  //   setState(() {});
-  // }
-  // Future<void> fetchFace() async {
-  //   String? facepointString = preferences?.getString('facepoint') ?? 'MAHESA';
-  //   if (facepointString != null) {
-  //     Map<String, dynamic> facepointMap = jsonDecode(facepointString);
-  //     setState(() {
-  //       userFP = facepointMap['Mahesa Alfian Dhika'];
-  //     });
-  //   }
-  // }
 
   Future<void> _updateLocationAndAddress() async {
     _position = await _getCurrentLocation();
@@ -155,14 +131,14 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   @override
   void dispose() async {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     if (_camera != null && _camera!.value.isInitialized) {
       await _camera!.stopImageStream();
       await Future.delayed(const Duration(milliseconds: 400));
       await _camera!.dispose();
       await Future.delayed(const Duration(milliseconds: 400));
       _camera = null;
-      _timer?.cancel();
+      _timer.cancel();
       recognitionTimer?.cancel();
     }
     super.dispose();
@@ -177,6 +153,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   dynamic _scanResults;
   String _predRes = '';
   bool isStream = true;
+  // ignore: unused_field
   CameraImage? _cameraimage;
   Directory? tempDir;
   bool _faceFound = false;
@@ -196,17 +173,14 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   String _currentAddress = "";
   late Timer _timer;
 
-  final TextEditingController _name = TextEditingController(text: '');
 
   Timer? recognitionTimer;
 
   Future<void> _storeAndNavigate() async {
-    // Check if a storing process is ongoing, if yes, return immediately
     if (isStoringFace) {
       return;
     }
 
-    // Set the flag to indicate a storing process is starting
     isStoringFace = true;
 
     try {
@@ -400,8 +374,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   }
 
   Future storeAbsen() async {
-    DateTime combinedDateTime =
-        DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
     String jsonData = json.encode(data);
 
     var uri =
@@ -415,7 +387,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       "latitude": _position!.latitude.toString(),
       "longitude": _position!.longitude.toString(),
       "date": DateTime.now().toIso8601String(),
-      "face_point": jsonData ?? 'sawarasenaii',
+      "face_point": jsonData,
       "status": 'pending'
     };
 
@@ -468,8 +440,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    var profile = widget.arguments['profile'];
-    var selectedOption = widget.arguments['selectedOption'];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       floatingActionButton: widget.profile['facepoint'] == null
@@ -501,7 +471,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
         leading: IconButton(
           color: Colors.black,
           onPressed: () async {
-            if (_camera != null) {
               await _camera!.stopImageStream();
               await Future.delayed(const Duration(milliseconds: 400));
               await _camera!.dispose();
@@ -510,7 +479,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
               _timer.cancel();
               Navigator.pop(context);
               Navigator.pop(context, 'refresh');
-            }
           },
           icon: const Icon(Icons.arrow_back),
         ),

@@ -17,7 +17,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   @override
 void initState() {
   super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -47,9 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _shrinkAnimation;
   late Animation<double> _expandAnimation;
   late Animation<double> _borderRadiusAnimation;
-  late Animation<double> _textOpacityAnimation;
 
-  bool _isTextVisible = false;
 
   @override
   void initState() {
@@ -179,17 +177,10 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _textOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.9, 1.0, curve: Curves.easeInOut),
-      ),
-    );
 
     // Start the animation
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
-        _isTextVisible = true;
       });
 
       _expandAnimation =

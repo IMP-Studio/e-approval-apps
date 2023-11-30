@@ -220,6 +220,7 @@ class _LoginScreenState extends State<LoginScreen>
           'facepoint', response['user']['facepoint'] ?? 'null');
       await preferences.setString('token', response['token']);
 
+      // ignore: unused_local_variable
       final snackBar = showSnackbarWarning(
           "Success",
           response['message'],
@@ -233,6 +234,7 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (context) => MainLayout(),
       ));
     } else {
+      // ignore: unused_local_variable
       final snackBar = showSnackbarWarning(
           "Fail..",
           response['message'],
@@ -248,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

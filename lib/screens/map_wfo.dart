@@ -16,14 +16,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:flutter/services.dart';
 
-class MapSample extends StatefulWidget {
-  const MapSample({super.key});
+class MapWfo extends StatefulWidget {
+  const MapWfo({super.key});
 
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MapWfo> createState() => MapWfoState();
 }
 
-class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
+class MapWfoState extends State<MapWfo> with WidgetsBindingObserver {
   Position? _position;
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -49,7 +49,7 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     addCustomIcon();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -119,9 +119,9 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   }
 
   Future storeAbsen() async {
+    // ignore: unused_local_variable
     DateTime combinedDateTime = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, selectedTime.hour, selectedTime.minute);
-    // final base64Image = base64Encode(imageBytes!);
     final response = await http.post(
         Uri.parse('https://testing.impstudio.id/approvall/api/presence/store'),
         body: {
@@ -330,12 +330,12 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
   @override
   @override
   void dispose() {
-    _timer?.cancel();
+    _timer.cancel();
     connectivitySubscription?.cancel();
     super.dispose();
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
 // card get location
     Widget _getlocation() {
@@ -385,6 +385,7 @@ class MapSampleState extends State<MapSample> with WidgetsBindingObserver {
                                 fontWeight: FontWeight.w600,
                               )),
                           Visibility(
+                            // ignore: unnecessary_null_comparison
                             visible: _currentAddress != null,
                             child: Container(
                               width: 220,

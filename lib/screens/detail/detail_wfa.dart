@@ -77,7 +77,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -193,6 +193,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
 
     String currentStatus = widget.absen.status ?? 'Unknown';
 
+    // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
@@ -383,8 +384,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                       ),
                       Text(
                           DateFormat('dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen.date ?? '0000-00-00') ??
-                                  DateTime.now()),
+                              DateTime.parse(widget.absen.date ?? '0000-00-00')),
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.030,
                             color: greyText,
@@ -553,15 +553,15 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
                                       return Shimmer.fromColors(
-                                        baseColor: kButton.withOpacity(0.8)!,
+                                        baseColor: kButton.withOpacity(0.8),
                                         highlightColor:
-                                            kButton.withOpacity(0.5)!,
+                                            kButton.withOpacity(0.5),
                                         child: OutlinedButton(
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor:
                                                 kButton.withOpacity(0.8),
                                             side: BorderSide(
-                                              color: kButton.withOpacity(0.8)!,
+                                              color: kButton.withOpacity(0.8),
                                             ),
                                           ),
                                           onPressed:
@@ -578,6 +578,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                           ),
                                         ),
                                         onPressed: () async {
+                                          // ignore: unused_local_variable
                                           final result = await Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -600,14 +601,14 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                     }
                                   } else {
                                     return Shimmer.fromColors(
-                                      baseColor: kButton.withOpacity(0.8)!,
-                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      baseColor: kButton.withOpacity(0.8),
+                                      highlightColor: kButton.withOpacity(0.5),
                                       child: OutlinedButton(
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor:
                                               kButton.withOpacity(0.8),
                                           side: BorderSide(
-                                            color: kButton.withOpacity(0.8)!,
+                                            color: kButton.withOpacity(0.8),
                                           ),
                                         ),
                                         onPressed: null, // disables the button

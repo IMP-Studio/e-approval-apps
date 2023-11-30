@@ -55,7 +55,7 @@ class _CutiScreenState extends State<CutiScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -217,7 +217,6 @@ class _CutiScreenState extends State<CutiScreen>
     _cutiDays = getLeaveDays();
     _cutiYearlyDays = getLeaveYearlyDays();
 
-    final data = await _cutiFuture;
 
     setState(() {
       isLoading = false;
@@ -629,8 +628,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                   child: Text(
                                                     snapshot.data['data']
                                                                 ['yearly']
-                                                            .toString() ??
-                                                        '0',
+                                                            .toString(),
                                                     style: GoogleFonts.getFont(
                                                         'Montserrat',
                                                         textStyle: TextStyle(
@@ -737,8 +735,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               Text(
                                                 snapshot.data['data']
                                                             ['exclusive']
-                                                        .toString() ??
-                                                    '0',
+                                                        .toString(),
                                                 style: GoogleFonts.getFont(
                                                     'Montserrat',
                                                     textStyle: TextStyle(
@@ -827,8 +824,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               Text(
                                                 snapshot.data['data']
                                                             ['emergency']
-                                                        .toString() ??
-                                                    '0',
+                                                        .toString(),
                                                 style: GoogleFonts.getFont(
                                                     'Montserrat',
                                                     textStyle: TextStyle(
@@ -1371,9 +1367,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                               Text(
                                                                 DateFormat(
                                                                         'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(itemData.startDate ?? '2006-03-03') ??
-                                                                        DateTime
-                                                                            .now()),
+                                                                    .format(DateTime.parse(itemData.startDate ?? '2006-03-03')),
                                                                 style: GoogleFonts.getFont(
                                                                     'Montserrat',
                                                                     color: Colors
@@ -1405,9 +1399,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                               Text(
                                                                 DateFormat(
                                                                         'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(itemData.endDate ?? '2006-03-03') ??
-                                                                        DateTime
-                                                                            .now()),
+                                                                    .format(DateTime.parse(itemData.endDate ?? '2006-03-03')),
                                                                 style: GoogleFonts.getFont(
                                                                     'Montserrat',
                                                                     color: Colors

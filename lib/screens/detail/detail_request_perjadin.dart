@@ -92,7 +92,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -262,6 +262,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
 
     String currentStatus = widget.absen['status'];
 
+    // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
@@ -428,8 +429,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
                               'Masuk : ' +
                                   DateFormat('dd MMMM yyyy').format(
                                       DateTime.parse(
-                                              widget.absen['entry_date']) ??
-                                          DateTime.now()),
+                                              widget.absen['entry_date'])),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,

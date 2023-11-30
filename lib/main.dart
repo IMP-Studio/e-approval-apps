@@ -3,7 +3,6 @@ import 'package:imp_approval/dependency_injection.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/login.dart';
 import 'package:imp_approval/controller/network_controller.dart';
-import 'package:imp_approval/splash_screen/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';

@@ -217,7 +217,7 @@ class _StandUpState extends State<StandUp>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -974,8 +974,7 @@ print('Snapshot Error: ${snapshot.error}');
                                                               const Color(
                                                                   0xff4381CA),
                                                               const Color(
-                                                                  0xff4381CA)!
-                                                            ] // Colors when blocker is not null
+                                                                  0xff4381CA)] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
                                                               kTextBlockerr
@@ -1274,6 +1273,7 @@ print('Snapshot Error: ${snapshot.error}');
                               ),
                             );
                           } else if (responseStatus == 'pendingStatus') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Tunggu sebentar...",
                                 "Request dalam status pending.",
@@ -1284,6 +1284,7 @@ print('Snapshot Error: ${snapshot.error}');
                                   color: kYelw,
                                 ));
                           } else if (responseStatus == 'Leave') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Kamu sedang cuti",
                                 "Nikmati liburanmu sejenak.",
@@ -1294,6 +1295,7 @@ print('Snapshot Error: ${snapshot.error}');
                                   color: kYelw,
                                 ));
                           } else if (responseStatus == 'Bolos') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Kamu sedang bolos",
                                 "Tolong jangan diulangi lagi.",
@@ -1304,6 +1306,7 @@ print('Snapshot Error: ${snapshot.error}');
                                   color: kTextBlocker,
                                 ));
                           } else {
+                            // ignore: unused_local_variable
                             final SnackBar = showSnackbarWarning(
                                 "Wait...",
                                 "Absen terlebih dahulu.",

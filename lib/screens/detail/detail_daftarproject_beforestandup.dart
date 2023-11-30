@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_detail_standup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imp_approval/models/project_model.dart';
 
@@ -29,11 +26,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
   void initState() {
     super.initState();
     getUserData();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    // ignore: unused_local_variable
     DateTime startDate =
         DateTime.parse(widget.project.startDate ?? '2006-03-03');
     DateTime endDate = DateTime.parse(widget.project.endDate ?? '2006-03-03');

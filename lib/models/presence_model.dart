@@ -188,7 +188,8 @@ Future<List<Presences>> fetchAllPresences(
     url += '&end_date=${formatDate(endDate)}';
   }
 
-  if (type != null && type.isNotEmpty) { // Use && instead of ||
+  // ignore: unnecessary_null_comparison
+  if (type != null && type.isNotEmpty) { 
     url += '&type=$type';
   }
 

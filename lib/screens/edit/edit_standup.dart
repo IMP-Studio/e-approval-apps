@@ -26,7 +26,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     print('id: ${widget.standup.userId}');
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

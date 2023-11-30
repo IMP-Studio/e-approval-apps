@@ -240,7 +240,7 @@ class _GeneralStandUpState extends State<GeneralStandUp>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -1023,8 +1023,7 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                                               const Color(
                                                                   0xff4381CA),
                                                               const Color(
-                                                                  0xff4381CA)!
-                                                            ] // Colors when blocker is not null
+                                                                  0xff4381CA)] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
                                                               kTextBlockerr

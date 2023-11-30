@@ -9,12 +9,9 @@ import 'package:imp_approval/screens/detail/detail_wfo.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_wfa.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:imp_approval/models/presence_model.dart';
 
@@ -845,8 +842,7 @@ int userIdnya = preferences?.getInt('user_id') ?? 0;
                                                                 : DateFormat(
                                                                         'dd MMMM yyyy')
                                                                     .format(DateTime.parse(
-                                                                           limitedData.date ?? '2006-03-03') ??
-                                                                        DateTime.now()),
+                                                                           limitedData.date ?? '2006-03-03')),
                                                             style: GoogleFonts
                                                                 .montserrat(
                                                               fontSize: 10,

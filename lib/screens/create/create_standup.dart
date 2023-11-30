@@ -4,9 +4,7 @@ import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/screens/detail/detail_daftarproject_beforestandup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:imp_approval/models/project_model.dart';
@@ -52,7 +50,7 @@ class _CreateStandupState extends State<CreateStandup>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -75,7 +73,6 @@ class _CreateStandupState extends State<CreateStandup>
   }
 
   String _searchQuery = "";
-  List<dynamic>? _filteredProjects;
 
   Future<List<Projects>>? _projectData;
 
@@ -93,9 +90,9 @@ class _CreateStandupState extends State<CreateStandup>
     }
   }
 
-  final double _tinggidesc = 68;
   @override
   Widget build(BuildContext context) {
+  final double _tinggidesc = MediaQuery.of(context).size.width * 0.19;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

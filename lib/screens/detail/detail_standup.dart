@@ -18,7 +18,6 @@ class DetailStandUp extends StatefulWidget {
 
 class _DetailStandUpState extends State<DetailStandUp>
     with WidgetsBindingObserver {
-  @override
   final double _tinggidesc = 137;
   final double _tinggidescc = 68;
 
@@ -27,7 +26,7 @@ class _DetailStandUpState extends State<DetailStandUp>
 @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

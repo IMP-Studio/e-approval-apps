@@ -32,7 +32,7 @@ class _PrivasiPageState extends State<PrivasiPage> with WidgetsBindingObserver{
 @override
   void initState() {
     super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

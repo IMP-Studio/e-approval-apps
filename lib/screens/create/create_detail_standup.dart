@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/layout/mainlayout.dart';
-import 'package:imp_approval/screens/create/create_standup.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -30,7 +29,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -567,29 +566,28 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
                               ),
                               
                               onPressed: () {
-    if (!_processing) {
-        _processing = true;  // Set processing to true to prevent multiple submissions
+                                  if (!_processing) {
+                                      _processing = true;  // Set processing to true to prevent multiple submissions
+                                    
+                                      // Print values (existing logic)
+                                      print('Done: ${done.text}');
+                                      print('Doing: ${doing.text}');
+                                      print('Blocker: ${blocker.text}');
+                                      print('Project ID: ${widget.project['projectid']}');
 
-        // Print values (existing logic)
-        print('Done: ${done.text}');
-        print('Doing: ${doing.text}');
-        print('Blocker: ${blocker.text}');
-        print('Project ID: ${widget.project['projectid']}');
-
-        // Make the storeStandUp call and navigate afterwards
-        storeStandUp().then((_) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainLayout())
-            );
-        }).catchError((error) {
-            print("Error: $error");
-        }).whenComplete(() {
-            _processing = false;  // Reset the processing flag
-        }); 
-    }
-},
-
+                                      // Make the storeStandUp call and navigate afterwards
+                                      storeStandUp().then((_) {
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => MainLayout())
+                                          );
+                                      }).catchError((error) {
+                                          print("Error: $error");
+                                      }).whenComplete(() {
+                                          _processing = false;  // Reset the processing flag
+                                      }); 
+                                  }
+                              },  
                               child: Text(
                                 'Kirim',
                                 style: GoogleFonts.inter(

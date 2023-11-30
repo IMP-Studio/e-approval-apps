@@ -34,6 +34,12 @@ class NetworkController extends GetxController {
       case ConnectivityResult.ethernet:
         connectionType.value = 'Ethernet';
         break;
+      case ConnectivityResult.bluetooth:
+        connectionType.value = 'Bluetooth';
+        break;
+      case ConnectivityResult.vpn:
+        connectionType.value = 'VPN';
+        break;
       case ConnectivityResult.other:
         connectionType.value = 'Other';
         break;
