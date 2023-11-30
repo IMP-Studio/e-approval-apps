@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/create/create_perjadin.dart';
 import 'package:imp_approval/screens/create/emergency_chekout.dart';
 import 'package:imp_approval/screens/detail/detail_absensi.dart';
 import 'package:imp_approval/screens/detail/detail_bolos.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
-import 'package:imp_approval/screens/edit/face_recognition_perjadin.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imp_approval/screens/map_wfo.dart';
+import 'package:imp_approval/screens/checkout_map_wfo.dart';
 import 'package:imp_approval/screens/request.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:convert';
@@ -19,7 +18,6 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_wfa.dart';
 import 'package:imp_approval/screens/create/create_wfa.dart';
@@ -97,7 +95,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   double _tinggimodal = 320;
-  double _tinggimodalwt = 350;
 
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -175,17 +172,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> fetchData() async {
-    await fetchPresenceId(); // This will set the presenceId based on the getPresenceID() method
+    await fetchPresenceId(); 
 
     Map<String, dynamic>? userProfileResponse =
-        await getProfil(); // Fetch profile data
+        await getProfil(); 
 
     if (userProfileResponse != null &&
         userProfileResponse['data'] != null &&
         userProfileResponse['data'].length > 0) {
       setState(() {
         profile = userProfileResponse['data'][0];
-        // You don't need to set presenceId here since it's already set by fetchPresenceId
       });
     }
   }
@@ -269,6 +265,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildCheckInButton();
       case AttendanceStatus.pendingStatus:
         return _buildPendingButton();
+      case AttendanceStatus.canReAttend:
+        return _buildCheckInButton();
       case AttendanceStatus.leaveStatus:
         return _buildLeaveButton();
       case AttendanceStatus.checkedIn:
@@ -450,8 +448,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         : false;
     bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
 
-    bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
-
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
@@ -571,18 +567,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     onPressed: isBeforeEveningLimit &&
                                             isAfterMorningLimit
                                         ? null
-                                        : () {
-                                            checkOutToday().then((_) {
+                                        : () async {
+                                            try {
+
                                               setState(() {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        MainLayout(),
-                                                  ),
-                                                );
+                                                isLoading = true;
                                               });
-                                            });
+
+                                              await fetchData();
+                                              print(presenceId);
+                                              print('presenceId: $presenceId');
+                                              print('profile: $profile');
+
+                                              if (presenceId != null &&
+                                                  profile != null) {
+                                                // ignore: use_build_context_synchronously
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CheckoutMapWFO(
+                                                                presence:
+                                                                    presenceId!,)));
+                                              } else {
+                                                print(
+                                                    'Presece id or profile is null');
+                                              }
+                                            } catch (error) {
+                                              print("Error: $error");
+                                            } finally {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
                                           },
                                     child: Text(
                                       "Pulang",
@@ -915,7 +932,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     refreshData();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -927,7 +944,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (showModalWfa == 'true') {
         setState(() {
           _tinggimodal = 420;
-          _tinggimodalwt = 500;
         });
       }
     });
@@ -1052,8 +1068,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final MediaQueryData mediaQueryData = MediaQuery.of(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -1839,7 +1853,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                               return ListView.separated(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
-                                  itemCount: snapshot.data!.length >= 3 ? 3 : snapshot.data!.length,
+                                  itemCount: snapshot.data!.length >= 3
+                                      ? 3
+                                      : snapshot.data!.length,
                                   separatorBuilder: (context, index) =>
                                       const SizedBox(height: 10),
                                   itemBuilder: (context, index) {
@@ -1949,8 +1965,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                                     : DateFormat(
                                                                             'dd MMMM yyyy')
                                                                         .format(DateTime.parse(limitedData.date ??
-                                                                                '2006-03-03') ??
-                                                                            DateTime.now()),
+                                                                            '2006-03-03')),
                                                                 style: GoogleFonts
                                                                     .montserrat(
                                                                   fontSize: 10,
@@ -2214,9 +2229,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 children: [
                                   ListView.separated(
                                     separatorBuilder: (context, index) =>
-                                      const SizedBox(
-                                    height: 10,
-                                  ),
+                                        const SizedBox(
+                                      height: 10,
+                                    ),
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
@@ -2643,7 +2658,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MapSample(),
+                    builder: (context) => const MapWfo(),
                   ));
               // setState(() {
               //   selectedOption = 'WFO';
@@ -3065,18 +3080,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
+                          // ignore: unused_local_variable
                           final facePageArgs = {
                             'selectedOption': 'WFA',
                             'description': _descriptionController.text,
                             'keteranganWfa': selectedKeterangan,
                           };
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //         FacePage(arguments: facePageArgs),
-                          //   ),
-                          // );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
