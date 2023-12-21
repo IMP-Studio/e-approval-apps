@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/methods/api.dart';
 import 'package:imp_approval/screens/changePasswordOtp/forgetPassword.dart';
 import 'package:imp_approval/screens/changePasswordOtp/resetPassword.dart';
@@ -20,7 +19,7 @@ class _OTPPageState extends State<OTPPage> with WidgetsBindingObserver{
   @override
 void initState() {
   super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

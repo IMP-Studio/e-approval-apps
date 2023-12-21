@@ -31,7 +31,7 @@ class _InformasiPribadiState extends State<InformasiPribadi> with WidgetsBinding
 @override
   void initState() {
     super.initState();
-     WidgetsBinding.instance!.addObserver(this);
+     WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

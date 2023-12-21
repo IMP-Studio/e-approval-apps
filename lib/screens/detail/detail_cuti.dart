@@ -1,4 +1,7 @@
+// ignore_for_file: unused_local_variable, duplicate_ignore
+
 import 'package:flutter/material.dart';
+import 'package:imp_approval/models/leave_model.dart';
 import 'package:imp_approval/screens/edit/edit_cuti.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:imp_approval/data/data.dart';
@@ -13,77 +16,23 @@ import 'dart:io';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 class DetailCuti extends StatefulWidget {
-  final dynamic absen;
+  final Leaves absen;
   const DetailCuti({required this.absen, super.key});
 
   @override
   State<DetailCuti> createState() => _DetailCutiState();
 }
 
-Widget _modalvalidasireject(BuildContext context) {
-  return CupertinoAlertDialog(
-    title: Text("Alasan Menolak",
-        style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        )),
-    actions: [
-      CupertinoDialogAction(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Batal",
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                color: kTextBlocker,
-                fontWeight: FontWeight.w600,
-              ))),
-      CupertinoDialogAction(
-          onPressed: () {},
-          child: Text("Kirim",
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ))),
-    ],
-    content: Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.010,
-        ),
-        CupertinoTextField(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-          placeholder: 'ketikan sesuatu....',
-          placeholderStyle: GoogleFonts.montserrat(
-            fontSize: 14,
-            color: kTextgrey,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    print('idasnes}:' + widget.absen['id'].toString());
+    print('id cuti}:${widget.absen.serverId}');
   }
 
   String truncateFileName(String fileName, int maxLength) {
@@ -130,32 +79,32 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
     return null;
   }
 
-  Future<void> onDownloadButtonPressed() async {
-    final filess = widget.absen['file'].toString();
-    final url = 'https://testing.impstudio.id/approvall/storage/$filess';
+      Future<void> onDownloadButtonPressed() async {
+        final filess = widget.absen.file.toString();
+        final url = 'https://testing.impstudio.id/approvall/storage/$filess';
 
-    if (filess.toLowerCase().endsWith(".pdf")) {
-      // Handle PDF files by downloading and then displaying
-      final downloadedFile = await downloadFile(url, filess);
+        if (filess.toLowerCase().endsWith(".pdf")) {
+          // Handle PDF files by downloading and then displaying
+          final downloadedFile = await downloadFile(url, filess);
 
-      if (downloadedFile != null && downloadedFile.existsSync()) {
-        print("File path: ${downloadedFile.path}");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                PDFViewerScreen(filePath: downloadedFile.path),
-          ),
-        );
-      } else {
-        print(
-            "Failed to fetch PDF file or file does not exist at expected path");
-        if (downloadedFile != null) {
-          print("Expected file path: ${downloadedFile.path}");
+          if (downloadedFile != null && downloadedFile.existsSync()) {
+            print("File path: ${downloadedFile.path}");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PDFViewerScreen(filePath: downloadedFile.path),
+              ),
+            );
+          } else {
+            print(
+                "Failed to fetch PDF file or file does not exist at expected path");
+            if (downloadedFile != null) {
+              print("Expected file path: ${downloadedFile.path}");
+            }
+          }
         }
       }
-    }
-  }
 
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
@@ -172,7 +121,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
 
   Future destroyLeave() async {
     String url = 'https://testing.impstudio.id/approvall/api/leave/delete/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
 
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -181,7 +130,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
 
   Future editPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/leave/get/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
     try {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -202,7 +151,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   }
 
   Widget _category(BuildContext context) {
-    if (widget.absen['category'] == 'leave') {
+    if (widget.absen.category == 'leave') {
       return Text('Perjalanan Cuti',
           style: GoogleFonts.montserrat(
             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -233,6 +182,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   }
 
   @override
+  // ignore: duplicate_ignore
   Widget build(BuildContext context) {
     Widget getStatusRow(String status) {
       Color containerColor;
@@ -289,8 +239,9 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
       );
     }
 
-    String currentStatus = widget.absen['status'];
+    String currentStatus = widget.absen.status ?? 'Unknown';
 
+    // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
@@ -395,7 +346,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.absen['nama_lengkap'],
+                            widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -404,7 +355,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                             ),
                           ),
                           Text(
-                            widget.absen['posisi'],
+                            widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -431,7 +382,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                     height: MediaQuery.of(context).size.height * 0.028,
                   ),
                   RichText(
-                    textAlign: TextAlign.justify,
+                    textAlign: TextAlign.left,
                     text: TextSpan(
                       children: [
                         TextSpan(
@@ -442,7 +393,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                           ),
                         ),
                         TextSpan(
-                          text: widget.absen['description_leave'] ?? '-',
+                          text: widget.absen.descriptionLeave ?? '-',
                           style: GoogleFonts.montserrat(
                             color: greyText,
                             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -475,8 +426,8 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                         children: [
                           Text(
                               'Tanggal : ' +
-                                  formatDateRange(widget.absen['start_date'],
-                                      widget.absen['end_date']),
+                                  formatDateRange(widget.absen.startDate ?? '00-00-0000',
+                                      widget.absen.endDate ?? '00-00-0000'),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
@@ -488,8 +439,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                               'Masuk : ' +
                                   DateFormat('dd MMMM yyyy').format(
                                       DateTime.parse(
-                                              widget.absen['entry_date']) ??
-                                          DateTime.now()),
+                                              widget.absen.entryDate ?? '00-00-0000')),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
@@ -501,13 +451,13 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                     ],
                   ),
                   Visibility(
-                    visible: widget.absen['file'] != null,
+                    visible: widget.absen.file != null,
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02,
                     ),
                   ),
                   Visibility(
-                    visible: widget.absen['file'] != null,
+                    visible: widget.absen.file != null,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -532,7 +482,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                               children: [
                                 Text(
                                   truncateFileName(
-                                      widget.absen['originalFile'] ?? 'unknown',
+                                      widget.absen.originalFile ?? 'unknown',
                                       (MediaQuery.of(context).size.width * 0.1)
                                           .toInt()),
                                   style: GoogleFonts.montserrat(
@@ -567,7 +517,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                             //SEMENTARA DI COMMENT
 
                             Visibility(
-                              visible: widget.absen['status'] == 'pending',
+                              visible: widget.absen.status == 'pending',
                               child: FutureBuilder(
                                 future: editPresence(),
                                 builder: (context, snapshot) {
@@ -575,15 +525,15 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
                                       return Shimmer.fromColors(
-                                        baseColor: kButton.withOpacity(0.8)!,
+                                        baseColor: kButton.withOpacity(0.8),
                                         highlightColor:
-                                            kButton.withOpacity(0.5)!,
+                                            kButton.withOpacity(0.5),
                                         child: OutlinedButton(
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor:
                                                 kButton.withOpacity(0.8),
                                             side: BorderSide(
-                                              color: kButton.withOpacity(0.8)!,
+                                              color: kButton.withOpacity(0.8),
                                             ),
                                           ),
                                           onPressed:
@@ -622,14 +572,14 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                                     }
                                   } else {
                                     return Shimmer.fromColors(
-                                      baseColor: kButton.withOpacity(0.8)!,
-                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      baseColor: kButton.withOpacity(0.8),
+                                      highlightColor: kButton.withOpacity(0.5),
                                       child: OutlinedButton(
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor:
                                               kButton.withOpacity(0.8),
                                           side: BorderSide(
-                                            color: kButton.withOpacity(0.8)!,
+                                            color: kButton.withOpacity(0.8),
                                           ),
                                         ),
                                         onPressed: null, // disables the button
@@ -646,7 +596,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                             ),
 
                             Visibility(
-                              visible: widget.absen['status'] == 'pending',
+                              visible: widget.absen.status == 'pending',
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: kTextBlocker,
@@ -698,7 +648,6 @@ class PDFViewerScreen extends StatefulWidget {
 }
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
-  late PDFViewController _pdfViewController;
   int _currentPage = 0;
   int _totalPages = 0;
 
@@ -728,7 +677,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           PDFView(
             filePath: widget.filePath,
             onViewCreated: (PDFViewController pdfViewController) {
-              _pdfViewController = pdfViewController;
             },
             onPageChanged: (int? page, int? totalPages) {
               if (page != null && totalPages != null) {

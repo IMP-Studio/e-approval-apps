@@ -18,7 +18,7 @@ class _ForgetPasswordState extends State<ForgetPassword> with WidgetsBindingObse
   @override
 void initState() {
   super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

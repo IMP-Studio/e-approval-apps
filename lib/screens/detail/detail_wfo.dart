@@ -6,28 +6,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
+import 'package:latlong2/latlong.dart';
 
 class DetailWfo extends StatefulWidget {
-  final dynamic absen;
+  final Presences absen;
   DetailWfo({required this.absen});
 
   @override
   State<DetailWfo> createState() => _DetailWfoState();
 }
 
-class _DetailWfoState extends State<DetailWfo> with WidgetsBindingObserver{
-   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance!.addObserver(this);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-}
+class _DetailWfoState extends State<DetailWfo> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    calculateDistance();
+  }
 
   Widget _category(BuildContext context) {
-    if (widget.absen['category'] == 'WFO') {
+    if (widget.absen.category == 'WFO') {
       return Text('Work From Office',
           style: GoogleFonts.montserrat(
             fontSize: MediaQuery.of(context).size.width * 0.039,
@@ -56,6 +59,26 @@ void initState() {
       return '-- : --';
     }
   }
+
+  String distanceText = '';
+
+ Future<void> calculateDistance() async {
+  final Distance distance = Distance();
+
+  final LatLng point1 = LatLng(-6.332826, 106.864530);
+
+  final LatLng point2 = LatLng(
+    double.parse(widget.absen.latitude ?? '-6.332835026352704'),
+    double.parse(widget.absen.longitude ?? '106.86452087283757'),
+  );
+
+  double distanceInMeters = distance(point1, point2);
+
+  print('Target Coordinates: ${point2.latitude}, ${point2.longitude}');
+  print('Distance: ${distanceInMeters.toStringAsFixed(2)} meters');
+  distanceText = '${distanceInMeters.toStringAsFixed(2)}';
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +165,8 @@ void initState() {
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 13),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
                       border: Border(
                     bottom: BorderSide(color: kBorder, width: 1),
@@ -163,7 +187,7 @@ void initState() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.absen['nama_lengkap'],
+                            widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -172,7 +196,7 @@ void initState() {
                             ),
                           ),
                           Text(
-                            widget.absen['posisi'],
+                            widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -209,8 +233,8 @@ void initState() {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.only(top: 5, bottom: 10, left: 20, right: 30),
+                  padding: const EdgeInsets.only(
+                      top: 5, bottom: 10, left: 20, right: 30),
                   width: double.infinity,
                   child: Column(
                     children: [
@@ -231,8 +255,8 @@ void initState() {
                             children: [
                               Text(
                                   DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(widget.absen['date']) ??
-                                          DateTime.now()),
+                                      DateTime.parse(
+                                          widget.absen.date ?? '0000-00-00')),
                                   style: GoogleFonts.montserrat(
                                     fontSize:
                                         MediaQuery.of(context).size.width *
@@ -267,14 +291,18 @@ void initState() {
                                 height:
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
-                              Text(
-                                "3.04 KM",
-                                style: GoogleFonts.montserrat(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.04,
-                                  fontWeight: FontWeight.w600,
+                              if (distanceText.isEmpty)
+                                CircularProgressIndicator()
+                              else
+                                Text(
+                                  '${distanceText} Meter',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.04,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                           SizedBox(
@@ -307,7 +335,8 @@ void initState() {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                formatDateTime(widget.absen['entry_time']),
+                                formatDateTime(
+                                    widget.absen.entryTime ?? '00:00'),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -346,7 +375,8 @@ void initState() {
                                     MediaQuery.of(context).size.width * 0.006,
                               ),
                               Text(
-                                formatDateTime(widget.absen['exit_time']),
+                                formatDateTime(
+                                    widget.absen.exitTime ?? '00:00'),
                                 style: GoogleFonts.montserrat(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.04,
@@ -372,7 +402,13 @@ void initState() {
                   //       offset: Offset(0, 1),
                   //       color: Colors.black.withOpacity(0.25))
                   // ],
-                  border: Border(top: BorderSide(color: Color(0xffD9D9D9), width: 0.5) ,bottom: BorderSide(color: Color(0xffD9D9D9,), width: 0.5)),
+                  border: Border(
+                      top: BorderSide(color: Color(0xffD9D9D9), width: 0.5),
+                      bottom: BorderSide(
+                          color: Color(
+                            0xffD9D9D9,
+                          ),
+                          width: 0.5)),
                   image: DecorationImage(
                       image: AssetImage(
                         'assets/img/map1.jpg',
@@ -382,7 +418,7 @@ void initState() {
             SizedBox(
               height: MediaQuery.of(context).size.width * 0.05,
             ),
-            widget.absen['emergency_description'] == null
+            widget.absen.emergencyDescription == null
                 ? Center(
                     child: Column(
                       children: [
@@ -408,8 +444,8 @@ void initState() {
                     ),
                   )
                 : Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -437,7 +473,7 @@ void initState() {
                                 ),
                               ),
                               TextSpan(
-                                text: widget.absen['emergency_description'],
+                                text: widget.absen.emergencyDescription,
                                 style: GoogleFonts.montserrat(
                                   color: greyText,
                                   fontSize:

@@ -48,7 +48,6 @@ class _RequestScreenState extends State<RequestScreen> {
   }
 
   Future getAbsensiAll() async {
-    int userId = preferences?.getInt('user_id') ?? 0;
 
     String baseURL =
         'https://testing.impstudio.id/approvall/api/presence?id=${widget.profile['user_id']}';
@@ -516,10 +515,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                     default:
                                                       detailPage =
                                                           DetailAbsensi(
-                                                              absen: snapshot
-                                                                          .data[
-                                                                      'data']
-                                                                  [index]);
+                                                              );
                                                       break;
                                                   }
 
@@ -664,9 +660,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                     Text(
                                                                       DateFormat('dd MMMM').format(DateTime.parse(snapshot.data['data'][index]
                                                                               [
-                                                                              'date']) ??
-                                                                          DateTime
-                                                                              .now()),
+                                                                              'date'])),
                                                                       style: GoogleFonts.getFont(
                                                                           "Montserrat",
                                                                           fontSize: MediaQuery.of(context).size.width *

@@ -12,6 +12,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/leave_model.dart';
 
 class CutiScreen extends StatefulWidget {
   const CutiScreen({super.key});
@@ -27,7 +28,8 @@ class _CutiScreenState extends State<CutiScreen>
   int activeIndex = 0;
   SharedPreferences? preferences;
   bool isButtonVisible = true;
-  Future? _refreshData;
+  DateTime? _lastRefreshTime;
+
 
   void hideButton() {
     if (isButtonVisible) {
@@ -53,7 +55,7 @@ class _CutiScreenState extends State<CutiScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -186,8 +188,8 @@ class _CutiScreenState extends State<CutiScreen>
     });
   }
 
-  Future? _cutiFuture;
-  Future? _cutiDays;
+ Future<List<Leaves>>? _cutiFuture;
+   Future? _cutiDays;
   Future? _cutiYearlyDays;
 
   Future<void> refreshData() async {
@@ -207,21 +209,38 @@ class _CutiScreenState extends State<CutiScreen>
 
     setState(() {
       isLoading = true;
-      _cutiFuture = getCuti(jenisCuti: jenisCuti);
+      int userIdnya = preferences?.getInt('user_id') ?? 0;
+      String userId = userIdnya.toString();
+      _cutiFuture = fetchAndUpdateCache(
+          userId, jenisCuti); 
     });
     _cutiDays = getLeaveDays();
     _cutiYearlyDays = getLeaveYearlyDays();
 
-    final data = await _cutiFuture;
 
     setState(() {
       isLoading = false;
     });
   }
 
-  Future<void> refreshContent() async {
-    await refreshData();
+ Future<void> refreshContent() async {
+  final DateTime now = DateTime.now();
+  final Duration cooldownDuration = Duration(seconds: 30); // or whatever duration you want
+
+  if (_lastRefreshTime != null && now.difference(_lastRefreshTime!) < cooldownDuration) {
+    print('Cooldown period. Not refreshing.');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please wait a bit before refreshing again.'))
+    );
+    return;
   }
+
+  print("Refreshing home started"); // Debug line
+  await refreshData();
+  print('Cuti page refreshed');
+  _lastRefreshTime = now;  // update the last refresh time
+}
+
 
   String truncateText(String text, int maxLength) {
     if (text.length <= maxLength) {
@@ -609,8 +628,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                   child: Text(
                                                     snapshot.data['data']
                                                                 ['yearly']
-                                                            .toString() ??
-                                                        '0',
+                                                            .toString(),
                                                     style: GoogleFonts.getFont(
                                                         'Montserrat',
                                                         textStyle: TextStyle(
@@ -717,8 +735,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               Text(
                                                 snapshot.data['data']
                                                             ['exclusive']
-                                                        .toString() ??
-                                                    '0',
+                                                        .toString(),
                                                 style: GoogleFonts.getFont(
                                                     'Montserrat',
                                                     textStyle: TextStyle(
@@ -807,8 +824,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               Text(
                                                 snapshot.data['data']
                                                             ['emergency']
-                                                        .toString() ??
-                                                    '0',
+                                                        .toString(),
                                                 style: GoogleFonts.getFont(
                                                     'Montserrat',
                                                     textStyle: TextStyle(
@@ -1243,20 +1259,43 @@ class _CutiScreenState extends State<CutiScreen>
                             future: _cutiFuture,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                if (snapshot.data['data'] == null ||
-                                    snapshot.data['data'].isEmpty) {
+                                if (snapshot.data == null ||
+                                    snapshot.data!.isEmpty) {
                                   // Return an Image or placeholder here
-                                  return Center(
-                                    child: Container(
-                                      color: Colors.transparent,
-                                    ),
-                                  );
+                                  return Container(   
+                                    margin: EdgeInsets.only(top:  MediaQuery.of(context).size.height * 0.08,),  
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                  "assets/img/EMPTY.svg",
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(height: 15,),
+                               Text(
+                                "Cuti Kosong",
+                                style: GoogleFonts.getFont('Montserrat',
+                                    textStyle: TextStyle(
+                                        color: kTextBlcknw,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.044)),
+                              ),
+                                  ],
+                                )
+                              
+                            );
                                 }
                                 return ListView.builder(
                                     padding: const EdgeInsets.only(top: 4),
-                                    itemCount: snapshot.data['data'].length,
+                                    itemCount: snapshot.data!.length,
                                     itemBuilder: (context, index) {
-                                      print(snapshot.data['data']);
+                                       final itemData = snapshot.data![index];
+                                      print(snapshot.data);
                                       return GestureDetector(
                                           onTap: () {
                                             Navigator.of(context)
@@ -1264,9 +1303,7 @@ class _CutiScreenState extends State<CutiScreen>
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       DetailCuti(
-                                                        absen: snapshot
-                                                                .data['data']
-                                                            [index],
+                                                        absen: itemData,
                                                       )),
                                             )
                                                 .then((result) {
@@ -1313,7 +1350,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                       child: Row(
                                                         children: [
                                                           Text(
-                                                              "${snapshot.data['data'][index]['status'][0].toUpperCase()}${snapshot.data['data'][index]['status'].substring(1).toLowerCase()}",
+                                                              "${itemData.status![0].toUpperCase()}${itemData.status!.substring(1).toLowerCase()}",
                                                               style: GoogleFonts
                                                                   .getFont(
                                                                       'Montserrat',
@@ -1330,11 +1367,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                               Text(
                                                                 DateFormat(
                                                                         'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(snapshot.data['data'][index]
-                                                                            [
-                                                                            'start_date']) ??
-                                                                        DateTime
-                                                                            .now()),
+                                                                    .format(DateTime.parse(itemData.startDate ?? '2006-03-03')),
                                                                 style: GoogleFonts.getFont(
                                                                     'Montserrat',
                                                                     color: Colors
@@ -1366,11 +1399,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                               Text(
                                                                 DateFormat(
                                                                         'dd MMMM yyyy')
-                                                                    .format(DateTime.parse(snapshot.data['data'][index]
-                                                                            [
-                                                                            'end_date']) ??
-                                                                        DateTime
-                                                                            .now()),
+                                                                    .format(DateTime.parse(itemData.endDate ?? '2006-03-03')),
                                                                 style: GoogleFonts.getFont(
                                                                     'Montserrat',
                                                                     color: Colors
@@ -1429,10 +1458,7 @@ class _CutiScreenState extends State<CutiScreen>
                                                           ),
                                                           Text(
                                                             truncateText(
-                                                                snapshot.data[
-                                                                            'data']
-                                                                        [index][
-                                                                    'description_leave'],
+                                                                itemData.descriptionLeave ?? 'Unknown',
                                                                 60),
                                                             maxLines: 2,
                                                             style: GoogleFonts.getFont(

@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:imp_approval/screens/general_standup.dart';
+import 'package:imp_approval/models/standup_model.dart';
 
 class StandUp extends StatefulWidget {
   const StandUp({super.key});
@@ -24,24 +25,39 @@ class StandUp extends StatefulWidget {
 
 class _StandUpState extends State<StandUp>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  DateTime? _lastRefreshTime;
   Future<void> _refreshStandUp() async {
-    print("StandUp page refreshed");
+    final DateTime now = DateTime.now();
+    final Duration cooldownDuration = Duration(seconds: 30); // Adjust as needed
+
+    if (_lastRefreshTime != null &&
+        now.difference(_lastRefreshTime!) < cooldownDuration) {
+      print('Cooldown period. Not refreshing StandUp.');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please wait a bit before refreshing StandUp again.')));
+      return;
+    }
+
+    print("Refreshing StandUp started");
+
     setState(() {
       _refreshContent();
     });
+
+    print('StandUp refreshed');
+    _lastRefreshTime = now; // update the last refresh time
   }
 
-  Future<List<dynamic>>? standUpData;
   late TabController _tabController;
   int activeIndex = 0;
   bool isButtonVisible = true;
-  Future<List<dynamic>>? _dataFuture;
+  Future<List<StandUps>>? _standUpData;
 
   late Timer _timer; // Define the timer
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -201,7 +217,7 @@ class _StandUpState extends State<StandUp>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -209,7 +225,11 @@ class _StandUpState extends State<StandUp>
     _timer = Timer(Duration.zero, () {});
     _tabController = TabController(length: 2, vsync: this);
     getUserData().then((_) {
-      _dataFuture = getStandUpUser();
+      int userIdnya = preferences?.getInt('user_id') ?? 0;
+      String userId = userIdnya.toString();
+      String scope = 'month';
+      _standUpData = fetchAndUpdateCache(
+          userId, scope); // asumsikan Anda memiliki userId dan scope
       print(preferences?.getInt('user_id'));
     });
     startTimer();
@@ -240,19 +260,6 @@ class _StandUpState extends State<StandUp>
     });
   }
 
-  Future<List<dynamic>> getStandUpUser() async {
-    int userId = preferences?.getInt('user_id') ?? 0;
-    final String baseUrl =
-        'https://testing.impstudio.id/approvall/api/standup?id=$userId&scope=month';
-
-    print("Fetching data from URL: $baseUrl"); // Debug line
-
-    var response = await http.get(Uri.parse(baseUrl));
-    print(response.body);
-    var jsonData = jsonDecode(response.body);
-    return jsonData['data'] ?? [];
-  }
-
   Future<String> checkAbsensi() async {
     int userId = preferences?.getInt('user_id') ?? 0;
 
@@ -269,8 +276,12 @@ class _StandUpState extends State<StandUp>
   }
 
   Future<void> _refreshContent() async {
+    int userIdnya = preferences?.getInt('user_id') ?? 0;
+    String userId = userIdnya.toString();
+    String scope = 'month';
+
     setState(() {
-      _dataFuture = getStandUpUser();
+      _standUpData = fetchAndUpdateCache(userId, scope);
     });
   }
 
@@ -320,7 +331,8 @@ class _StandUpState extends State<StandUp>
                               padding: const EdgeInsets.only(left: 20.0),
                               child: Container(
                                 width: MediaQuery.of(context).size.width * 0.15,
-                                height: MediaQuery.of(context).size.width * 0.007,
+                                height:
+                                    MediaQuery.of(context).size.width * 0.007,
                                 decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20.0)),
@@ -351,8 +363,8 @@ class _StandUpState extends State<StandUp>
                                     height: 5.0,
                                   ),
                                   Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.55,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55,
                                     child: Text(
                                       "Tempat berbagi masalah dan project",
                                       style: GoogleFonts.getFont('Montserrat',
@@ -366,8 +378,8 @@ class _StandUpState extends State<StandUp>
                                     ),
                                   ),
                                   Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.55,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55,
                                     child: Text(
                                       "Laporkan aktivitasmu",
                                       style: GoogleFonts.getFont('Montserrat',
@@ -425,7 +437,8 @@ class _StandUpState extends State<StandUp>
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const GeneralStandUp()),
+                                          builder: (context) =>
+                                              const GeneralStandUp()),
                                     );
                                   });
                                 },
@@ -450,9 +463,10 @@ class _StandUpState extends State<StandUp>
                                     style: GoogleFonts.getFont(
                                       'Montserrat',
                                       textStyle: TextStyle(
-                                          fontSize:
-                                              MediaQuery.of(context).size.width *
-                                                  0.028,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.028,
                                           color: activeIndex == 0
                                               ? kTextoo
                                               : kTextUnselected,
@@ -469,9 +483,10 @@ class _StandUpState extends State<StandUp>
                         const SizedBox(
                           height: 15,
                         ),
-                        FutureBuilder<List<dynamic>>(
-                          future: _dataFuture,
+                        FutureBuilder<List<StandUps>>(
+                          future: _standUpData,
                           builder: (context, snapshot) {
+                            
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return ListView.builder(
@@ -483,12 +498,13 @@ class _StandUpState extends State<StandUp>
                                     baseColor: Colors.grey[300]!,
                                     highlightColor: Colors.grey[100]!,
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 20, left: 20),
+                                      padding: const EdgeInsets.only(
+                                          right: 20, left: 20),
                                       child: Column(
                                         children: [
                                           Container(
-                                            margin: const EdgeInsets.only(bottom: 15),
+                                            margin: const EdgeInsets.only(
+                                                bottom: 15),
                                             width: double.infinity,
                                             height: 95,
                                             decoration: BoxDecoration(
@@ -496,7 +512,8 @@ class _StandUpState extends State<StandUp>
                                                     BorderRadius.circular(8),
                                                 color: Colors.white,
                                                 border: Border.all(
-                                                    color: const Color(0xffC2C2C2)
+                                                    color: const Color(
+                                                            0xffC2C2C2)
                                                         .withOpacity(0.30))),
                                             child: Column(
                                               crossAxisAlignment:
@@ -612,7 +629,8 @@ class _StandUpState extends State<StandUp>
                                                           width:
                                                               50, // Arbitrary width
                                                           height: 8.0,
-                                                          color: Colors.grey[300],
+                                                          color:
+                                                              Colors.grey[300],
                                                         ),
                                                         Row(
                                                           children: [
@@ -649,95 +667,161 @@ class _StandUpState extends State<StandUp>
                                 },
                               );
                             } else if (snapshot.hasError) {
+                               print('Snapshot Data: ${snapshot.data}');
+print('Snapshot Error: ${snapshot.error}');
+
                               return SingleChildScrollView(
                                 child: Column(
                                   children: [
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
+                                    ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: 7,
+                                      itemBuilder: (context, index) {
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 20, left: 20),
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                      bottom: 15),
+                                                  width: double.infinity,
+                                                  height: 95,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      color: Colors.white,
+                                                      border: Border.all(
+                                                          color: const Color(
+                                                                  0xffC2C2C2)
+                                                              .withOpacity(
+                                                                  0.30))),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      IntrinsicHeight(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 5,
+                                                                  left: 10,
+                                                                  right: 10),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
                                                             children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
                                                                             .only(
                                                                         top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
+                                                                        bottom:
+                                                                            7,
+                                                                        right:
+                                                                            5),
+                                                                    child:
+                                                                        Container(
+                                                                      width: 20,
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          300],
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        100, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        50, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
                                                               ),
-                                                              const SizedBox(
-                                                                height: 3,
+                                                              const Spacer(),
+                                                              const VerticalDivider(
+                                                                color: Color(
+                                                                    0xffE6E6E6),
+                                                                thickness: 1,
                                                               ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
+                                                              const Spacer(),
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  Container(
+                                                                    width:
+                                                                        50, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        30, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ],
                                                           ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      Container(
+                                                        color: const Color(
+                                                                0xffD9D9D9)
+                                                            .withOpacity(0.15),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  bottom: 10,
+                                                                  top: 10,
+                                                                  right: 10,
+                                                                  left: 10),
+                                                          child: Row(
                                                             crossAxisAlignment:
                                                                 CrossAxisAlignment
-                                                                    .end,
+                                                                    .center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
                                                             children: [
                                                               Container(
                                                                 width:
@@ -746,1109 +830,98 @@ class _StandUpState extends State<StandUp>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    width:
+                                                                        40, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 5,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        60, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
+                                                              )
                                                             ],
                                                           ),
-                                                        ],
+                                                        ),
                                                       ),
-                                                    ),
+                                                    ],
                                                   ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                          ),
+                                        );
+                                      },
+                                    )
                                   ],
                                 ),
                               );
                             } else if (!snapshot.hasData ||
                                 snapshot.data!.isEmpty) {
-                              return Center(
-                                  child: Container(color: Colors.white));
+                              return Container(
+                                  margin: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.08,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SvgPicture.asset(
+                                        "assets/img/EMPTY.svg",
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                        height:
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Text(
+                                        "Stand Up Kosong",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            textStyle: TextStyle(
+                                                color: kTextBlcknw,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.044)),
+                                      ),
+                                    ],
+                                  ));
                             } else {
-                              return ListView(
+                              return ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
-                                children: snapshot.data!.map<Widget>((itemData) {
+                                itemCount: snapshot.data!
+                                    .length, // Menentukan jumlah total item
+                                itemBuilder: (BuildContext context, int index) {
+                                  final itemData = snapshot.data![index];
+                    
                                   return GestureDetector(
                                     onTap: () {
-                                      if (currentUser == itemData['user_id']) {
+                                      if (currentUser == itemData.userId) {
                                         // If the current user is the owner of the data, navigate to EditScreen
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditStandUp(standup: itemData)),
+                                              builder: (context) => EditStandUp(
+                                                  standup: itemData)),
                                         ).then((result) {
                                           if (result == 'refresh') {
                                             _refreshContent(); // Call your refresh logic
@@ -1859,11 +932,13 @@ class _StandUpState extends State<StandUp>
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) => DetailStandUp(
-                                                  standup: itemData)),
+                                              builder: (context) =>
+                                                  DetailStandUp(
+                                                      standup: itemData)),
                                         );
                                       }
                                     },
+                                    // Sisanya sama seperti kode asli Anda...
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),
                                       alignment: Alignment.center,
@@ -1875,8 +950,9 @@ class _StandUpState extends State<StandUp>
                                             top: 0,
                                             bottom: 0,
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 22.0),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 22.0),
                                               child: Container(
                                                 width: MediaQuery.of(context)
                                                         .size
@@ -1884,17 +960,21 @@ class _StandUpState extends State<StandUp>
                                                     0.5,
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                      BorderRadius.circular(10.0),
+                                                      BorderRadius.circular(
+                                                          10.0),
                                                   gradient: LinearGradient(
-                                                      begin: Alignment.topCenter,
-                                                      end: Alignment.bottomCenter,
-                                                      colors: itemData[
-                                                                  'blocker'] ==
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: itemData
+                                                                  .blocker ==
                                                               null
                                                           ? [
-                                                              const Color(0xff4381CA),
-                                                              const Color(0xff4381CA)!
-                                                            ] // Colors when blocker is not null
+                                                              const Color(
+                                                                  0xff4381CA),
+                                                              const Color(
+                                                                  0xff4381CA)] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
                                                               kTextBlockerr
@@ -1908,7 +988,8 @@ class _StandUpState extends State<StandUp>
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 22.0),
                                             child: Container(
-                                              margin: const EdgeInsets.only(left: 12.0),
+                                              margin: const EdgeInsets.only(
+                                                  left: 12.0),
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width *
@@ -1920,12 +1001,16 @@ class _StandUpState extends State<StandUp>
                                               decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   border: Border.all(
-                                                      color: kTextUnselectedOpa),
-                                                  borderRadius: const BorderRadius.only(
-                                                      topRight:
-                                                          Radius.circular(10.0),
-                                                      bottomRight:
-                                                          Radius.circular(10.0))),
+                                                      color:
+                                                          kTextUnselectedOpa),
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  10.0))),
                                               child: Column(
                                                 children: [
                                                   Padding(
@@ -1937,17 +1022,19 @@ class _StandUpState extends State<StandUp>
                                                       children: [
                                                         Icon(
                                                           Icons.person_outlined,
-                                                          color: kTextUnselectedd,
+                                                          color:
+                                                              kTextUnselectedd,
                                                           size: MediaQuery.of(
                                                                       context)
                                                                   .size
                                                                   .width *
                                                               0.044,
                                                         ),
-                                                        const SizedBox(width: 5.0),
+                                                        const SizedBox(
+                                                            width: 5.0),
                                                         Text(
-                                                          itemData[
-                                                              'nama_lengkap'],
+                                                          itemData.namaLengkap ??
+                                                              'lah',
                                                           style: GoogleFonts.getFont(
                                                               'Montserrat',
                                                               textStyle: TextStyle(
@@ -1980,8 +1067,7 @@ class _StandUpState extends State<StandUp>
                                                               gradient: const LinearGradient(
                                                                   begin: Alignment
                                                                       .topCenter,
-                                                                  end: Alignment
-                                                                      .bottomCenter,
+                                                                  end: Alignment.bottomCenter,
                                                                   colors: [
                                                                     kTextoo,
                                                                     kTextoo
@@ -1994,8 +1080,7 @@ class _StandUpState extends State<StandUp>
                                                         const SizedBox(
                                                           width: 5.0,
                                                         ),
-                                                        itemData['blocker'] ==
-                                                                null
+                                                        itemData.blocker == null
                                                             ? Text(
                                                                 "Done",
                                                                 style: GoogleFonts.getFont(
@@ -2003,10 +1088,9 @@ class _StandUpState extends State<StandUp>
                                                                     textStyle: TextStyle(
                                                                         color:
                                                                             kTextUnselected,
-                                                                        fontSize: MediaQuery.of(context)
-                                                                                .size
-                                                                                .width *
-                                                                            0.028)),
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width *
+                                                                                0.028)),
                                                               )
                                                             : Text(
                                                                 "Blocker",
@@ -2015,10 +1099,9 @@ class _StandUpState extends State<StandUp>
                                                                     textStyle: TextStyle(
                                                                         color:
                                                                             kTextUnselected,
-                                                                        fontSize: MediaQuery.of(context)
-                                                                                .size
-                                                                                .width *
-                                                                            0.028)),
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width *
+                                                                                0.028)),
                                                               )
                                                       ],
                                                     ),
@@ -2026,14 +1109,16 @@ class _StandUpState extends State<StandUp>
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                            top: 5.0, left: 12.0),
+                                                            top: 5.0,
+                                                            left: 12.0),
                                                     child: Row(
                                                       children: [
                                                         Container(
                                                             width: 200,
                                                             height: 15,
                                                             child: Text(
-                                                              itemData['project'],
+                                                              itemData.project ??
+                                                                  'coy',
                                                               style: GoogleFonts.getFont(
                                                                   'Montserrat',
                                                                   textStyle: TextStyle(
@@ -2083,7 +1168,8 @@ class _StandUpState extends State<StandUp>
                                                               width: 5.0,
                                                             ),
                                                             Text(
-                                                              itemData['jam'],
+                                                              itemData.jam ??
+                                                                  'cok',
                                                               style: GoogleFonts.getFont(
                                                                   'Montserrat',
                                                                   textStyle: TextStyle(
@@ -2102,10 +1188,14 @@ class _StandUpState extends State<StandUp>
                                                         const Spacer(),
                                                         Text(
                                                           DateFormat('dd MMM')
-                                                              .format(DateTime.parse(
-                                                                      itemData[
-                                                                          'created_at']) ??
-                                                                  DateTime.now()),
+                                                              .format(itemData
+                                                                          .createdAt !=
+                                                                      null
+                                                                  ? DateTime.parse(
+                                                                      itemData
+                                                                          .createdAt!)
+                                                                  : DateTime
+                                                                      .now()),
                                                           style: GoogleFonts.getFont(
                                                               'Montserrat',
                                                               textStyle: TextStyle(
@@ -2131,7 +1221,7 @@ class _StandUpState extends State<StandUp>
                                       ),
                                     ),
                                   );
-                                }).toList(),
+                                },
                               );
                             }
                           },
@@ -2174,7 +1264,8 @@ class _StandUpState extends State<StandUp>
                         onPressed: () async {
                           var responseStatus = await checkAbsensi();
                           if (responseStatus == 'checkedIn' ||
-                              responseStatus == 'checkedOut' || responseStatus == 'Perjadin') {
+                              responseStatus == 'checkedOut' ||
+                              responseStatus == 'Perjadin') {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -2182,6 +1273,7 @@ class _StandUpState extends State<StandUp>
                               ),
                             );
                           } else if (responseStatus == 'pendingStatus') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Tunggu sebentar...",
                                 "Request dalam status pending.",
@@ -2192,6 +1284,7 @@ class _StandUpState extends State<StandUp>
                                   color: kYelw,
                                 ));
                           } else if (responseStatus == 'Leave') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Kamu sedang cuti",
                                 "Nikmati liburanmu sejenak.",
@@ -2202,6 +1295,7 @@ class _StandUpState extends State<StandUp>
                                   color: kYelw,
                                 ));
                           } else if (responseStatus == 'Bolos') {
+                            // ignore: unused_local_variable
                             final snackBar = showSnackbarWarning(
                                 "Kamu sedang bolos",
                                 "Tolong jangan diulangi lagi.",
@@ -2212,6 +1306,7 @@ class _StandUpState extends State<StandUp>
                                   color: kTextBlocker,
                                 ));
                           } else {
+                            // ignore: unused_local_variable
                             final SnackBar = showSnackbarWarning(
                                 "Wait...",
                                 "Absen terlebih dahulu.",

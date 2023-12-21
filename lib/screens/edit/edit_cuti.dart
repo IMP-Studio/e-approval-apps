@@ -198,7 +198,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
     getUserData().then((_) {
       fetchData();
     });
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -384,11 +384,10 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
       ..fields['total_leave_days'] =
           (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()
       ..fields['start_date'] =
-          formatDate(_mulaiTanggal!) ?? widget.absen['start_date'].toString()
+          formatDate(_mulaiTanggal!)
       ..fields['end_date'] =
-          formatDate(_selesaiTanggal!) ?? widget.absen['end_date'].toString()
-      ..fields['entry_date'] = formatDate(_tanggalMasuknya!) ??
-          widget.absen['entry_date'].toString();
+          formatDate(_selesaiTanggal!)
+      ..fields['entry_date'] = formatDate(_tanggalMasuknya!);
 
 // For file upload
     if (selectedValueType != 'yearly' && _pickedFile != null && _pickedFile!.files.isNotEmpty) {
@@ -458,6 +457,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
           orElse: () => {},
         );
 
+        // ignore: unnecessary_null_comparison
         if (selectedOption != null && selectedOption.containsKey('days')) {
           leaveDuration = selectedOption['days'];
         }
@@ -467,6 +467,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
           orElse: () => {},
         );
 
+        // ignore: unnecessary_null_comparison
         if (selectedOption != null && selectedOption.containsKey('days')) {
           leaveDuration = selectedOption['days'];
         }
@@ -490,10 +491,9 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
       lastDate: DateTime(2100),
     );
 
-    if (newDate != null) {
+      if (newDate != null) {
       setState(() {
         _mulaiTanggal = newDate;
-        autoFillDates(); // Call the refactored logic
       });
     }
   }
@@ -1306,7 +1306,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
               },
               onSuggestionSelected: (suggestion) {
                 selectedSubtitue = suggestion['user_id'].toString();
-                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
                   setState(() {
                     subtitueCont.text = suggestion['name'];
                   });

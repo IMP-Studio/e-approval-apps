@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
-import 'package:imp_approval/layout/mainlayout.dart';
 import 'package:imp_approval/screens/create/create_perjadin.dart';
 import 'package:imp_approval/screens/create/emergency_chekout.dart';
 import 'package:imp_approval/screens/detail/detail_absensi.dart';
 import 'package:imp_approval/screens/detail/detail_bolos.dart';
 import 'package:imp_approval/screens/detail/detail_wfo.dart';
-import 'package:imp_approval/screens/edit/face_recognition_perjadin.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imp_approval/screens/map_wfo.dart';
+import 'package:imp_approval/screens/checkout_map_wfo.dart';
 import 'package:imp_approval/screens/request.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:convert';
@@ -19,7 +18,6 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:imp_approval/screens/detail/detail_cuti.dart';
 import 'package:imp_approval/screens/detail/detail_perjadin.dart';
 import 'package:imp_approval/screens/detail/detail_wfa.dart';
 import 'package:imp_approval/screens/create/create_wfa.dart';
@@ -27,6 +25,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ntp/ntp.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -42,9 +41,6 @@ enum AttendanceStatus {
   checkedOut,
   completed,
   pendingStatus,
-  Perjadin,
-  notAttendedWT,
-  perjadinCheckin,
   leaveStatus,
   canReAttend,
   Skipped,
@@ -66,10 +62,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _refreshHome() async {
+    final DateTime now = DateTime.now();
+    final Duration cooldownDuration =
+        Duration(seconds: 30); // or whatever duration you want
+
+    if (_lastRefreshTime != null &&
+        now.difference(_lastRefreshTime!) < cooldownDuration) {
+      print('Cooldown period. Not refreshing.');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please wait a bit before refreshing again.')));
+      return;
+    }
+
     print("Refreshing home started"); // Debug line
     await _refreshDataa();
     print('Home page refreshed');
+    _lastRefreshTime = now; // update the last refresh time
   }
+
+  DateTime? _lastRefreshTime;
 
   AttendanceStatus _attendanceStatus = AttendanceStatus.loading;
   bool showCheckin = true;
@@ -84,20 +95,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   DateTime? _selectedDate;
   DateTime? _selesaiTanggal;
   double _tinggimodal = 320;
-  double _tinggimodalwt = 350;
 
-  Position? _position;
   late bool servicePermission = false;
   late LocationPermission permission;
-  String _currentAddress = "";
-  late Timer _timer;
 
-  Future? _absensiAll;
-  Future? _absensiToday;
+  Future<List<Presences>>? _dataFuture;
 
   TimeOfDay? _currentTime = TimeOfDay.now();
-
-  String? _timeStatus;
 
   final List<String> genderItems = [
     'Kesehatan',
@@ -158,8 +162,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       return jsonResponse;
     }
     return null;
-}
-
+  }
 
   Map<String, dynamic>? presenceId;
   Map<String, dynamic>? profile;
@@ -168,19 +171,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     presenceId = await getPresenceID();
   }
 
- Future<void> fetchData() async {
-    await fetchPresenceId(); // This will set the presenceId based on the getPresenceID() method
-    
-    Map<String, dynamic>? userProfileResponse = await getProfil(); // Fetch profile data
+  Future<void> fetchData() async {
+    await fetchPresenceId(); 
 
-    if (userProfileResponse != null && userProfileResponse['data'] != null && userProfileResponse['data'].length > 0) {
-        setState(() {
-            profile = userProfileResponse['data'][0]; 
-            // You don't need to set presenceId here since it's already set by fetchPresenceId
-        });
+    Map<String, dynamic>? userProfileResponse =
+        await getProfil(); 
+
+    if (userProfileResponse != null &&
+        userProfileResponse['data'] != null &&
+        userProfileResponse['data'].length > 0) {
+      setState(() {
+        profile = userProfileResponse['data'][0];
+      });
     }
-}
-
+  }
 
   Future emergencyChekout() async {
     int userId = preferences?.getInt('user_id') ?? 0;
@@ -226,15 +230,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           case 'pendingStatus':
             _attendanceStatus = AttendanceStatus.pendingStatus;
             break;
-          case 'Perjadin':
-            _attendanceStatus = AttendanceStatus.Perjadin;
-            break;
-          case 'notAttendedWT':
-            _attendanceStatus = AttendanceStatus.notAttendedWT;
-            break;
-          case 'perjadinCheckin':
-            _attendanceStatus = AttendanceStatus.perjadinCheckin;
-            break;
           case 'Leave':
             _attendanceStatus = AttendanceStatus.leaveStatus;
             break;
@@ -270,12 +265,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildCheckInButton();
       case AttendanceStatus.pendingStatus:
         return _buildPendingButton();
-      case AttendanceStatus.Perjadin:
-        return _buildPerjadinButton();
-      case AttendanceStatus.notAttendedWT:
-        return _buildPerjadinCheckinButton();
-      case AttendanceStatus.perjadinCheckin:
-        return _buildPerjadinCheckinButton();
+      case AttendanceStatus.canReAttend:
+        return _buildCheckInButton();
       case AttendanceStatus.leaveStatus:
         return _buildLeaveButton();
       case AttendanceStatus.checkedIn:
@@ -371,27 +362,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildPerjadinButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Text(
-        'PERJADIN',
-        style: GoogleFonts.inter(
-          color: whiteText,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onPressed: () {},
-    );
-  }
-
   Widget _modalvalidasidarurat(BuildContext context) {
     return CupertinoAlertDialog(
       title: Text("Berikan alasan mu pulang!",
@@ -478,8 +448,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         : false;
     bool isAfterMorningLimit = isTimeOfDayAfter(_currentTime!, morningLimit);
 
-    bool isButtonEnabled = !(isBeforeEveningLimit && isAfterMorningLimit);
-
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
@@ -536,6 +504,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             ),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
+                                elevation: 0,
                                 shape: const RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10))),
@@ -598,18 +567,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     onPressed: isBeforeEveningLimit &&
                                             isAfterMorningLimit
                                         ? null
-                                        : () {
-                                            checkOutToday().then((_) {
+                                        : () async {
+                                            try {
+
                                               setState(() {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        MainLayout(),
-                                                  ),
-                                                );
+                                                isLoading = true;
                                               });
-                                            });
+
+                                              await fetchData();
+                                              print(presenceId);
+                                              print('presenceId: $presenceId');
+                                              print('profile: $profile');
+
+                                              if (presenceId != null &&
+                                                  profile != null) {
+                                                // ignore: use_build_context_synchronously
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CheckoutMapWFO(
+                                                                presence:
+                                                                    presenceId!,)));
+                                              } else {
+                                                print(
+                                                    'Presece id or profile is null');
+                                              }
+                                            } catch (error) {
+                                              print("Error: $error");
+                                            } finally {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
                                           },
                                     child: Text(
                                       "Pulang",
@@ -771,133 +761,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildPerjadinCheckinButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Text(
-        'Check In | Perjadin',
-        style: GoogleFonts.inter(
-          color: whiteText,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onPressed: () {
-        showModalBottomSheet<void>(
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15.0),
-              topRight: Radius.circular(15.0),
-            ),
-          ),
-          context: context,
-          builder: (BuildContext context) {
-            return Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                height: _tinggimodalwt,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      margin: const EdgeInsets.only(top: 15, bottom: 10),
-                      width: 60,
-                      height: 5,
-                      decoration: const BoxDecoration(
-                        color: Colors.black12,
-                      ),
-                    ),
-                    if (showAtributModalWorktrip) _modalWorktripAttribute(),
-                    Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            child: SvgPicture.asset(
-                              "assets/img/bolos.svg",
-                              width: MediaQuery.of(context).size.width * 0.4,
-                              height: MediaQuery.of(context).size.width * 0.4,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: kButton,
-                          foregroundColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          side: const BorderSide(
-                            width: 1,
-                            color: kButton,
-                          ),
-                          minimumSize: const Size(double.infinity, 45),
-                        ),
-                        onPressed: () async {
-                          try {
-                            // Provide feedback to user
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            await fetchData(); // Fetch both presenceId and profile
-
-                            print(presenceId);
-                            print('presenceId: $presenceId');
-print('profile: $profile');
-
-                            if (presenceId != null && profile != null) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => FacePagePerjadin(presenceId: presenceId!, profile: profile!)
-    )
-  );
-} else {
-  print('Either presenceId or profile is null');
-}
-
-                          } catch (error) {
-                            print("Error: $error");
-                          } finally {
-                            setState(() {
-                              isLoading = false;
-                            });
-                          }
-                        },
-                        child: Text(
-                          "Check In",
-                          style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.034,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   Widget _buildPendingButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -981,23 +844,13 @@ print('profile: $profile');
   }
 
   Future getProfil() async {
-    int userId = preferences?.getInt('user_id') ?? 0;
+    int userId = preferences?.getInt('user_id') ?? 2;
     // String user = userId.toString();
     final String urlj =
         'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     print(urlj);
-    return jsonDecode(response.body);
-  }
-
-  Future getAbsensiAll() async {
-    int userId = preferences?.getInt('user_id') ?? 0;
-    // String user = userId.toString();
-    final String urlj =
-        'https://testing.impstudio.id/approvall/api/presence?id=$userId&status=allowed&scope=self';
-    var response = await http.get(Uri.parse(urlj));
-    print(response.body);
     return jsonDecode(response.body);
   }
 
@@ -1079,7 +932,7 @@ print('profile: $profile');
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     refreshData();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -1091,7 +944,6 @@ print('profile: $profile');
       if (showModalWfa == 'true') {
         setState(() {
           _tinggimodal = 420;
-          _tinggimodalwt = 500;
         });
       }
     });
@@ -1110,12 +962,24 @@ print('profile: $profile');
     }
   }
 
+  DateTime? startDate;
+  DateTime? endDate;
+
   Future<void> refreshData() async {
     await getUserData().then((_) {
       getProfil();
       print(preferences?.getInt('user_id'));
       print("Description: ${_descriptionController.text}");
-      getAbsensiAll();
+      int userIdnya = preferences?.getInt('user_id') ?? 0;
+      String userId = userIdnya.toString();
+      _dataFuture = fetchAndUpdateCache(
+        userId, // Pass your userId here
+        'self',
+        'allowed',
+        0,
+        startDate,
+        endDate,
+      );
       getAbsensiToday();
       checkAbsensi();
       _fetchStatusAbsensi();
@@ -1204,8 +1068,6 @@ print('profile: $profile');
 
   @override
   Widget build(BuildContext context) {
-    final MediaQueryData mediaQueryData = MediaQuery.of(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -1564,19 +1426,22 @@ print('profile: $profile');
               Column(
                 children: [
                   Container(
-                      height: MediaQuery.of(context).size.height / 2.3,
-                      child: FutureBuilder(
-                        future: getAbsensiAll(),
+                    height: MediaQuery.of(context).size.height / 2.3,
+                    child: FutureBuilder(
+                        future: _dataFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            // Show shimmer or a loading indicator
                             return Column(
                               children: [
-                                ListView.builder(
+                                ListView.separated(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: 3,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(
+                                    height: 10,
+                                  ),
                                   itemBuilder: (context, index) {
                                     return Shimmer.fromColors(
                                       baseColor: Colors.grey[300]!,
@@ -1587,8 +1452,6 @@ print('profile: $profile');
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1694,7 +1557,6 @@ print('profile: $profile');
                                                       ),
                                                     ),
                                                   ),
-                                                  const Spacer(),
                                                   Container(
                                                     color:
                                                         const Color(0xffD9D9D9)
@@ -1760,10 +1622,14 @@ print('profile: $profile');
                           } else if (snapshot.hasError) {
                             return Column(
                               children: [
-                                ListView.builder(
+                                ListView.separated(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: 3,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(
+                                    height: 10,
+                                  ),
                                   itemBuilder: (context, index) {
                                     return Shimmer.fromColors(
                                       baseColor: Colors.grey[300]!,
@@ -1774,8 +1640,6 @@ print('profile: $profile');
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -1881,7 +1745,6 @@ print('profile: $profile');
                                                       ),
                                                     ),
                                                   ),
-                                                  const Spacer(),
                                                   Container(
                                                     color:
                                                         const Color(0xffD9D9D9)
@@ -1944,70 +1807,94 @@ print('profile: $profile');
                                 )
                               ],
                             );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data == null) {
-                            return Container(
-                              color: Colors.transparent,
-                            );
                           } else {
-                            // Handle the case when you have data
-                            if (snapshot.data != null &&
-                                snapshot.data['data'] != null) {
-                              var limitedData =
-                                  snapshot.data['data'].take(3).toList();
-                              return ListView.builder(
+                            if (snapshot.hasData) {
+                              if (snapshot.data == null ||
+                                  snapshot.data!.isEmpty) {
+                                return Container(
+                                    margin: EdgeInsets.only(
+                                      top: MediaQuery.of(context).size.height *
+                                          0.08,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        SvgPicture.asset(
+                                          "assets/img/EMPTY.svg",
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.4,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.4,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        Text(
+                                          "Presensi Kosong",
+                                          style: GoogleFonts.getFont(
+                                              'Montserrat',
+                                              textStyle: TextStyle(
+                                                  color: kTextBlcknw,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.044)),
+                                        ),
+                                      ],
+                                    ));
+                              }
+
+                              return ListView.separated(
                                   physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: limitedData.length,
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data!.length >= 3
+                                      ? 3
+                                      : snapshot.data!.length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 10),
                                   itemBuilder: (context, index) {
-                                    print(snapshot.data['data']);
-                                    print(limitedData[index]['entry_time']);
-                                    print(snapshot.data['data'][index]
-                                        ['entry_time']);
+                                    var limitedData = snapshot.data![index];
+                                    print(limitedData);
                                     return GestureDetector(
                                       onTap: () {
-                                        String category = snapshot.data['data']
-                                                [index][
-                                            'category']; // Assuming your data has a 'category' key.
+                                        String category = limitedData
+                                                .category ??
+                                            ''; // Assuming your data has a 'category' key.
 
                                         Widget detailPage;
 
                                         switch (category) {
                                           case 'WFO':
-                                            detailPage = DetailWfo(
-                                                absen: snapshot.data['data']
-                                                    [index]);
+                                            detailPage =
+                                                DetailWfo(absen: limitedData);
                                             break;
                                           case 'telework':
-                                            detailPage = DetailWfa(
-                                                absen: snapshot.data['data']
-                                                    [index]);
+                                            detailPage =
+                                                DetailWfa(absen: limitedData);
                                             break;
                                           case 'work_trip':
                                             detailPage = DetailPerjadin(
-                                                absen: snapshot.data['data']
-                                                    [index]);
-                                            break;
-                                          case 'leave':
-                                            detailPage = DetailCuti(
-                                                absen: snapshot.data['data']
-                                                    [index]);
+                                                absen: limitedData);
                                             break;
                                           case 'skip':
-                                            detailPage = DetailBolos(
-                                                absen: snapshot.data['data']
-                                                    [index]);
+                                            detailPage =
+                                                DetailBolos(absen: limitedData);
                                             break;
                                           default:
-                                            detailPage = DetailAbsensi(
-                                                absen: snapshot.data['data']
-                                                    [index]);
+                                            detailPage = DetailAbsensi();
                                             break;
                                         }
 
-                                        Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) => detailPage,
-                                        ));
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) => detailPage),
+                                        );
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.only(
@@ -2015,8 +1902,6 @@ print('profile: $profile');
                                         child: Column(
                                           children: [
                                             Container(
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 15),
                                               width: double.infinity,
                                               height: 95,
                                               decoration: BoxDecoration(
@@ -2070,21 +1955,17 @@ print('profile: $profile');
                                                                 ),
                                                               ),
                                                               Text(
-                                                                snapshot.data[
-                                                                                'data'][index][
-                                                                            'category'] ==
+                                                                limitedData.category ==
                                                                         'leave'
                                                                     ? formatDateRange(
-                                                                        snapshot.data['data'][index]
-                                                                            [
-                                                                            'start_date'],
-                                                                        snapshot.data['data'][index]
-                                                                            [
-                                                                            'end_date'])
+                                                                        limitedData.startDate ??
+                                                                            'YYYY:MM:DD',
+                                                                        limitedData.endDate ??
+                                                                            'YYYY:MM:DD')
                                                                     : DateFormat(
                                                                             'dd MMMM yyyy')
-                                                                        .format(
-                                                                            DateTime.parse(snapshot.data['data'][index]['date']) ?? DateTime.now()),
+                                                                        .format(DateTime.parse(limitedData.date ??
+                                                                            '2006-03-03')),
                                                                 style: GoogleFonts
                                                                     .montserrat(
                                                                   fontSize: 10,
@@ -2105,12 +1986,10 @@ print('profile: $profile');
                                                                   ),
                                                                   Text(
                                                                       calculateTotalHours(
-                                                                          snapshot.data['data'][index]
-                                                                              [
-                                                                              'entry_time'],
-                                                                          snapshot.data['data'][index]
-                                                                              [
-                                                                              'exit_time']),
+                                                                          limitedData.entryTime ??
+                                                                              '00:00',
+                                                                          limitedData.exitTime ??
+                                                                              '00:00'),
                                                                       style: GoogleFonts
                                                                           .montserrat(
                                                                         fontSize:
@@ -2190,8 +2069,8 @@ print('profile: $profile');
                                                                               3,
                                                                         ),
                                                                         Text(
-                                                                            formatDateTime(snapshot.data['data'][index][
-                                                                                'entry_time']),
+                                                                            formatDateTime(limitedData.entryTime ??
+                                                                                '00:00'),
                                                                             style:
                                                                                 GoogleFonts.montserrat(
                                                                               fontSize: 11,
@@ -2221,8 +2100,8 @@ print('profile: $profile');
                                                                               3,
                                                                         ),
                                                                         Text(
-                                                                            formatDateTime(snapshot.data['data'][index][
-                                                                                'exit_time']),
+                                                                            formatDateTime(limitedData.exitTime ??
+                                                                                '00:00'),
                                                                             style:
                                                                                 GoogleFonts.montserrat(
                                                                               fontSize: 11,
@@ -2272,11 +2151,10 @@ print('profile: $profile');
                                                                     .start,
                                                             children: [
                                                               Text(
-                                                                categoryText(snapshot
-                                                                            .data[
-                                                                        'data'][index]
-                                                                    [
-                                                                    'category']),
+                                                                categoryText(
+                                                                    limitedData
+                                                                            .category ??
+                                                                        ''),
                                                                 style: GoogleFonts
                                                                     .montserrat(
                                                                   fontSize: 8,
@@ -2298,10 +2176,9 @@ print('profile: $profile');
                                                                     .end,
                                                             children: [
                                                               Text(
-                                                                statusText(snapshot
-                                                                            .data[
-                                                                        'data'][index]
-                                                                    ['status']),
+                                                                statusText(
+                                                                    limitedData
+                                                                        .status),
                                                                 style: GoogleFonts
                                                                     .montserrat(
                                                                   fontSize: 8,
@@ -2317,21 +2194,12 @@ print('profile: $profile');
                                                               ),
                                                               Text(
                                                                 permissionText(
-                                                                    snapshot.data['data']
-                                                                            [
-                                                                            index]
-                                                                        [
-                                                                        'status'],
-                                                                    snapshot.data['data']
-                                                                            [
-                                                                            index]
-                                                                        [
-                                                                        'category'],
-                                                                    snapshot.data['data']
-                                                                            [
-                                                                            index]
-                                                                        [
-                                                                        'someKey']),
+                                                                  limitedData
+                                                                      .status,
+                                                                  limitedData
+                                                                          .category ??
+                                                                      'UNKOWN',
+                                                                ),
                                                                 style: GoogleFonts
                                                                     .montserrat(
                                                                   fontSize: 8,
@@ -2357,13 +2225,205 @@ print('profile: $profile');
                                     );
                                   });
                             } else {
-                              return Container(
-                                color: Colors.white,
+                              return Column(
+                                children: [
+                                  ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(
+                                      height: 10,
+                                    ),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: 3,
+                                    itemBuilder: (context, index) {
+                                      return Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 20, left: 20),
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                height: 95,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    color: Colors.white,
+                                                    border: Border.all(
+                                                        color: const Color(
+                                                                0xffC2C2C2)
+                                                            .withOpacity(
+                                                                0.30))),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    IntrinsicHeight(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 5,
+                                                                left: 10,
+                                                                right: 10),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      top: 15,
+                                                                      bottom: 7,
+                                                                      right: 5),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 20,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Container(
+                                                                  width:
+                                                                      100, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Container(
+                                                                  width:
+                                                                      50, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            const Spacer(),
+                                                            const VerticalDivider(
+                                                              color: Color(
+                                                                  0xffE6E6E6),
+                                                              thickness: 1,
+                                                            ),
+                                                            const Spacer(),
+                                                            Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                Container(
+                                                                  width:
+                                                                      50, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Container(
+                                                                  width:
+                                                                      30, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      color: const Color(
+                                                              0xffD9D9D9)
+                                                          .withOpacity(0.15),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                bottom: 10,
+                                                                top: 10,
+                                                                right: 10,
+                                                                left: 10),
+                                                        child: Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width:
+                                                                  50, // Arbitrary width
+                                                              height: 8.0,
+                                                              color: Colors
+                                                                  .grey[300],
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Container(
+                                                                  width:
+                                                                      40, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 5,
+                                                                ),
+                                                                Container(
+                                                                  width:
+                                                                      60, // Arbitrary width
+                                                                  height: 8.0,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      300],
+                                                                ),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                ],
                               );
                             }
                           }
-                        },
-                      )),
+                        }),
+                  ),
                 ],
               ),
               // button check in  \\
@@ -2598,7 +2658,7 @@ print('profile: $profile');
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MapSample(),
+                    builder: (context) => const MapWfo(),
                   ));
               // setState(() {
               //   selectedOption = 'WFO';
@@ -3020,18 +3080,12 @@ print('profile: $profile');
                       ),
                       child: ElevatedButton(
                         onPressed: () {
+                          // ignore: unused_local_variable
                           final facePageArgs = {
                             'selectedOption': 'WFA',
                             'description': _descriptionController.text,
                             'keteranganWfa': selectedKeterangan,
                           };
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //         FacePage(arguments: facePageArgs),
-                          //   ),
-                          // );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),

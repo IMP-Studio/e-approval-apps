@@ -6,13 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/presence_model.dart';
 
 class DetailWfa extends StatefulWidget {
-  final dynamic absen;
+  final Presences absen;
   DetailWfa({required this.absen});
 
   @override
@@ -77,7 +77,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -85,7 +85,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
   }
 
   Widget _category(BuildContext context) {
-    if (widget.absen['category'] == 'telework') {
+    if (widget.absen.category == 'telework') {
       return Text('Work From Anywhere',
           style: GoogleFonts.montserrat(
             fontSize: MediaQuery.of(context).size.width * 0.040,
@@ -99,7 +99,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
 
   Future editPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
     return json.decode(response.body);
@@ -107,7 +107,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
 
   Future destroyPresence() async {
     String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
-        widget.absen['id'].toString();
+        widget.absen.serverId.toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
     return json.decode(response.body);
@@ -191,8 +191,9 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
       );
     }
 
-    String currentStatus = widget.absen['status'];
+    String currentStatus = widget.absen.status ?? 'Unknown';
 
+    // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
@@ -297,7 +298,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.absen['nama_lengkap'],
+                            widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.039,
@@ -306,7 +307,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             ),
                           ),
                           Text(
-                            widget.absen['posisi'],
+                            widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.028,
@@ -330,7 +331,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Visibility(
-                    visible: widget.absen['category_description'] != null,
+                    visible: widget.absen.categoryDescription != null,
                     child: RichText(
                       textAlign: TextAlign.justify,
                       text: TextSpan(
@@ -344,7 +345,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             ),
                           ),
                           TextSpan(
-                            text: widget.absen['category_description'],
+                            text: widget.absen.categoryDescription,
                             style: GoogleFonts.montserrat(
                               color: greyText,
                               fontSize:
@@ -364,7 +365,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                     ),
                   ),
                   Visibility(
-                    visible: widget.absen['category_description'] != null,
+                    visible: widget.absen.categoryDescription != null,
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.028,
                     ),
@@ -383,8 +384,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                       ),
                       Text(
                           DateFormat('dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen['date']) ??
-                                  DateTime.now()),
+                              DateTime.parse(widget.absen.date ?? '0000-00-00')),
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.030,
                             color: greyText,
@@ -415,7 +415,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             height: MediaQuery.of(context).size.width * 0.006,
                           ),
                           Text(
-                            "${widget.absen['telework_category']}"
+                            "${widget.absen.teleworkCategory}"
                                 .toUpperCase(),
                             style: GoogleFonts.montserrat(
                               fontSize:
@@ -455,7 +455,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             height: MediaQuery.of(context).size.width * 0.006,
                           ),
                           Text(
-                            formatDateTime(widget.absen['entry_time']),
+                            formatDateTime(widget.absen.entryTime),
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.04,
@@ -494,7 +494,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             height: MediaQuery.of(context).size.width * 0.006,
                           ),
                           Text(
-                            formatDateTime(widget.absen['exit_time']),
+                            formatDateTime(widget.absen.exitTime),
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.04,
@@ -514,7 +514,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Visibility(
-                              visible: widget.absen['status'] == 'pending',
+                              visible: widget.absen.status == 'pending',
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: kTextBlocker,
@@ -545,7 +545,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                               width: MediaQuery.of(context).size.width * 0.05,
                             ),
                             Visibility(
-                              visible: widget.absen['status'] == 'pending',
+                              visible: widget.absen.status == 'pending',
                               child: FutureBuilder(
                                 future: editPresence(),
                                 builder: (context, snapshot) {
@@ -553,15 +553,15 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                       ConnectionState.done) {
                                     if (snapshot.hasError) {
                                       return Shimmer.fromColors(
-                                        baseColor: kButton.withOpacity(0.8)!,
+                                        baseColor: kButton.withOpacity(0.8),
                                         highlightColor:
-                                            kButton.withOpacity(0.5)!,
+                                            kButton.withOpacity(0.5),
                                         child: OutlinedButton(
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor:
                                                 kButton.withOpacity(0.8),
                                             side: BorderSide(
-                                              color: kButton.withOpacity(0.8)!,
+                                              color: kButton.withOpacity(0.8),
                                             ),
                                           ),
                                           onPressed:
@@ -578,6 +578,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                           ),
                                         ),
                                         onPressed: () async {
+                                          // ignore: unused_local_variable
                                           final result = await Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -600,14 +601,14 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                                     }
                                   } else {
                                     return Shimmer.fromColors(
-                                      baseColor: kButton.withOpacity(0.8)!,
-                                      highlightColor: kButton.withOpacity(0.5)!,
+                                      baseColor: kButton.withOpacity(0.8),
+                                      highlightColor: kButton.withOpacity(0.5),
                                       child: OutlinedButton(
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor:
                                               kButton.withOpacity(0.8),
                                           side: BorderSide(
-                                            color: kButton.withOpacity(0.8)!,
+                                            color: kButton.withOpacity(0.8),
                                           ),
                                         ),
                                         onPressed: null, // disables the button

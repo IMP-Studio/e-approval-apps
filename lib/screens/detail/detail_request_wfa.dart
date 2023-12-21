@@ -75,7 +75,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -191,6 +191,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
 
     String currentStatus = widget.absen['status'];
 
+    // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
 
     return Scaffold(
@@ -381,8 +382,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
                       ),
                       Text(
                           DateFormat('dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen['date']) ??
-                                  DateTime.now()),
+                              DateTime.parse(widget.absen['date'])),
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.030,
                             color: greyText,

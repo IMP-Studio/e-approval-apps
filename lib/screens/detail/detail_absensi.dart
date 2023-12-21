@@ -4,8 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 
 class DetailAbsensi extends StatefulWidget {
-  final Map absen;
-  const DetailAbsensi({super.key, required this.absen});
+  const DetailAbsensi({super.key});
 
   @override
   State<DetailAbsensi> createState() => _DetailAbsensiState();

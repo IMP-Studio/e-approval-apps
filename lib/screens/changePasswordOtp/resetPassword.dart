@@ -18,7 +18,7 @@ class _ResetPasswordState extends State<ResetPassword> with WidgetsBindingObserv
   @override
 void initState() {
   super.initState();
-  WidgetsBinding.instance!.addObserver(this);
+  WidgetsBinding.instance.addObserver(this);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
+import 'package:imp_approval/models/standup_model.dart';
 
 class EditStandUp extends StatefulWidget {
-  final Map standup;
+  final StandUps standup;
   const EditStandUp({super.key, required this.standup});
 
   @override
@@ -22,18 +23,18 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
 
   SharedPreferences? preferences;
   @override
-
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    print('id: ${widget.standup.userId}');
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
     getUserData().then((_) {
-      done.text = widget.standup['done'] ?? '';
-      doing.text = widget.standup['doing'] ?? '';
-      blocker.text = widget.standup['blocker'] ?? '';
+      done.text = widget.standup.done ?? '';
+      doing.text = widget.standup.doing ?? '';
+      blocker.text = widget.standup.blocker ?? '';
     });
   }
 
@@ -53,7 +54,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
   TextEditingController blocker = TextEditingController();
 
   Future updateStandUp() async {
-    int idStandup = widget.standup['id'];
+    int idStandup = widget.standup.serverId;
     final response = await http.put(
         Uri.parse(
             'https://testing.impstudio.id/approvall/api/standup/update/$idStandup'),
@@ -64,7 +65,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
           "done": done.text,
           "doing": doing.text,
           "blocker": blocker.text,
-          "project_id": widget.standup['project_id'].toString(),
+          "project_id": widget.standup.projectId.toString(),
         });
 
     print(response.body);
@@ -74,7 +75,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
 
   Future destroyStandUp() async {
     String url = 'https://testing.impstudio.id/approvall/api/standup/delete/' +
-        widget.standup['id'].toString();
+        widget.standup.id.toString();
 
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -262,7 +263,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
                                       alignment: WrapAlignment.start,
                                       children: [
                                         Text(
-                                          widget.standup['project'],
+                                          widget.standup.project ?? ' ',
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
                                             color: const Color.fromARGB(
@@ -418,7 +419,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
                                         style: GoogleFonts.montserrat(
                                           color: kBlck,
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                         maxLines: 6,
                                         decoration: InputDecoration.collapsed(
@@ -503,7 +504,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
                                         style: GoogleFonts.montserrat(
                                           color: kBlck,
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                         maxLines: 6,
                                         decoration: InputDecoration.collapsed(
@@ -581,7 +582,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
                                 print('Done: ${done.text}');
                                 print('Doing: ${doing.text}');
                                 print('Blocker: ${blocker.text}');
-                                print('Project ID: ${widget.standup['id']}');
+                                print('Project ID: ${widget.standup.id}');
                                 updateStandUp().then((value) {
                                   setState(() {
                                     Navigator.pop(context, 'refresh');

@@ -20,7 +20,7 @@ class EditWfa extends StatefulWidget {
 class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -37,6 +37,7 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   bool _isSnackbarVisible = false;
 
 String capitalizeFirstLetter(String text) {
+  // ignore: unnecessary_null_comparison
   if (text == null || text.isEmpty) {
     return text;
   }
@@ -200,6 +201,7 @@ String capitalizeFirstLetter(String text) {
     int idWfa = widget.absen['id'];
 
     if (selectedValue == 'other' &&
+        // ignore: unnecessary_null_comparison
         (descriptionController.text == null ||
             descriptionController.text.isEmpty)) {
       print('Error: Description is required for "other" category.');

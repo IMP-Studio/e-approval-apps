@@ -179,7 +179,7 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
 @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -453,8 +453,20 @@ class _CreateWfaState extends State<CreateWfa> with WidgetsBindingObserver {
                             if (snapshot.connectionState ==
                                 ConnectionState.done) {
                               if (snapshot.hasError) {
-                                return const Text(
-                                    'Error occurred while fetching profile');
+                               return Shimmer.fromColors(
+                                  baseColor: kButton.withOpacity(0.5),
+                                  highlightColor: kButton.withOpacity(0.7),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      color: kButton,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 19),
+                                  ),
+                                );
                               } else {
                                 var profileData = snapshot.data['data'][0];
 

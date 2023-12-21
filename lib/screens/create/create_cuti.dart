@@ -176,7 +176,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
     getUserData().then((_) {
       fetchData();
     });
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -375,6 +375,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           orElse: () => {},
         );
 
+        // ignore: unnecessary_null_comparison
         if (selectedOption != null && selectedOption.containsKey('days')) {
           leaveDuration = selectedOption['days'];
         }
@@ -384,6 +385,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
           orElse: () => {},
         );
 
+        // ignore: unnecessary_null_comparison
         if (selectedOption != null && selectedOption.containsKey('days')) {
           leaveDuration = selectedOption['days'];
         }
@@ -1240,7 +1242,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
               },
               onSuggestionSelected: (suggestion) {
                 selectedSubtitue = suggestion['user_id'].toString();
-                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
                   setState(() {
                     subtitueCont.text = suggestion['name'];
                   });

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:imp_approval/data/data.dart';
 import 'package:imp_approval/screens/create/create_detail_standup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imp_approval/models/project_model.dart';
 
 class DetailDaftarProject extends StatefulWidget {
-  final Map project;
+  final Projects project;
   const DetailDaftarProject({super.key, required this.project});
 
   @override
@@ -27,16 +25,16 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
   @override
   void initState() {
     super.initState();
-    getUserData().then((_) {
-      _dataFuture = getProject();
-    });
-    WidgetsBinding.instance!.addObserver(this);
+    getUserData();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    DateTime startDate = DateTime.parse(widget.project['start_date']);
-    DateTime endDate = DateTime.parse(widget.project['end_date']);
+    // ignore: unused_local_variable
+    DateTime startDate =
+        DateTime.parse(widget.project.startDate ?? '2006-03-03');
+    DateTime endDate = DateTime.parse(widget.project.endDate ?? '2006-03-03');
     DateTime currentDate = DateTime.now();
     differenceInDays = endDate.difference(currentDate).inDays;
     displayString = "Tersisa $differenceInDays hari lagi";
@@ -53,22 +51,11 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
     });
   }
 
-  String _searchQuery = "";
-  List<dynamic>? _filteredProjects;
-  Future? _dataFuture;
-
-  Future getProject() async {
-    final String urlj = 'https://testing.impstudio.id/approvall/api/project';
-    var response = await http.get(Uri.parse(urlj));
-    print(response.body);
-    return jsonDecode(response.body);
-  }
-
   late Color statusColor;
 
   @override
   Widget build(BuildContext context) {
-    widget.project['status'] == 'Aktif'
+    widget.project.status == 'Aktif'
         ? statusColor = const Color.fromARGB(255, 94, 202, 67)
         : statusColor = const Color.fromARGB(255, 202, 67, 67);
     return Scaffold(
@@ -136,7 +123,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                               ),
                               Container(
                                 width: MediaQuery.of(context).size.width * 1,
-                                child: Text(widget.project['project'],
+                                child: Text(widget.project.project ?? 'UNKNOWN',
                                     style: GoogleFonts.getFont('Montserrat',
                                         fontSize:
                                             MediaQuery.of(context).size.width *
@@ -148,7 +135,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                 height: 10.0,
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
                                 decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
@@ -169,7 +157,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     const Spacer(),
                                     Text(
-                                      widget.project['status'].toString(),
+                                      widget.project.status.toString(),
                                       style: GoogleFonts.getFont('Montserrat',
                                           color: statusColor,
                                           fontSize: MediaQuery.of(context)
@@ -185,7 +173,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                 height: 10.0,
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
                                 decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
@@ -206,7 +195,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     const Spacer(),
                                     Text(
-                                      widget.project['start_date'].toString(),
+                                      widget.project.startDate.toString(),
                                       style: GoogleFonts.getFont('Montserrat',
                                           color: Colors.black,
                                           fontSize: MediaQuery.of(context)
@@ -222,7 +211,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                 height: 10.0,
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
                                 decoration: const BoxDecoration(
                                     border: Border(
                                         bottom: BorderSide(
@@ -243,7 +233,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     ),
                                     const Spacer(),
                                     Text(
-                                      widget.project['end_date'].toString(),
+                                      widget.project.endDate.toString(),
                                       style: GoogleFonts.getFont('Montserrat',
                                           color: Colors.black,
                                           fontSize: MediaQuery.of(context)
@@ -268,8 +258,8 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                     child: Container(
                                       width: MediaQuery.of(context).size.width *
                                           0.86,
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 10.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0),
                                       decoration: BoxDecoration(
                                           border: Border.all(
                                               color: kTextBlcknw, width: 1),
@@ -323,10 +313,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                   offset: const Offset(0, 1))
                                             ],
                                             color: kTextoo,
-                                            borderRadius: const BorderRadius.only(
-                                                topLeft: Radius.circular(10.0),
-                                                topRight:
-                                                    Radius.circular(10.0))),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(10.0),
+                                                    topRight:
+                                                        Radius.circular(10.0))),
                                       ),
                                       Container(
                                         width:
@@ -345,11 +337,12 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                   offset: const Offset(0, 1))
                                             ],
                                             color: Colors.white,
-                                            borderRadius: const BorderRadius.only(
-                                                bottomLeft:
-                                                    Radius.circular(10.0),
-                                                bottomRight:
-                                                    Radius.circular(10.0))),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    bottomLeft:
+                                                        Radius.circular(10.0),
+                                                    bottomRight:
+                                                        Radius.circular(10.0))),
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
@@ -391,7 +384,7 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                               padding: const EdgeInsets.only(
                                                   left: 25.0),
                                               child: Text(
-                                                widget.project['partner']
+                                                widget.project.partner
                                                     .toString(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -441,8 +434,9 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                                                           child:
                                                               SingleChildScrollView(
                                                             child: Text(
-                                                              widget.project[
-                                                                  'partner_description'],
+                                                              widget.project
+                                                                  .partnerDescription
+                                                                  .toString(),
                                                               textAlign:
                                                                   TextAlign
                                                                       .justify,
@@ -488,57 +482,74 @@ class _DetailDaftarProjectState extends State<DetailDaftarProject>
                       right: 0,
                       bottom: 10.0,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 1.0),
-                              child: GestureDetector(
-  onTap: widget.project['status'] != 'Tidak Aktif'
-      ? () {
-          setState(() {
-            final project = {
-              'projectname': widget.project['project'],
-              'projectid': widget.project['id'],
-            };
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 1.0),
+                                child: GestureDetector(
+                                  onTap: widget.project.status != 'Tidak Aktif'
+                                      ? () {
+                                          setState(() {
+                                            final project = {
+                                              'projectname':
+                                                  widget.project.project,
+                                              'projectid':
+                                                  widget.project.serverId,
+                                            };
 
-            print(project);
+                                            print(project);
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateDetailStandup(
-                  project: project,
-                ),
-              ),
-            );
-          });
-        }
-      : null,  // Null onTap disables the GestureDetector
-  child: Container(
-    width: MediaQuery.of(context).size.width * 0.86,
-    padding: const EdgeInsets.symmetric(vertical: 10.0),
-    decoration: BoxDecoration(
-      color: widget.project['status'] == 'Tidak Aktif' ? Colors.white : kTextoo,
-      border: Border.all(
-          color: widget.project['status'] == 'Tidak Aktif' ? kTextBlcknw : kTextoo, width: 1),
-      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-    ),
-    child: Center(
-      child: Text(
-        "Stand Up",
-        style: GoogleFonts.getFont('Montserrat',
-            color: widget.project['status'] == 'Tidak Aktif' ? kTextBlcknw : Colors.white,
-            fontSize: MediaQuery.of(context).size.width * 0.044,
-            fontWeight: FontWeight.w600),
-      ),
-    ),
-  ),
-))
-
-                        ]
-                      ),
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CreateDetailStandup(
+                                                  project: project,
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                        }
+                                      : null, // Null onTap disables the GestureDetector
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.86,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10.0),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          widget.project.status == 'Tidak Aktif'
+                                              ? Colors.white
+                                              : kTextoo,
+                                      border: Border.all(
+                                          color: widget.project.status ==
+                                                  'Tidak Aktif'
+                                              ? kTextBlcknw
+                                              : kTextoo,
+                                          width: 1),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Stand Up",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            color: widget.project.status ==
+                                                    'Tidak Aktif'
+                                                ? kTextBlcknw
+                                                : Colors.white,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.044,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                          ]),
                     ),
                   ],
                 ))));
