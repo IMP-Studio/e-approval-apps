@@ -1,0 +1,19 @@
+name: synchronize develop
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: landx-id/github-repository-sync-action@master
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          target_repo_url: git@gitlab.impstudio.id:imp/e-approval-apps.git
+          source_branch: develop
+          destination_branch: develop
