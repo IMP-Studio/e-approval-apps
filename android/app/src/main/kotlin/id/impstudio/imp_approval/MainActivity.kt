@@ -1,4 +1,4 @@
-package com.example.imp_approval
+package id.impstudio.imp_approval
 
 import io.flutter.embedding.android.FlutterActivity
 
