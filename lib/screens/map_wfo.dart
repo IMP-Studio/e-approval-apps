@@ -123,7 +123,7 @@ class MapWfoState extends State<MapWfo> with WidgetsBindingObserver {
     DateTime combinedDateTime = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, selectedTime.hour, selectedTime.minute);
     final response = await http.post(
-        Uri.parse('https://testing.impstudio.id/approvall/api/presence/store'),
+        Uri.parse('https://admin.approval.impstudio.id/api/presence/store'),
         body: {
           "user_id": user_id.toString(),
           "category": 'WFO',
@@ -225,13 +225,12 @@ class MapWfoState extends State<MapWfo> with WidgetsBindingObserver {
             c(_position!.latitude * p) *
             (1 - c((_position!.longitude - initialLocation.longitude) * p)) /
             2;
-    return 12742 * asin(sqrt(a)) * 1000;
+    return 12742 * asin(sqrt(a)) * 1000;  
   }
 
   bool _isWithinGeofence() {
     double distance = _calculateDistance();
     if (distance <= 8) {
-      //BERAPA METER
       return true;
     } else {
       return false;

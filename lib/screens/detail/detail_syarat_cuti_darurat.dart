@@ -23,7 +23,7 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
 
   Future getDarurat() async {
     String baseURL =
-        'https://testing.impstudio.id/approvall/api/leave/option?type=3';
+        'https://admin.approval.impstudio.id/api/leave/option?type=3';
 
     var response = await http.get(Uri.parse(baseURL));
     print(response.body);
@@ -170,8 +170,8 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                   itemBuilder: (context, index) {
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 10),
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 10.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0),
                                       decoration: const BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -223,8 +223,8 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                                   itemBuilder: (context, index) {
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 10),
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 10.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0),
                                       decoration: const BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -280,7 +280,8 @@ class _DetailSyaratCutiDaruratState extends State<DetailSyaratCutiDarurat> {
                               itemBuilder: (context, index) {
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
                                   decoration: const BoxDecoration(
                                       border: Border(
                                           bottom: BorderSide(

@@ -28,7 +28,6 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
   bool _isSnackbarVisible = false;
 
   @override
-
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -182,7 +181,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
     });
   }
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -200,7 +199,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
     await getUserData();
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     TextEditingController _validpassController = TextEditingController();
     bool validasilogout = true;
@@ -209,7 +208,7 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String? token = preferences.getString('token');
       var response = await http.post(
-        Uri.parse('https://testing.impstudio.id/approvall/api/logout'),
+        Uri.parse('https://admin.approval.impstudio.id/api/logout'),
         body: {
           "validpassword": _validpassController.text,
         },
@@ -326,10 +325,10 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
           child: RefreshIndicator(
         onRefresh: refreshUserData,
         child: NotificationListener<OverscrollIndicatorNotification>(
-            onNotification: (overscroll) {
-              overscroll.disallowIndicator();
-              return true;
-            },
+          onNotification: (overscroll) {
+            overscroll.disallowIndicator();
+            return true;
+          },
           child: ListView(
             children: [
               Column(
@@ -343,28 +342,31 @@ class _SettingPageState extends State<SettingPage> with WidgetsBindingObserver {
                       children: [
                         // card profile \\
                         Container(
-                          margin:
-                              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                          child: ClipRRect(
-  borderRadius: BorderRadius.circular(30),
-  child: (preferences?.getString('avatar') ?? '').isNotEmpty
-      ? Image.network(
-          'https://testing.impstudio.id/approvall/storage/' +
-              preferences!.getString('avatar')!,
-          height: 58,
-          width: 58,
-          fit: BoxFit.cover,
-          errorBuilder: (BuildContext context, Object exception,
-              StackTrace? stackTrace) {
-            return Image.asset('assets/img/pfp-default.jpg',
-                height: 58, width: 58, fit: BoxFit.cover);
-          },
-        )
-      : Image.asset('assets/img/pfp-default.jpg',
-          height: 58, width: 58, fit: BoxFit.cover),
-)
-
-                        ),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 20),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: (preferences?.getString('avatar') ?? '')
+                                      .isNotEmpty
+                                  ? Image.network(
+                                      'https://admin.approval.impstudio.id/storage/' +
+                                          preferences!.getString('avatar')!,
+                                      height: 58,
+                                      width: 58,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (BuildContext context,
+                                          Object exception,
+                                          StackTrace? stackTrace) {
+                                        return Image.asset(
+                                            'assets/img/pfp-default.jpg',
+                                            height: 58,
+                                            width: 58,
+                                            fit: BoxFit.cover);
+                                      },
+                                    )
+                                  : Image.asset('assets/img/pfp-default.jpg',
+                                      height: 58, width: 58, fit: BoxFit.cover),
+                            )),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20), // Add vertical padding

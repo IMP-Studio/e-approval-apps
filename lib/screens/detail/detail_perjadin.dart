@@ -8,11 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:imp_approval/models/presence_model.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DetailPerjadin extends StatefulWidget {
   final Presences absen;
@@ -35,60 +35,6 @@ String truncateFileName(String fileName, int maxLength) {
   }
 }
 
-Widget _modalvalidasireject(BuildContext context) {
-  return CupertinoAlertDialog(
-    title: Text("Alasan Menolak",
-        style: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        )),
-    actions: [
-      CupertinoDialogAction(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Batal",
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                color: kTextBlocker,
-                fontWeight: FontWeight.w600,
-              ))),
-      CupertinoDialogAction(
-          onPressed: () {},
-          child: Text("Kirim",
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ))),
-    ],
-    content: Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.010,
-        ),
-        CupertinoTextField(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-          placeholder: 'ketikan sesuatu....',
-          placeholderStyle: GoogleFonts.montserrat(
-            fontSize: 14,
-            color: kTextgrey,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class _DetailPerjadinState extends State<DetailPerjadin>
     with WidgetsBindingObserver {
   @override
@@ -102,82 +48,67 @@ class _DetailPerjadinState extends State<DetailPerjadin>
   }
 
   Future<File?> downloadFile(String url, String filename) async {
-    try {
-      final response = await http.get(Uri.parse(url));
+  try {
+    final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final downloadsDirectory = Directory('/storage/emulated/0/Download');
+    if (response.statusCode == 200) {
+      // Get documents directory
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      print("Documents directory: ${documentsDirectory.path}");
 
-        // Ensure the directory exists
-        if (!await downloadsDirectory.exists()) {
-          await downloadsDirectory.create(recursive: true);
-        }
+      // Create the file path
+      final filePath = '${documentsDirectory.path}/$filename';
+      print("Attempting to save file to: $filePath");
 
-        final file = File('${downloadsDirectory.path}/$filename');
-        print(
-            "Attempting to save file to: ${file.path}"); // This will print out the exact path where the file is being saved
+      final file = File(filePath);
 
-        // Before writing to the file, let's check if the directory exists.
-        final parentDir = file.parent;
-        if (!await parentDir.exists()) {
-          await parentDir.create(
-              recursive: true); // Ensuring the directory structure exists.
-        }
-
-        return file.writeAsBytes(response.bodyBytes);
+      // Before writing to the file, let's check if the directory exists.
+      final parentDir = file.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(
+            recursive: true); // Ensuring the directory structure exists.
       }
-    } catch (e) {
-      print("Error downloading file: $e");
+
+      await file.writeAsBytes(response.bodyBytes);
+      return file;
+    } else {
+      print("Failed to download file. Status code: ${response.statusCode}");
     }
-    return null;
+  } catch (e) {
+    print("Error downloading file: $e");
   }
+  return null;
+}
 
-  Future<void> onDownloadButtonPressed() async {
-    final filess = widget.absen.file.toString();
-    final url = 'https://testing.impstudio.id/approvall/storage/$filess';
+Future<void> onDownloadButtonPressed() async {
+  final filess = widget.absen.file.toString();
+  final url = 'https://admin.approval.impstudio.id/storage/$filess';
 
+  final downloadedFile = await downloadFile(url, filess);
+
+  if (downloadedFile != null && downloadedFile.existsSync()) {
+    print("File path: ${downloadedFile.path}");
+
+    // Check the file extension and open accordingly
     if (filess.toLowerCase().endsWith(".pdf")) {
-      // Handle PDF files by downloading and then displaying
-      final downloadedFile = await downloadFile(url, filess);
-
-      if (downloadedFile != null && downloadedFile.existsSync()) {
-        print("File path: ${downloadedFile.path}");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                PDFViewerScreen(filePath: downloadedFile.path),
-          ),
-        );
-      } else {
-        print(
-            "Failed to fetch PDF file or file does not exist at expected path");
-        if (downloadedFile != null) {
-          print("Expected file path: ${downloadedFile.path}");
-        }
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              PDFViewerScreen(filePath: downloadedFile.path),
+        ),
+      );
+    } else {
+      
+    }
+  } else {
+    print("Failed to fetch the file or the file does not exist at the expected path");
+    if (downloadedFile != null) {
+      print("Expected file path: ${downloadedFile.path}");
     }
   }
+}
 
-  String formatBytes(int bytes, int decimals) {
-    if (bytes <= 0) return "0 B";
-    const suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    var i = (log(bytes) / log(1024)).floor();
-    return "${(bytes / pow(1024, i)).toStringAsFixed(decimals)} ${suffixes[i]}";
-  }
-
-  String formatDateRange(String startDate, String endDate) {
-    DateTime start = DateTime.parse(startDate);
-    DateTime end = DateTime.parse(endDate);
-
-    String formattedStartDay = DateFormat('d').format(start);
-    String formattedEndDay = DateFormat('d').format(end);
-    String formattedMonth =
-        DateFormat('MMMM').format(start); // e.g., "November"
-    String formattedYear = DateFormat('y').format(start); // e.g., "2023"
-
-    return '$formattedStartDay-$formattedEndDay $formattedMonth $formattedYear';
-  }
 
   Widget _category(BuildContext context) {
     if (widget.absen.category == 'work_trip') {
@@ -193,7 +124,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/get/' +
         widget.absen.serverId.toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -201,7 +132,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
   }
 
   Future destroyPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/delete/' +
         widget.absen.serverId.toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -228,39 +159,43 @@ class _DetailPerjadinState extends State<DetailPerjadin>
 
   @override
   Widget build(BuildContext context) {
+    final statusAbsen = widget.absen.status?.toUpperCase();
     Widget getStatusRow(String status) {
       Color containerColor;
       Color textColor;
       String text;
+      double width;
 
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor = const Color(
-              0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(0xffCA4343);
           text = 'Rejected';
+          width = 0.16;
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor = const Color(
-              0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(0xffFFC52D);
           text = 'Pending';
+          width = 0.16;
           break;
         case 'preliminary':
-          containerColor = const Color(0xffFFEFC6);
-          textColor = const Color(
-              0xffFFC52D); // Black usually matches well with yellow.
-          text = 'Pending';
+          containerColor = const Color(0xffCAE2FF);
+          textColor = const Color(0xffF4381CA);
+          text = 'Preliminary';
+          width = 0.20;
           break;
         case 'allowed':
-          containerColor = kGreenAllow; // Assuming kGreenAllow is green
-          textColor = kGreen; // Your green color for text
+          containerColor = kGreenAllow;
+          textColor = kGreen;
           text = 'Allowed';
+          width = 0.16;
           break;
         default:
           containerColor = Colors.grey;
           textColor = Colors.white;
-          text = 'Unknown Status';
+          text = 'Unknown';
+          width = 0.16;
       }
 
       return Row(
@@ -268,7 +203,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
           Container(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
             alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.16,
+            width: MediaQuery.of(context).size.width * width,
             decoration: BoxDecoration(
                 border: Border.all(width: 0.8, color: textColor),
                 color: containerColor,
@@ -381,7 +316,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                   child: Row(
                     children: [
                       CircleAvatar(
-                        radius: MediaQuery.of(context).size.width * 0.05,
+                        radius: MediaQuery.of(context).size.width * 0.04,
                         backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
@@ -396,7 +331,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                             widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.039,
+                                  MediaQuery.of(context).size.width * 0.032,
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
@@ -405,7 +340,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                             widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
+                                  MediaQuery.of(context).size.width * 0.026,
                               color: greyText,
                               fontWeight: FontWeight.w400,
                             ),
@@ -441,19 +376,7 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                       Row(
                         children: [
                           Text(
-                              'Tanggal : ${formatDateRange(widget.absen.startDate ?? '0000-00-00',
-                                      widget.absen.endDate ?? '0000-00-00')}',
-                              style: GoogleFonts.montserrat(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.028,
-                                color: greyText,
-                                fontWeight: FontWeight.w500,
-                              )),
-                          const Spacer(),
-                          Text(
-                              'Masuk : ${DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(
-                                              widget.absen.entryDate ?? '0000-00-00'))}',
+                              'Tanggal :  ${DateFormat('dd MMMM yyyy').format(DateTime.parse(widget.absen.date ?? '0000-00-00'))}',
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
@@ -504,30 +427,26 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.02,
+                  Visibility(
+                    visible: widget.absen.status == 'pending',
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
                   ),
-
-                  
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only( bottom: 35),
+                        padding: const EdgeInsets.only(bottom: 35),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            //SEMENTARA DI COMMENT
-                            
                             Visibility(
                               visible: widget.absen.status == 'pending',
                               child: FutureBuilder(
@@ -605,11 +524,9 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 },
                               ),
                             ),
-
-                             SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.01,
-                  ),
-
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.01,
+                            ),
                             Visibility(
                               visible: widget.absen.status == 'pending',
                               child: OutlinedButton(
@@ -638,13 +555,117 @@ class _DetailPerjadinState extends State<DetailPerjadin>
                                 ),
                               ),
                             ),
-
-                            
                           ],
                         ),
                       ),
                     ],
                   ),
+                  Column(
+                    children: [
+                      Visibility(
+                          visible: widget.absen.status == 'rejected' ||
+                              widget.absen.status == 'allowed',
+                          child: Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context).size.height *
+                                        0.03),
+                                width: MediaQuery.of(context).size.width *
+                                    1 /
+                                    1.12,
+                                height: 1,
+                                color:
+                                    const Color(0xffC2C2C2).withOpacity(0.30),
+                              ),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Text('Approver Name',
+                                                style: GoogleFonts.montserrat(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.040,
+                                                  color: blueText,
+                                                  fontWeight: FontWeight.w600,
+                                                )),
+                                            SizedBox(
+                                              height: 8,
+                                            ),
+                                            Text('Status : ${statusAbsen}',
+                                                style: GoogleFonts.montserrat(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.030,
+                                                  color: greyText,
+                                                  fontWeight: FontWeight.w500,
+                                                )),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      RichText(
+                                        textAlign: TextAlign.left,
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: '“',
+                                              style: GoogleFonts.montserrat(
+                                                color: kPrimary,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: widget.absen
+                                                      .statusDescription ??
+                                                  '-',
+                                              style: GoogleFonts.montserrat(
+                                                color: greyText,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: '”',
+                                              style: GoogleFonts.montserrat(
+                                                color: kPrimary,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
+                              )
+                            ],
+                          )),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -693,8 +714,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         children: <Widget>[
           PDFView(
             filePath: widget.filePath,
-            onViewCreated: (PDFViewController pdfViewController) {
-            },
+            onViewCreated: (PDFViewController pdfViewController) {},
             onPageChanged: (int? page, int? totalPages) {
               if (page != null && totalPages != null) {
                 if (_totalPages == 0) {

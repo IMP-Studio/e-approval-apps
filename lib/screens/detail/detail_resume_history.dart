@@ -92,7 +92,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
 
   SharedPreferences? preferences;
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -108,7 +108,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
     int userId = widget.arguments['user_id'];
 
     final String baseUrl =
-        'https://testing.impstudio.id/approvall/api/presence/resume/$userId';
+        'https://admin.approval.impstudio.id/api/presence/resume/$userId';
 
     var response = await http.get(Uri.parse(baseUrl));
     print("Final API URL: $baseUrl");
@@ -178,7 +178,8 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              snapshot.data['totalPresence'].toString(),
+                                              snapshot.data['totalPresence']
+                                                  .toString(),
                                               style: GoogleFonts.getFont(
                                                   'Montserrat',
                                                   color: Colors.white,
@@ -276,8 +277,8 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -326,11 +327,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlcknw)),
                                           child: Text(
@@ -394,8 +396,8 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -444,11 +446,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kGreen)),
                                           child: Text(
@@ -469,11 +472,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextOren)),
                                           child: Text(
@@ -494,11 +498,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextUngu)),
                                           child: Text(
@@ -562,8 +567,8 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -612,11 +617,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlcknw)),
                                           child: Text(
@@ -680,8 +686,8 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                           decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(color: kTextUnselectedOpa),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Padding(
@@ -730,11 +736,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kGreen)),
                                           child: Text(
@@ -755,11 +762,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border:
                                                   Border.all(color: kTextoo)),
                                           child: Text(
@@ -780,11 +788,12 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 3.0, horizontal: 7.0),
-                                          constraints:
-                                              const BoxConstraints(maxWidth: 100.0),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 100.0),
                                           decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(20.0)),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(20.0)),
                                               border: Border.all(
                                                   color: kTextBlocker)),
                                           child: Text(
@@ -839,7 +848,7 @@ class _DetailHistoryResumeState extends State<DetailHistoryResume>
                     height: 15.0,
                   ),
                 ],
-              ); 
+              );
             } else {
               return shimmerLayout();
             }

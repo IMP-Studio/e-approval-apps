@@ -7,7 +7,7 @@ class API {
     required String route,
     required Map<String, String> data,
   }) async {
-    String apiUrl = 'https://testing.impstudio.id/approvall/api';
+    String apiUrl = 'https://admin.approval.impstudio.id/api';
     String url = apiUrl + route;
 
     return await http.post(

@@ -41,6 +41,7 @@ enum AttendanceStatus {
   checkedOut,
   completed,
   pendingStatus,
+  preliminaryStatus,
   leaveStatus,
   canReAttend,
   Skipped,
@@ -125,7 +126,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<String?> checkAbsensi() async {
     int userId = preferences?.getInt('user_id') ?? 0;
 
-    final urlj = 'https://testing.impstudio.id/approvall/api/presence/$userId';
+    final urlj = 'https://admin.approval.impstudio.id/api/presence/$userId';
     var response = await http.get(Uri.parse(urlj));
 
     if (response.statusCode == 200) {
@@ -144,7 +145,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/presence/checkout?user_id=$userId';
+        'https://admin.approval.impstudio.id/api/presence/checkout?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -153,7 +154,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<Map<String, dynamic>?> getPresenceID() async {
     int userId = preferences?.getInt('user_id') ?? 0;
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/presence/today/user/$userId';
+        'https://admin.approval.impstudio.id/api/presence/today/user/$userId';
     var response = await http.get(Uri.parse(urlj));
     var jsonResponse = jsonDecode(response.body);
     print('Response from getPresenceID: $jsonResponse');
@@ -172,10 +173,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> fetchData() async {
-    await fetchPresenceId(); 
+    await fetchPresenceId();
 
-    Map<String, dynamic>? userProfileResponse =
-        await getProfil(); 
+    Map<String, dynamic>? userProfileResponse = await getProfil();
 
     if (userProfileResponse != null &&
         userProfileResponse['data'] != null &&
@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/presence/emergency/checkout?user_id=$userId';
+        'https://admin.approval.impstudio.id/api/presence/emergency/checkout?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -230,6 +230,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           case 'pendingStatus':
             _attendanceStatus = AttendanceStatus.pendingStatus;
             break;
+          case 'preliminaryStatus':
+            _attendanceStatus = AttendanceStatus.preliminaryStatus;
+            break;
           case 'Leave':
             _attendanceStatus = AttendanceStatus.leaveStatus;
             break;
@@ -265,6 +268,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return _buildCheckInButton();
       case AttendanceStatus.pendingStatus:
         return _buildPendingButton();
+      case AttendanceStatus.preliminaryStatus:
+        return _buildPreliminaryButton();
       case AttendanceStatus.canReAttend:
         return _buildCheckInButton();
       case AttendanceStatus.leaveStatus:
@@ -569,7 +574,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         ? null
                                         : () async {
                                             try {
-
                                               setState(() {
                                                 isLoading = true;
                                               });
@@ -587,8 +591,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             CheckoutMapWFO(
-                                                                presence:
-                                                                    presenceId!,)));
+                                                              presence:
+                                                                  presenceId!,
+                                                            )));
                                               } else {
                                                 print(
                                                     'Presece id or profile is null');
@@ -830,6 +835,75 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildPreliminaryButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: Text(
+        'Preliminary',
+        style: GoogleFonts.inter(
+          color: whiteText,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onPressed: () {
+        showModalBottomSheet<void>(
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15.0),
+              topRight: Radius.circular(15.0),
+            ),
+          ),
+          context: context,
+          builder: (BuildContext context) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: SizedBox(
+                height: _tinggimodal,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(top: 15, bottom: 10),
+                      width: 60,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.black12,
+                      ),
+                    ),
+                    if (showAtributModalCheckOut) _modalPreliminaryAttribute(),
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            child: SvgPicture.asset(
+                              "assets/img/pending.svg",
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              height: MediaQuery.of(context).size.width * 0.5,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   SharedPreferences? preferences;
 
   bool isLoading = false;
@@ -847,7 +921,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     int userId = preferences?.getInt('user_id') ?? 2;
     // String user = userId.toString();
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
+        'https://admin.approval.impstudio.id/api/profile?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     print(urlj);
@@ -859,7 +933,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/presence/today/$userId';
+        'https://admin.approval.impstudio.id/api/presence/today/$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -1955,14 +2029,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                                 ),
                                                               ),
                                                               Text(
-                                                                limitedData.category ==
-                                                                        'leave'
-                                                                    ? formatDateRange(
-                                                                        limitedData.startDate ??
-                                                                            'YYYY:MM:DD',
-                                                                        limitedData.endDate ??
-                                                                            'YYYY:MM:DD')
-                                                                    : DateFormat(
+                                                                DateFormat(
                                                                             'dd MMMM yyyy')
                                                                         .format(DateTime.parse(limitedData.date ??
                                                                             '2006-03-03')),
@@ -2750,6 +2817,52 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
             Text(
               'Permintaan mu masih dalam status pending',
+              style: GoogleFonts.montserrat(
+                fontSize: MediaQuery.of(context).size.width * 0.034,
+                fontWeight: FontWeight.w400,
+                color: const Color.fromRGBO(182, 182, 182, 1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _modalPreliminaryAttribute() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Waiting',
+                  style: GoogleFonts.montserrat(
+                    fontSize: MediaQuery.of(context).size.width * 0.049,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  ' Approval',
+                  style: GoogleFonts.montserrat(
+                      fontSize: MediaQuery.of(context).size.width * 0.049,
+                      fontWeight: FontWeight.w500,
+                      color: const Color.fromRGBO(67, 129, 202, 1)),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Text(
+              'Permintaan mu masih dalam status preliminary',
               style: GoogleFonts.montserrat(
                 fontSize: MediaQuery.of(context).size.width * 0.034,
                 fontWeight: FontWeight.w400,

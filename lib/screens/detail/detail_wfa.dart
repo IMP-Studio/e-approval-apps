@@ -98,7 +98,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/get/' +
         widget.absen.serverId.toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -106,7 +106,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
   }
 
   Future destroyPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/delete/' +
         widget.absen.serverId.toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -133,39 +133,43 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final statusAbsen = widget.absen.status?.toUpperCase();
     Widget getStatusRow(String status) {
       Color containerColor;
       Color textColor;
       String text;
+      double width;
 
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor = const Color(
-              0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(0xffCA4343);
           text = 'Rejected';
+          width = 0.16;
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor = const Color(
-              0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(0xffFFC52D);
           text = 'Pending';
+          width = 0.16;
           break;
         case 'preliminary':
-          containerColor = const Color(0xffFFEFC6);
-          textColor = const Color(
-              0xffFFC52D); // Black usually matches well with yellow.
-          text = 'Pending';
+          containerColor = const Color(0xffCAE2FF);
+          textColor = const Color(0xffF4381CA);
+          text = 'Preliminary';
+          width = 0.20;
           break;
         case 'allowed':
-          containerColor = kGreenAllow; // Assuming kGreenAllow is green
-          textColor = kGreen; // Your green color for text
+          containerColor = kGreenAllow;
+          textColor = kGreen;
           text = 'Allowed';
+          width = 0.16;
           break;
         default:
           containerColor = Colors.grey;
           textColor = Colors.white;
-          text = 'Unknown Status';
+          text = 'Unknown';
+          width = 0.16;
       }
 
       return Row(
@@ -173,7 +177,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
             alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.16,
+            width: MediaQuery.of(context).size.width * width,
             decoration: BoxDecoration(
                 border: Border.all(width: 0.8, color: textColor),
                 color: containerColor,
@@ -286,7 +290,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        radius: MediaQuery.of(context).size.width * 0.05,
+                        radius: MediaQuery.of(context).size.width * 0.04,
                         backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
@@ -301,7 +305,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.039,
+                                  MediaQuery.of(context).size.width * 0.032,
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
@@ -310,7 +314,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
+                                  MediaQuery.of(context).size.width * 0.026,
                               color: greyText,
                               fontWeight: FontWeight.w400,
                             ),
@@ -383,8 +387,8 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                         height: 3,
                       ),
                       Text(
-                          DateFormat('dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen.date ?? '0000-00-00')),
+                          DateFormat('dd MMMM yyyy').format(DateTime.parse(
+                              widget.absen.date ?? '0000-00-00')),
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.030,
                             color: greyText,
@@ -415,8 +419,7 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                             height: MediaQuery.of(context).size.width * 0.006,
                           ),
                           Text(
-                            "${widget.absen.teleworkCategory}"
-                                .toUpperCase(),
+                            "${widget.absen.teleworkCategory}".toUpperCase(),
                             style: GoogleFonts.montserrat(
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.04,
@@ -508,8 +511,13 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20, bottom: 35),
+                      Visibility(
+                        visible: widget.absen.status == 'pending',
+                        child: SizedBox(
+                          height: 20,
+                        ),
+                      ),
+                      SizedBox(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -622,11 +630,117 @@ class _DetailWfaState extends State<DetailWfa> with WidgetsBindingObserver {
                           ],
                         ),
                       ),
+                      Visibility(
+                        visible: widget.absen.status == 'pending',
+                        child: SizedBox(
+                          height: 35,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
+            Column(
+              children: [
+                Visibility(
+                    visible: widget.absen.status == 'rejected' ||
+                        widget.absen.status == 'allowed',
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(
+                    
+                              bottom:
+                                  MediaQuery.of(context).size.height * 0.03),
+                          width: MediaQuery.of(context).size.width * 1 / 1.12,
+                          height: 1,
+                          color: const Color(0xffC2C2C2).withOpacity(0.30),
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text('Approver Name',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.040,
+                                            color: blueText,
+                                            fontWeight: FontWeight.w600,
+                                          )),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Text('Status : ${statusAbsen}',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.030,
+                                            color: greyText,
+                                            fontWeight: FontWeight.w500,
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                RichText(
+                                  textAlign: TextAlign.left,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '“',
+                                        style: GoogleFonts.montserrat(
+                                          color: kPrimary,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.039,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: widget.absen.statusDescription ??
+                                            '-',
+                                        style: GoogleFonts.montserrat(
+                                          color: greyText,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.039,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: '”',
+                                        style: GoogleFonts.montserrat(
+                                          color: kPrimary,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.039,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]),
+                        )
+                      ],
+                    )),
+              ],
+            )
           ],
         ),
       ),

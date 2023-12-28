@@ -18,7 +18,7 @@ class Leaves {
   String? descriptionLeave;
   String? entryTime;
   String? category;
-  String? posisi; 
+  String? posisi;
   String? submissionDate;
   String? startDate;
   String? endDate;
@@ -128,7 +128,7 @@ class Leaves {
 
 Future<List<Leaves>> fetchAllLeaves(String userId, String jenisCuti) async {
   String url =
-      'https://testing.impstudio.id/approvall/api/leave?id=$userId&type=$jenisCuti';
+      'https://admin.approval.impstudio.id/api/leave?id=$userId&type=$jenisCuti';
   print("Fetching data from URL: $url");
 
   try {
@@ -138,7 +138,6 @@ Future<List<Leaves>> fetchAllLeaves(String userId, String jenisCuti) async {
       final Map<String, dynamic> data = json.decode(response.body);
 
       if (data["data"] == null) {
-        // Handle the case where data is null
         print("No leaves data found in the response.");
         return [];
       }
@@ -159,17 +158,14 @@ Future<List<Leaves>> fetchAllLeaves(String userId, String jenisCuti) async {
         throw Exception('Unexpected format in JSON response: $data');
       }
     } else {
-      print("Error fetching data with status code: ${response.statusCode}");
-      throw Exception(
-          'Failed to load data with status code: ${response.statusCode}');
+      print("Error fetching data. Response body: ${response.body}");
+      throw Exception('Failed to load data.');
     }
   } catch (error) {
     print("An error occurred during the fetch operation: $error");
     throw error;
   }
 }
-
-
 
 Future<void> updateCacheWithAllData(List<Leaves> leavesFromServer) async {
   print(
@@ -179,39 +175,39 @@ Future<void> updateCacheWithAllData(List<Leaves> leavesFromServer) async {
   final box = storeManager.store.box<Leaves>();
 
   for (var leave in leavesFromServer) {
-   final existingLeave = box.get(leave.serverId);
+    final existingLeave = box.get(leave.serverId);
 
-if (existingLeave == null) {
-    print("Leave with ID: ${leave.serverId} does not exist in cache. Adding...");
-    box.put(leave); // No need to set the id, it's directly mapped now.
-} else {
-    final existingUpdatedAt = DateTime.parse(existingLeave.updatedAt!);
-    final newUpdatedAt = DateTime.parse(leave.updatedAt!);
-
-    if (newUpdatedAt.isAfter(existingUpdatedAt)) {
-        print("Leave with ID: ${leave.serverId} has newer data. Updating cache...");
-        box.put(leave); // Directly put it. ObjectBox will recognize it as an update.
+    if (existingLeave == null) {
+      print(
+          "Leave with ID: ${leave.serverId} does not exist in cache. Adding...");
+      box.put(leave);
     } else {
-        print("Leave with ID: ${leave.serverId} is up-to-date. Skipping cache update.");
-    }
-    
-    
-}
+      final existingUpdatedAt = DateTime.parse(existingLeave.updatedAt!);
+      final newUpdatedAt = DateTime.parse(leave.updatedAt!);
 
+      if (newUpdatedAt.isAfter(existingUpdatedAt)) {
+        print(
+            "Leave with ID: ${leave.serverId} has newer data. Updating cache...");
+        box.put(
+            leave); 
+      } else {
+        print(
+            "Leave with ID: ${leave.serverId} is up-to-date. Skipping cache update.");
+      }
+    }
   }
   print("Cache update process completed.");
 }
 
-Future<List<Leaves>> fetchAndUpdateCache(String userId, String jenisCuti) async {
+Future<List<Leaves>> fetchAndUpdateCache(
+    String userId, String jenisCuti) async {
   print(
       "Starting fetch and update process for user ID: $userId with scope: $jenisCuti");
 
-  // Fetching all leaves
   print("Fetching all leaves...");
   final leaves = await fetchAllLeaves(userId, jenisCuti);
   print("Successfully fetched ${leaves.length} leaves.");
 
-  // Updating cache
   print("Updating cache with fetched leaves...");
   await updateCacheWithAllData(leaves);
   print("Cache updated successfully.");

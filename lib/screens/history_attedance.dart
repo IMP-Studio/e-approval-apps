@@ -127,7 +127,7 @@ Future<void> _refreshContent({
   int? activeIndex,
 }) async {
   final DateTime now = DateTime.now();
-  final Duration cooldownDuration = Duration(seconds: 30);
+  final Duration cooldownDuration = Duration(seconds: 10);
 
   if (_lastRefreshTime != null && now.difference(_lastRefreshTime!) < cooldownDuration) {
     print('Cooldown period. Not refreshing content.');
@@ -144,7 +144,7 @@ int userIdnya = preferences?.getInt('user_id') ?? 0;
     _dataFuture = fetchAndUpdateCache(
       userId, // Pass your userId here
       'self',
-      'allowed,pending,preliminary,rejected',
+      'all',
       activeIndex,
       startDate,
       endDate,
@@ -185,7 +185,7 @@ int userIdnya = preferences?.getInt('user_id') ?? 0;
         _dataFuture = fetchAndUpdateCache(
       userId, // Pass your userId here
       'self',
-      'allowed,pending,preliminary,rejected',
+      'all',
       activeIndex,
       startDate,
       endDate,
@@ -834,12 +834,7 @@ int userIdnya = preferences?.getInt('user_id') ?? 0;
                                                             ),
                                                           ),
                                                           Text(
-                                                            limitedData.category ==
-                                                                    'leave'
-                                                                ? formatDateRange(
-                                                                    limitedData.startDate ?? 'YYYY:MM:DD',
-                                                                    limitedData.endDate ?? 'YYYY:MM:DD')
-                                                                : DateFormat(
+                                                            DateFormat(
                                                                         'dd MMMM yyyy')
                                                                     .format(DateTime.parse(
                                                                            limitedData.date ?? '2006-03-03')),

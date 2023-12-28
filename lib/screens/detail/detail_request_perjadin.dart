@@ -120,7 +120,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
     final status = await Permission.storage.request(); // Request permission
     if (status.isGranted) {
       final url =
-          'https://testing.impstudio.id/approvall/storage/${widget.absen['file']}';
+          'https://admin.approval.impstudio.id/storage/${widget.absen['file']}';
       final downloadedFile = await downloadFile(url, widget.absen['file']);
 
       if (downloadedFile != null && downloadedFile.existsSync()) {
@@ -167,7 +167,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/get/' +
         widget.absen['id'].toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -175,7 +175,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
   }
 
   Future destroyPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/delete/' +
         widget.absen['id'].toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -429,7 +429,7 @@ class _DetailRequestPerjadinState extends State<DetailRequestPerjadin>
                               'Masuk : ' +
                                   DateFormat('dd MMMM yyyy').format(
                                       DateTime.parse(
-                                              widget.absen['entry_date'])),
+                                          widget.absen['entry_date'])),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
