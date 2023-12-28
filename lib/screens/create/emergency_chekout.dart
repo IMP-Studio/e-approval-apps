@@ -19,7 +19,7 @@ class Emergency extends StatefulWidget {
 class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
   SharedPreferences? preferences;
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -48,7 +48,7 @@ class _EmergencyState extends State<Emergency> with WidgetsBindingObserver {
     int userId = preferences?.getInt('user_id') ?? 0;
     final response = await http.post(
         Uri.parse(
-            'https://testing.impstudio.id/approvall/api/presence/emergency?user_id=$userId'),
+            'https://admin.approval.impstudio.id/api/presence/emergency?user_id=$userId'),
         body: {
           "emergency_description": emergency.text,
         });

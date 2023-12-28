@@ -17,16 +17,15 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:flutter/services.dart';
 
 class CheckoutMapWFO extends StatefulWidget {
-
-  final Map<String, dynamic> presence; 
+  final Map<String, dynamic> presence;
   const CheckoutMapWFO({super.key, required this.presence});
-  
 
   @override
   State<CheckoutMapWFO> createState() => CheckoutMapWFOState();
 }
 
-class CheckoutMapWFOState extends State<CheckoutMapWFO> with WidgetsBindingObserver {
+class CheckoutMapWFOState extends State<CheckoutMapWFO>
+    with WidgetsBindingObserver {
   Position? _position;
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -127,9 +126,8 @@ class CheckoutMapWFOState extends State<CheckoutMapWFO> with WidgetsBindingObser
     required double latitude,
     required double longitude,
   }) async {
-
     var uri = Uri.parse(
-        'https://testing.impstudio.id/approvall/api/presence/update/$presenceId');
+        'https://admin.approval.impstudio.id/api/presence/update/$presenceId');
 
     var request = http.MultipartRequest('POST', uri)
       ..headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -151,7 +149,6 @@ class CheckoutMapWFOState extends State<CheckoutMapWFO> with WidgetsBindingObser
       throw Exception('Failed to update data. Response: $responseData');
     }
   }
-
 
   Future<void> _updateLocationAndAddress() async {
     Position? tempPosition = await _getCurrentLocation();
@@ -529,10 +526,10 @@ class CheckoutMapWFOState extends State<CheckoutMapWFO> with WidgetsBindingObser
                     WidgetsBinding.instance.addPostFrameCallback((_) async {
                       try {
                         await updateWfo(
-                            presenceId: widget.presence['presence_id'],
-                            exitTime: DateTime.now(),
-                            latitude: _position!.latitude,
-                            longitude: _position!.longitude,
+                          presenceId: widget.presence['presence_id'],
+                          exitTime: DateTime.now(),
+                          latitude: _position!.latitude,
+                          longitude: _position!.longitude,
                         );
                         print("checkout");
 
@@ -884,14 +881,9 @@ class CheckoutMapWFOState extends State<CheckoutMapWFO> with WidgetsBindingObser
                   child: FloatingActionButton(
                     elevation: 0,
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pop(
                         context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) =>
-                              MainLayout(),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
+                        
                       );
                       _timer.cancel();
                     },

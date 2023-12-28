@@ -51,7 +51,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     try {
       await getUserData();
 
-
       if (widget.profile['facepoint'] != null) {
         data = jsonDecode(widget.profile['facepoint']);
       }
@@ -62,7 +61,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
       }
 
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        await _updateLocationAndAddress(); 
+        await _updateLocationAndAddress();
       });
     } catch (e) {
       print("Error in initializePage: $e");
@@ -70,7 +69,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   }
 
   SharedPreferences? preferences;
-
 
   Future<void> _updateLocationAndAddress() async {
     _position = await _getCurrentLocation();
@@ -172,7 +170,6 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
   late LocationPermission permission;
   String _currentAddress = "";
   late Timer _timer;
-
 
   Timer? recognitionTimer;
 
@@ -377,7 +374,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
     String jsonData = json.encode(data);
 
     var uri =
-        Uri.parse('https://testing.impstudio.id/approvall/api/presence/store');
+        Uri.parse('https://admin.approval.impstudio.id/api/presence/store');
     var request = http.MultipartRequest('POST', uri);
 
     Map<String, String> fields = {
@@ -402,15 +399,7 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
         });
         break;
       case 'work_trip':
-        request.fields.addAll({
-          "start_date":
-              DateFormat('yyyy-MM-dd').format(widget.arguments['start_date']),
-          "end_date":
-              DateFormat('yyyy-MM-dd').format(widget.arguments['end_date']),
-          "entry_date":
-              DateFormat('yyyy-MM-dd').format(widget.arguments['entry_date']),
-        });
-
+      
         // Check if the 'file' argument contains a valid file path.
         if (widget.arguments.containsKey('file')) {
           String filePath = widget.arguments['file'].toString();
@@ -471,14 +460,14 @@ class _FacePageState extends State<FacePage> with WidgetsBindingObserver {
         leading: IconButton(
           color: Colors.black,
           onPressed: () async {
-              await _camera!.stopImageStream();
-              await Future.delayed(const Duration(milliseconds: 400));
-              await _camera!.dispose();
-              await Future.delayed(const Duration(milliseconds: 400));
-              _camera = null;
-              _timer.cancel();
-              Navigator.pop(context);
-              Navigator.pop(context, 'refresh');
+            await _camera!.stopImageStream();
+            await Future.delayed(const Duration(milliseconds: 400));
+            await _camera!.dispose();
+            await Future.delayed(const Duration(milliseconds: 400));
+            _camera = null;
+            _timer.cancel();
+            Navigator.pop(context);
+            Navigator.pop(context, 'refresh');
           },
           icon: const Icon(Icons.arrow_back),
         ),

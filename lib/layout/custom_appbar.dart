@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imp_approval/screens/notification_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -35,7 +36,6 @@ class _CustomAppbarzState extends State<CustomAppbarz> {
   @override
   Widget build(BuildContext context) {
     if (_name == null || _divisi == null || _avatar == null) {
-      // Display the shimmer effect here
       return AppBar(
         backgroundColor: Colors.white,
         elevation: 0.1,
@@ -60,14 +60,14 @@ class _CustomAppbarzState extends State<CustomAppbarz> {
                 children: [
                   Container(
                     color: Colors.grey[300],
-                    width: 80, // Adjust as needed
-                    height: 14, // Adjust as needed
+                    width: 80, 
+                    height: 14, 
                   ),
                   const SizedBox(height: 5),
                   Container(
                     color: Colors.grey[300],
-                    width: 60, // Adjust as needed
-                    height: 10, // Adjust as needed
+                    width: 60, 
+                    height: 10,
                   ),
                 ],
               ),
@@ -97,7 +97,7 @@ class _CustomAppbarzState extends State<CustomAppbarz> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(90),
-              child: (_avatar ?? '').isNotEmpty
+              child: _avatar != 'default'
                   ? Image.network(
                       'https://testing.impstudio.id/approvall/storage/' +
                           _avatar!,
@@ -142,12 +142,20 @@ class _CustomAppbarzState extends State<CustomAppbarz> {
         ),
         actions: [
           Align(
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.notifications_none_sharp,
-              color: Color.fromRGBO(67, 129, 202, 1),
-            ),
-          ),
+              alignment: Alignment.center,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotificationPage()),
+                  );
+                },
+                icon: Icon(
+                  Icons.notifications_none_sharp,
+                  color: Color.fromRGBO(67, 129, 202, 1),
+                ),
+              )),
           SizedBox(width: 10),
         ],
       );

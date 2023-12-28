@@ -14,6 +14,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
 class DetailCuti extends StatefulWidget {
   final Leaves absen;
@@ -48,63 +50,80 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
     }
   }
 
-  Future<File?> downloadFile(String url, String filename) async {
-    try {
-      final response = await http.get(Uri.parse(url));
+ Future<File?> downloadFile(String url, String filename) async {
+  try {
+    final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final downloadsDirectory = Directory('/storage/emulated/0/Download');
+    if (response.statusCode == 200) {
+      // Get documents directory
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      print("Documents directory: ${documentsDirectory.path}");
 
-        // Ensure the directory exists
-        if (!await downloadsDirectory.exists()) {
-          await downloadsDirectory.create(recursive: true);
-        }
+      // Create the file path
+      final filePath = '${documentsDirectory.path}/$filename';
+      print("Attempting to save file to: $filePath");
 
-        final file = File('${downloadsDirectory.path}/$filename');
-        print(
-            "Attempting to save file to: ${file.path}"); // This will print out the exact path where the file is being saved
+      final file = File(filePath);
 
-        // Before writing to the file, let's check if the directory exists.
-        final parentDir = file.parent;
-        if (!await parentDir.exists()) {
-          await parentDir.create(
-              recursive: true); // Ensuring the directory structure exists.
-        }
-
-        return file.writeAsBytes(response.bodyBytes);
+      // Before writing to the file, let's check if the directory exists.
+      final parentDir = file.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(
+            recursive: true); // Ensuring the directory structure exists.
       }
-    } catch (e) {
-      print("Error downloading file: $e");
+
+      return file.writeAsBytes(response.bodyBytes);
+    } else {
+      print("Failed to download file. Status code: ${response.statusCode}");
     }
-    return null;
+  } catch (e) {
+    print("Error downloading file: $e");
   }
+  return null;
+}
 
-      Future<void> onDownloadButtonPressed() async {
-        final filess = widget.absen.file.toString();
-        final url = 'https://testing.impstudio.id/approvall/storage/$filess';
+  Future<void> onDownloadButtonPressed() async {
+  final filess = widget.absen.file.toString();
+  final url = 'https://admin.approval.impstudio.id/storage/$filess';
 
-        if (filess.toLowerCase().endsWith(".pdf")) {
-          // Handle PDF files by downloading and then displaying
-          final downloadedFile = await downloadFile(url, filess);
+  if (filess.toLowerCase().endsWith(".pdf")) {
+    final downloadedFile = await downloadFile(url, filess);
 
-          if (downloadedFile != null && downloadedFile.existsSync()) {
-            print("File path: ${downloadedFile.path}");
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PDFViewerScreen(filePath: downloadedFile.path),
-              ),
-            );
-          } else {
-            print(
-                "Failed to fetch PDF file or file does not exist at expected path");
-            if (downloadedFile != null) {
-              print("Expected file path: ${downloadedFile.path}");
-            }
-          }
-        }
+    if (downloadedFile != null && downloadedFile.existsSync()) {
+      print("File path: ${downloadedFile.path}");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              PDFViewerScreen(filePath: downloadedFile.path),
+        ),
+      );
+    } else {
+      print(
+          "Failed to fetch PDF file or file does not exist at expected path" +
+              '${url}' + '${filess}');
+      if (downloadedFile != null) {
+        print("Expected file path: ${downloadedFile.path}");
       }
+    }
+  } else {
+    // Initiate download for non-PDF files
+    final taskId = await FlutterDownloader.enqueue(
+      url: url,
+      savedDir: (await getExternalStorageDirectory())!.path,
+      fileName: filess,
+      showNotification: true,
+      openFileFromNotification: true,
+    );
+
+    if (taskId != null) {
+      print("Non-PDF file downloading with task ID: $taskId");
+    } else {
+      print("Failed to initiate non-PDF file download");
+    }
+  }
+}
+
 
   String formatDateRange(String startDate, String endDate) {
     DateTime start = DateTime.parse(startDate);
@@ -120,7 +139,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   }
 
   Future destroyLeave() async {
-    String url = 'https://testing.impstudio.id/approvall/api/leave/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/leave/delete/' +
         widget.absen.serverId.toString();
 
     var response = await http.delete(Uri.parse(url));
@@ -129,7 +148,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/leave/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/leave/get/' +
         widget.absen.serverId.toString();
     try {
       var response = await http.get(Uri.parse(url));
@@ -188,32 +207,38 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
       Color containerColor;
       Color textColor;
       String text;
+      double width;
 
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
           textColor = const Color(0xffCA4343);
           text = 'Rejected';
+          width = 0.16;
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
           textColor = const Color(0xffFFC52D);
           text = 'Pending';
+          width = 0.16;
           break;
         case 'preliminary':
-          containerColor = const Color(0xffFFEFC6);
-          textColor = const Color(0xffFFC52D);
-          text = 'Pending';
+          containerColor = const Color(0xffCAE2FF);
+          textColor = const Color(0xffF4381CA);
+          text = 'Preliminary';
+          width = 0.20;
           break;
         case 'allowed':
           containerColor = kGreenAllow;
           textColor = kGreen;
           text = 'Allowed';
+          width = 0.16;
           break;
         default:
           containerColor = Colors.grey;
           textColor = Colors.white;
-          text = 'Unknown Status';
+          text = 'Unknown';
+          width = 0.16;
       }
 
       return Row(
@@ -221,7 +246,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
             alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.16,
+            width: MediaQuery.of(context).size.width * width,
             decoration: BoxDecoration(
                 border: Border.all(width: 0.8, color: textColor),
                 color: containerColor,
@@ -240,6 +265,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
     }
 
     String currentStatus = widget.absen.status ?? 'Unknown';
+    final statusAbsen = widget.absen.status?.toUpperCase();
 
     // ignore: unused_local_variable
     Widget statusWidget = getStatusRow(currentStatus);
@@ -323,7 +349,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                   color: kTextoo,
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  margin: const EdgeInsets.symmetric(vertical: 20),
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: const BoxDecoration(
@@ -334,7 +360,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        radius: MediaQuery.of(context).size.width * 0.05,
+                        radius: MediaQuery.of(context).size.width * 0.04,
                         backgroundImage: const AssetImage(
                           "assets/img/profil2.png",
                         ),
@@ -349,7 +375,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                             widget.absen.namaLengkap ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.039,
+                                  MediaQuery.of(context).size.width * 0.032,
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
@@ -358,7 +384,7 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                             widget.absen.posisi ?? 'Unknown',
                             style: GoogleFonts.montserrat(
                               fontSize:
-                                  MediaQuery.of(context).size.width * 0.028,
+                                  MediaQuery.of(context).size.width * 0.026,
                               color: greyText,
                               fontWeight: FontWeight.w400,
                             ),
@@ -378,9 +404,6 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.028,
-                  ),
                   RichText(
                     textAlign: TextAlign.left,
                     text: TextSpan(
@@ -426,7 +449,8 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                         children: [
                           Text(
                               'Tanggal : ' +
-                                  formatDateRange(widget.absen.startDate ?? '00-00-0000',
+                                  formatDateRange(
+                                      widget.absen.startDate ?? '00-00-0000',
                                       widget.absen.endDate ?? '00-00-0000'),
                               style: GoogleFonts.montserrat(
                                 fontSize:
@@ -438,8 +462,8 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                           Text(
                               'Masuk : ' +
                                   DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(
-                                              widget.absen.entryDate ?? '00-00-0000')),
+                                      DateTime.parse(widget.absen.entryDate ??
+                                          '00-00-0000')),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,
@@ -451,60 +475,68 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                     ],
                   ),
                   Visibility(
-                    visible: widget.absen.file != null,
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                  Visibility(
-                    visible: widget.absen.file != null,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        side: BorderSide(color: kBorder.withOpacity(0.5)),
-                        fixedSize:
-                            Size(MediaQuery.of(context).size.width * 1, 50),
-                      ),
-                      onPressed: onDownloadButtonPressed,
-                      child: Row(
+                      visible: widget.absen.file != null,
+                      child: Column(
                         children: [
-                          const Padding(padding: EdgeInsets.only(left: 10)),
-                          Icon(
-                            LucideIcons.fileText,
-                            size: 24.0,
-                            color: kBorder.withOpacity(0.5),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.02,
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              side: BorderSide(color: kBorder.withOpacity(0.5)),
+                              fixedSize: Size(
+                                  MediaQuery.of(context).size.width * 1, 50),
+                            ),
+                            onPressed: onDownloadButtonPressed,
+                            child: Row(
                               children: [
-                                Text(
-                                  truncateFileName(
-                                      widget.absen.originalFile ?? 'unknown',
-                                      (MediaQuery.of(context).size.width * 0.1)
-                                          .toInt()),
-                                  style: GoogleFonts.montserrat(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.03,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                const Padding(
+                                    padding: EdgeInsets.only(left: 10)),
+                                Icon(
+                                  LucideIcons.fileText,
+                                  size: 24.0,
+                                  color: kBorder.withOpacity(0.5),
                                 ),
-                                // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        truncateFileName(
+                                            widget.absen.originalFile ??
+                                                'unknown',
+                                            (MediaQuery.of(context).size.width *
+                                                    0.1)
+                                                .toInt()),
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.03,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      // This is a placeholder. You'd replace "1.2MB" with the actual file size using formatBytes function once you have it.
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ],
-                      ),
+                      )),
+                  Visibility(
+                    visible: widget.absen.status == 'pending',
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
                     ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -514,8 +546,6 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            //SEMENTARA DI COMMENT
-
                             Visibility(
                               visible: widget.absen.status == 'pending',
                               child: FutureBuilder(
@@ -590,11 +620,9 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                                 },
                               ),
                             ),
-
                             const SizedBox(
                               width: 8,
                             ),
-
                             Visibility(
                               visible: widget.absen.status == 'pending',
                               child: OutlinedButton(
@@ -628,6 +656,112 @@ class _DetailCutiState extends State<DetailCuti> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
+                  Column(
+                    children: [
+                      Visibility(
+                          visible: widget.absen.status == 'rejected' ||
+                              widget.absen.status == 'allowed',
+                          child: Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context).size.height *
+                                        0.03),
+                                width: MediaQuery.of(context).size.width *
+                                    1 /
+                                    1.12,
+                                height: 1,
+                                color:
+                                    const Color(0xffC2C2C2).withOpacity(0.30),
+                              ),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Text('Approver Name',
+                                                style: GoogleFonts.montserrat(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.040,
+                                                  color: blueText,
+                                                  fontWeight: FontWeight.w600,
+                                                )),
+                                            SizedBox(
+                                              height: 8,
+                                            ),
+                                            Text('Status : ${statusAbsen}',
+                                                style: GoogleFonts.montserrat(
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.030,
+                                                  color: greyText,
+                                                  fontWeight: FontWeight.w500,
+                                                )),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      RichText(
+                                        textAlign: TextAlign.left,
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: '“',
+                                              style: GoogleFonts.montserrat(
+                                                color: kPrimary,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: widget.absen
+                                                      .statusDescription ??
+                                                  '-',
+                                              style: GoogleFonts.montserrat(
+                                                color: greyText,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: '”',
+                                              style: GoogleFonts.montserrat(
+                                                color: kPrimary,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.039,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ]),
+                              )
+                            ],
+                          )),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -676,8 +810,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         children: <Widget>[
           PDFView(
             filePath: widget.filePath,
-            onViewCreated: (PDFViewController pdfViewController) {
-            },
+            onViewCreated: (PDFViewController pdfViewController) {},
             onPageChanged: (int? page, int? totalPages) {
               if (page != null && totalPages != null) {
                 if (_totalPages == 0) {

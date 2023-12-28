@@ -96,7 +96,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti>
   }
 
   Future destroyLeave() async {
-    String url = 'https://testing.impstudio.id/approvall/api/leave/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/leave/delete/' +
         widget.absen['id'].toString();
 
     var response = await http.delete(Uri.parse(url));
@@ -105,7 +105,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti>
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/leave/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/leave/get/' +
         widget.absen['id'].toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -403,7 +403,7 @@ class _DetailRequestCutiState extends State<DetailRequestCuti>
                               'Masuk : ' +
                                   DateFormat('dd MMMM yyyy').format(
                                       DateTime.parse(
-                                              widget.absen['entry_date'])),
+                                          widget.absen['entry_date'])),
                               style: GoogleFonts.montserrat(
                                 fontSize:
                                     MediaQuery.of(context).size.width * 0.028,

@@ -24,7 +24,6 @@ class StandUps {
   final presenceFR = ToOne<Presences>();
   @Id(assignable: true)
   int serverId = 0;
-  // This will store the ID from the server.
 
   StandUps({
     this.id = 0,
@@ -89,7 +88,7 @@ class StandUps {
 
 Future<List<StandUps>> fetchAllStandUps(String userId, String scope) async {
   String url =
-      'https://testing.impstudio.id/approvall/api/standup?id=$userId&scope=$scope';
+      'https://admin.approval.impstudio.id/api/standup?id=$userId&scope=$scope';
   print("Fetching data from URL: $url");
 
   try {
@@ -127,8 +126,6 @@ Future<List<StandUps>> fetchAllStandUps(String userId, String scope) async {
   }
 }
 
-
-
 Future<void> updateCacheWithAllData(List<StandUps> standUpsFromServer) async {
   print(
       "Starting cache update with ${standUpsFromServer.length} standups from server.");
@@ -137,30 +134,33 @@ Future<void> updateCacheWithAllData(List<StandUps> standUpsFromServer) async {
   final box = storeManager.store.box<StandUps>();
 
   for (var standUp in standUpsFromServer) {
-   final existingStandUp = box.get(standUp.serverId);
+    final existingStandUp = box.get(standUp.serverId);
 
-if (existingStandUp == null) {
-    print("StandUp with ID: ${standUp.serverId} does not exist in cache. Adding...");
-    box.put(standUp); // No need to set the id, it's directly mapped now.
-} else {
-    final existingUpdatedAt = DateTime.parse(existingStandUp.updatedAt!);
-    final newUpdatedAt = DateTime.parse(standUp.updatedAt!);
-
-    if (newUpdatedAt.isAfter(existingUpdatedAt)) {
-        print("StandUp with ID: ${standUp.serverId} has newer data. Updating cache...");
-        box.put(standUp); // Directly put it. ObjectBox will recognize it as an update.
+    if (existingStandUp == null) {
+      print(
+          "StandUp with ID: ${standUp.serverId} does not exist in cache. Adding...");
+      box.put(standUp); 
     } else {
-        print("StandUp with ID: ${standUp.serverId} is up-to-date. Skipping cache update.");
-    }
-    
-    // Periksa apakah ada perubahan dalam relasi Presences
-    if (existingStandUp.presenceFR.targetId != standUp.presenceFR.targetId) {
-        print("StandUp with ID: ${standUp.serverId} has a different presence. Updating relation...");
+      final existingUpdatedAt = DateTime.parse(existingStandUp.updatedAt!);
+      final newUpdatedAt = DateTime.parse(standUp.updatedAt!);
+
+      if (newUpdatedAt.isAfter(existingUpdatedAt)) {
+        print(
+            "StandUp with ID: ${standUp.serverId} has newer data. Updating cache...");
+        box.put(
+            standUp); 
+      } else {
+        print(
+            "StandUp with ID: ${standUp.serverId} is up-to-date. Skipping cache update.");
+      }
+
+      if (existingStandUp.presenceFR.targetId != standUp.presenceFR.targetId) {
+        print(
+            "StandUp with ID: ${standUp.serverId} has a different presence. Updating relation...");
         existingStandUp.presenceFR.targetId = standUp.presenceFR.targetId;
         box.put(existingStandUp);
+      }
     }
-}
-
   }
   print("Cache update process completed.");
 }
@@ -169,12 +169,10 @@ Future<List<StandUps>> fetchAndUpdateCache(String userId, String scope) async {
   print(
       "Starting fetch and update process for user ID: $userId with scope: $scope");
 
-  // Fetching all standups
   print("Fetching all standups...");
   final standUps = await fetchAllStandUps(userId, scope);
   print("Successfully fetched ${standUps.length} standups.");
 
-  // Updating cache
   print("Updating cache with fetched standups...");
   await updateCacheWithAllData(standUps);
   print("Cache updated successfully.");

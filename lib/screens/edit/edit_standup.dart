@@ -57,7 +57,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
     int idStandup = widget.standup.serverId;
     final response = await http.put(
         Uri.parse(
-            'https://testing.impstudio.id/approvall/api/standup/update/$idStandup'),
+            'https://admin.approval.impstudio.id/api/standup/update/$idStandup'),
         body: {
           "user_id": preferences
               ?.getInt('user_id')
@@ -74,7 +74,7 @@ class _EditStandUpState extends State<EditStandUp> with WidgetsBindingObserver {
   }
 
   Future destroyStandUp() async {
-    String url = 'https://testing.impstudio.id/approvall/api/standup/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/standup/delete/' +
         widget.standup.id.toString();
 
     var response = await http.delete(Uri.parse(url));

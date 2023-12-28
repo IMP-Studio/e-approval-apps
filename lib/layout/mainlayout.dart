@@ -26,10 +26,6 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
     ]);
   }
 
-
-
-  
-
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
@@ -46,9 +42,6 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    
-
-    
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -87,27 +80,27 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
                     return BottomNavigationBarItem(
                       icon: Icon(
                         listOfIcons[
-                            index], // Replace with your actual icons. listOfIcons data.dart
+                            index], 
                         color:
                             _currentIndex == index ? Colors.blue : Colors.grey,
                       ),
-                      label: '', // Empty label
+                      label: '', 
                     );
                   },
                 ),
               ),
               AnimatedPositioned(
                 duration: const Duration(
-                    milliseconds: 300), // Adjust duration as needed
+                    milliseconds: 300), 
                 left: _currentIndex *
                         (MediaQuery.of(context).size.width / _screens.length) +
-                    16.0, // Account for margin
+                    16.0,
                 bottom: 0,
                 child: Container(
                   width: MediaQuery.of(context).size.width / _screens.length -
-                      32.0, // Account for margin
-                  height: 2, // Height of the underline
-                  color: Colors.blue, // Color of the underline
+                      32.0,
+                  height: 2, 
+                  color: Colors.blue,
                 ),
               ),
             ],

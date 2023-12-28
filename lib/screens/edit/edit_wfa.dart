@@ -36,15 +36,15 @@ class _EditWfaState extends State<EditWfa> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
-String capitalizeFirstLetter(String text) {
-  // ignore: unnecessary_null_comparison
-  if (text == null || text.isEmpty) {
-    return text;
+  String capitalizeFirstLetter(String text) {
+    // ignore: unnecessary_null_comparison
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
   }
-  return text[0].toUpperCase() + text.substring(1);
-}
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -210,7 +210,7 @@ String capitalizeFirstLetter(String text) {
 
     final response = await http.put(
         Uri.parse(
-            'https://testing.impstudio.id/approvall/api/presence/update/$idWfa'),
+            'https://admin.approval.impstudio.id/api/presence/update/$idWfa'),
         body: {
           "user_id": widget.absen['user_id'].toString(),
           "telework_category": selectedValue,
@@ -407,7 +407,6 @@ String capitalizeFirstLetter(String text) {
                         child: Text(
                           capitalizeFirstLetter(item),
                           style: GoogleFonts.montserrat(
-                            
                             fontSize: 14,
                           ),
                         ),
