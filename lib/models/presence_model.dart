@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:imp_approval/objectbox.g.dart';
 import 'package:imp_approval/controller/store_manager.dart';
 import 'standup_model.dart';
+
 StoreManager? storeManager;
 
 @Entity()
@@ -47,7 +48,11 @@ class Presences {
 
   List<StandUps> getStandUps() {
     if (storeManager != null) {
-      return storeManager!.store.box<StandUps>().getAll().where((s) => standupFR.contains(s)).toList();
+      return storeManager!.store
+          .box<StandUps>()
+          .getAll()
+          .where((s) => standupFR.contains(s))
+          .toList();
     } else {
       throw Exception('storeManager is not initialized');
     }
@@ -143,8 +148,6 @@ class Presences {
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
 
-    // You should remove the handling of 'standups' here.
-
     data['file'] = file;
     data['originalFile'] = originalFile;
     data['start_date'] = startDate;
@@ -168,17 +171,15 @@ class Presences {
   }
 }
 
+String formatDate(DateTime? dateTime) {
+  if (dateTime == null) return ''; // handle null datetime if necessary
+  return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+}
 
-  String formatDate(DateTime? dateTime) {
-    if (dateTime == null) return ''; // handle null datetime if necessary
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
-  }
-
-Future<List<Presences>> fetchAllPresences(
-    String userId, String scope, String status, String type,
-    DateTime? startDate, DateTime? endDate) async {
+Future<List<Presences>> fetchAllPresences(String userId, String scope,
+    String status, String type, DateTime? startDate, DateTime? endDate) async {
   String url =
-      'https://testing.impstudio.id/approvall/api/presence?id=$userId&scope=$scope&status=$status';
+      'https://admin.approval.impstudio.id/api/presence?id=$userId&scope=$scope&status=$status';
 
   if (startDate != null) {
     url += '&start_date=${formatDate(startDate)}';
@@ -189,106 +190,93 @@ Future<List<Presences>> fetchAllPresences(
   }
 
   // ignore: unnecessary_null_comparison
-  if (type != null && type.isNotEmpty) { 
+  if (type != null && type.isNotEmpty) {
     url += '&type=$type';
   }
 
-  print("Fetching data from URL: $url");
-
   try {
     final response = await http.get(Uri.parse(url));
-    print("Response body: ${response.body}");
-
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-
       if (data.containsKey("data") && data["data"] is List) {
         List<Presences> presencesList = (data["data"] as List)
             .map((item) => Presences.fromJson(item))
             .toList();
-
         if (presencesList.isNotEmpty) {
-          print("Parsed data to Presences objects: $presencesList");
           return presencesList;
         } else {
-          print("No presences data found in the response.");
           return [];
         }
       } else if (data["data"] == null) {
-        print("No presences data found in the response.");
         return [];
       } else {
         throw Exception('Unexpected format in JSON response.');
       }
     } else {
-      print("Error fetching data with status code: ${response.statusCode}");
-      throw Exception(
-          'Failed to load data with status code: ${response.statusCode}');
+      throw Exception('Failed to load data with status code: ${response.statusCode}');
     }
   } catch (error) {
-    print("An error occurred during the fetch operation: $error");
     throw error;
   }
 }
 
-
-
 Future<void> updateCacheWithAllData(List<Presences> presencesFromServer) async {
-  print(
-      "Starting cache update with ${presencesFromServer.length} presences from server.");
+  try {
+    final storeManager = await StoreManager.getInstance();
+    // ignore: unnecessary_null_comparison
+    if (storeManager == null) {
+      return;
+    }
 
-  final storeManager = await StoreManager.getInstance();
-  final box = storeManager.store.box<Presences>();
+    final box = storeManager.store.box<Presences>();
 
-  for (var presence in presencesFromServer) {
-    final existingPresence = box.get(presence.serverId);
+    for (var presence in presencesFromServer) {
+      final existingPresence = box.get(presence.serverId);
 
-    if (existingPresence == null) {
-      print(
-          "Presence with ID: ${presence.serverId} does not exist in cache. Adding...");
-      box.put(presence); // No need to set the id, it's directly mapped now.
-    } else {
-      final existingUpdatedAt = DateTime.parse(existingPresence.updatedAt!);
-      final newUpdatedAt = DateTime.parse(presence.updatedAt!);
-
-      if (newUpdatedAt.isAfter(existingUpdatedAt)) {
-        print(
-            "Presence with ID: ${presence.serverId} has newer data. Updating cache...");
-        box.put(
-            presence); // Directly put it. ObjectBox will recognize it as an update.
+      if (existingPresence == null) {
+        print("Presence with ID: ${presence.serverId} does not exist in cache. Adding...");
+        box.put(presence);
       } else {
-        print(
-            "Presence with ID: ${presence.serverId} is up-to-date. Skipping cache update.");
+        final existingUpdatedAt = DateTime.parse(existingPresence.updatedAt!);
+        final newUpdatedAt = DateTime.parse(presence.updatedAt!);
+
+        if (newUpdatedAt.isAfter(existingUpdatedAt)) {
+
+          box.put(presence);
+        } else {
+ 
+        }
       }
     }
+  } catch (error, stackTrace) {
+    print("An error occurred during the cache update: $error");
+    print("StackTrace: $stackTrace");
   }
-  print("Cache update process completed.");
 }
 
-Future<List<Presences>> fetchAndUpdateCache(String userId, String scope, String status, int? activeIndex, DateTime? startDate, DateTime? endDate) async {
-  print("Starting fetch and update process for presence");
+Future<List<Presences>> fetchAndUpdateCache(
+    String userId,
+    String scope,
+    String status,
+    int? activeIndex,
+    DateTime? startDate,
+    DateTime? endDate) async {
 
-  // Initialize the storeManager
   storeManager = await StoreManager.getInstance();
 
-  // Determine type based on activeIndex
-  String type = activeIndex == 0 ? '': activeIndex == 1 ? 'WFA' : activeIndex == 2 ? 'PERJADIN' : '';
+  String type = activeIndex == 0
+      ? 'HISTORY'
+      : activeIndex == 1
+          ? 'WFA'
+          : activeIndex == 2
+              ? 'PERJADIN'
+              : 'HISTORY';
 
-  // Fetching all presences...
-  print("Fetching all presences...");
   final presences = await fetchAllPresences(userId, scope, status, type, startDate, endDate);
-  print("Successfully fetched ${presences.length} presences.");
-
-  // Updating cache
-  print("Updating cache with fetched presences...");
   await updateCacheWithAllData(presences);
-  print("Cache updated successfully.");
-
-  // Access the standups
   for (var presence in presences) {
+    // ignore: unused_local_variable
     final standups = presence.getStandUps();
-    print("StandUps for Presence with ID ${presence.id}: $standups");
   }
-
   return presences;
 }
