@@ -97,7 +97,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/get/' +
         widget.absen.serverId.toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -105,7 +105,7 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
   }
 
   Future destroyPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/delete/' +
         widget.absen.serverId.toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -189,8 +189,6 @@ class _DetailBolosState extends State<DetailBolos> with WidgetsBindingObserver {
         ],
       );
     }
-
-
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -96,7 +96,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
   }
 
   Future editPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/get/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/get/' +
         widget.absen['id'].toString();
     var response = await http.get(Uri.parse(url));
     print(response.body);
@@ -104,7 +104,7 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
   }
 
   Future destroyPresence() async {
-    String url = 'https://testing.impstudio.id/approvall/api/presence/delete/' +
+    String url = 'https://admin.approval.impstudio.id/api/presence/delete/' +
         widget.absen['id'].toString();
     var response = await http.delete(Uri.parse(url));
     print(response.body);
@@ -381,8 +381,8 @@ class _DetailRequestWfaState extends State<DetailRequestWfa>
                         height: 3,
                       ),
                       Text(
-                          DateFormat('dd MMMM yyyy').format(
-                              DateTime.parse(widget.absen['date'])),
+                          DateFormat('dd MMMM yyyy')
+                              .format(DateTime.parse(widget.absen['date'])),
                           style: GoogleFonts.montserrat(
                             fontSize: MediaQuery.of(context).size.width * 0.030,
                             color: greyText,

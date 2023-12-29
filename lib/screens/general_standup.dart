@@ -23,31 +23,29 @@ class GeneralStandUp extends StatefulWidget {
 
 class _GeneralStandUpState extends State<GeneralStandUp>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  DateTime? _lastRefreshTime;
 
-      DateTime? _lastRefreshTime;
-      
- Future<void> _refreshStandUp() async {
-  final DateTime now = DateTime.now();
-  final Duration cooldownDuration = Duration(seconds: 30); // Adjust as needed
+  Future<void> _refreshStandUp() async {
+    final DateTime now = DateTime.now();
+    final Duration cooldownDuration = Duration(seconds: 30); // Adjust as needed
 
-  if (_lastRefreshTime != null && now.difference(_lastRefreshTime!) < cooldownDuration) {
-    print('Cooldown period. Not refreshing StandUp.');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please wait a bit before refreshing StandUp again.'))
-    );
-    return;
+    if (_lastRefreshTime != null &&
+        now.difference(_lastRefreshTime!) < cooldownDuration) {
+      print('Cooldown period. Not refreshing StandUp.');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please wait a bit before refreshing StandUp again.')));
+      return;
+    }
+
+    print("Refreshing StandUp started");
+
+    setState(() {
+      _refreshContent();
+    });
+
+    print('StandUp page refreshed');
+    _lastRefreshTime = now; // update the last refresh time
   }
-
-  print("Refreshing StandUp started");
-  
-  setState(() {
-    _refreshContent();
-  });
-
-  print('StandUp page refreshed');
-  _lastRefreshTime = now;  // update the last refresh time
-}
-
 
   String _searchQuery = "";
 
@@ -59,13 +57,12 @@ class _GeneralStandUpState extends State<GeneralStandUp>
   List<dynamic> filterData(List<dynamic> data, String query) {
     return data.where((item) {
       final title = item.project ?? '';
-      final name = item.namaLengkap?? '';
+      final name = item.namaLengkap ?? '';
 
       final status = item.blocker != null ? "blocker" : "done";
 
       bool matchesQuery = title.toLowerCase().contains(query.toLowerCase()) ||
           name.toLowerCase().contains(query.toLowerCase());
-
 
       if (query.toLowerCase() == "blocker" || query.toLowerCase() == "done") {
         return status == query.toLowerCase();
@@ -80,7 +77,6 @@ class _GeneralStandUpState extends State<GeneralStandUp>
   bool _isSnackbarVisible = false;
 
   @override
-
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -216,27 +212,6 @@ class _GeneralStandUpState extends State<GeneralStandUp>
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void hideButton() {
-    if (isButtonVisible) {
-      setState(() {
-        isButtonVisible = false;
-      });
-    }
-  }
-
-  void showButton() {
-    if (!isButtonVisible) {
-      setState(() {
-        isButtonVisible = true;
-      });
-    }
-  }
-
-  void startTimer() {
-    Duration duration = const Duration(seconds: 4);
-    Future.delayed(duration, hideButton);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -255,7 +230,6 @@ class _GeneralStandUpState extends State<GeneralStandUp>
           userId, scope); // asumsikan Anda memiliki userId dan scope
       print(preferences?.getInt('user_id'));
     });
-    startTimer();
   }
 
   @override
@@ -286,7 +260,7 @@ class _GeneralStandUpState extends State<GeneralStandUp>
   Future<List<dynamic>> getStandUpUser({String? filter}) async {
     int userId = preferences?.getInt('user_id') ?? 0;
     final String baseUrl =
-        'https://testing.impstudio.id/approvall/api/standup?id=$userId&scope=year';
+        'https://admin.approval.impstudio.id/api/standup?id=$userId&scope=year';
 
     print("Fetching data from URL: $baseUrl");
 
@@ -318,418 +292,230 @@ class _GeneralStandUpState extends State<GeneralStandUp>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        showButton();
-        startTimer();
-      },
-      onVerticalDragUpdate: (details) {
-        showButton();
-        startTimer();
-      },
-      child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.white,
-            shadowColor: Colors.transparent,
-            title: Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Row(
-                    children: [
-                      const Icon(
-                        LucideIcons.chevronLeft,
-                        color: kButton,
-                      ),
-                      Text(
-                        'Kembali',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 10,
-                          color: kButton,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                const Align(
-                  alignment: Alignment.center,
-                  child: Icon(
-                    LucideIcons.briefcase,
-                    color: Color.fromRGBO(67, 129, 202, 1),
-                  ),
-                )
-              ],
-            ),
-          ),
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
-          body: RefreshIndicator(
-            onRefresh: _refreshStandUp,
-            child: NotificationListener<OverscrollIndicatorNotification>(
+          shadowColor: Colors.transparent,
+          title: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.chevronLeft,
+                      color: kButton,
+                    ),
+                    Text(
+                      'Kembali',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 10,
+                        color: kButton,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              const Align(
+                alignment: Alignment.center,
+                child: Icon(
+                  LucideIcons.briefcase,
+                  color: Color.fromRGBO(67, 129, 202, 1),
+                ),
+              )
+            ],
+          ),
+        ),
+        backgroundColor: Colors.white,
+        body: RefreshIndicator(
+          onRefresh: _refreshStandUp,
+          child: NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (overscroll) {
               overscroll.disallowIndicator();
               return true;
             },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.width * 0.35,
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [kTextoo, kTextoo])),
-                      child: Row(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width * 0.15,
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.007,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20.0)),
-                                ),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.width * 0.35,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [kTextoo, kTextoo])),
+                    child: Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.15,
+                                height:
+                                    MediaQuery.of(context).size.width * 0.007,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20.0)),
                               ),
-                              const SizedBox(
-                                height: 10.0,
+                            ),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 20.0,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 20.0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "GENERAL STAND UP",
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "GENERAL STAND UP",
+                                    style: GoogleFonts.getFont('Montserrat',
+                                        textStyle: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.055,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
+                                  ),
+                                  const SizedBox(
+                                    height: 5.0,
+                                  ),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55,
+                                    child: Text(
+                                      "Tempat berbagi masalah dan project",
                                       style: GoogleFonts.getFont('Montserrat',
                                           textStyle: TextStyle(
                                               fontSize: MediaQuery.of(context)
                                                       .size
                                                       .width *
-                                                  0.055,
+                                                  0.028,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.white)),
                                     ),
-                                    const SizedBox(
-                                      height: 5.0,
+                                  ),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.55,
+                                    child: Text(
+                                      "Laporkan aktivitasmu",
+                                      style: GoogleFonts.getFont('Montserrat',
+                                          textStyle: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.028,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white)),
                                     ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.55,
-                                      child: Text(
-                                        "Tempat berbagi masalah dan project",
-                                        style: GoogleFonts.getFont('Montserrat',
-                                            textStyle: TextStyle(
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.028,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white)),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.55,
-                                      child: Text(
-                                        "Laporkan aktivitasmu",
-                                        style: GoogleFonts.getFont('Montserrat',
-                                            textStyle: TextStyle(
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.028,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: SvgPicture.asset(
-                              "assets/img/general-standup.svg",
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              height: MediaQuery.of(context).size.width * 0.3,
-                              fit: BoxFit.cover,
                             ),
-                          )
-                        ],
-                      ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: SvgPicture.asset(
+                            "assets/img/general-standup.svg",
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery.of(context).size.width * 0.3,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      ],
                     ),
-                    SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Container(
-                              // height: 40.0,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(100.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      spreadRadius: 0,
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 1)),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 9,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 15.0),
-                                      child: TextField(
-                                        style:GoogleFonts.montserrat(
-                                              color: kTextBlcknw,
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.034) ,
-                                        onChanged: (text) {
-                                          setState(() {
-                                            _searchQuery = text;
-                                            _refreshContent();
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          hintText: "Cari Project...",
-                                          border: InputBorder.none,
-                                          hintStyle: GoogleFonts.montserrat(
-                                              color: kTextBlcknw,
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.034),
-                                        ),
+                  ),
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Container(
+                            // height: 40.0,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(100.0),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 0,
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1)),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 9,
+                                  child: Container(
+                                    padding: const EdgeInsets.only(left: 15.0),
+                                    child: TextField(
+                                      style: GoogleFonts.montserrat(
+                                          color: kTextBlcknw,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.034),
+                                      onChanged: (text) {
+                                        setState(() {
+                                          _searchQuery = text;
+                                          _refreshContent();
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: "Cari Project...",
+                                        border: InputBorder.none,
+                                        hintStyle: GoogleFonts.montserrat(
+                                            color: kTextBlcknw,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.034),
                                       ),
                                     ),
                                   ),
-                                  const Expanded(
-                                    flex: 2,
-                                    child: Icon(
-                                      Icons.search,
-                                      color: Colors.blue,
-                                      size: 30.0,
-                                    ),
+                                ),
+                                const Expanded(
+                                  flex: 2,
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.blue,
+                                    size: 30.0,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          FutureBuilder<List<dynamic>>(
-                            future: _standUpData,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: 7,
-                                  itemBuilder: (context, index) {
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 20, left: 20),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(bottom: 15),
-                                              width: double.infinity,
-                                              height: 95,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                      color: const Color(0xffC2C2C2)
-                                                          .withOpacity(0.30))),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  IntrinsicHeight(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5,
-                                                              left: 10,
-                                                              right: 10),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top: 15,
-                                                                        bottom: 7,
-                                                                        right: 5),
-                                                                child: Container(
-                                                                  width: 20,
-                                                                  color: Colors
-                                                                      .grey[300],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    100, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const Spacer(),
-                                                          const VerticalDivider(
-                                                            color:
-                                                                Color(0xffE6E6E6),
-                                                            thickness: 1,
-                                                          ),
-                                                          const Spacer(),
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    50, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 3,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    30, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    color: const Color(0xffD9D9D9)
-                                                        .withOpacity(0.15),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 10,
-                                                              top: 10,
-                                                              right: 10,
-                                                              left: 10),
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            width:
-                                                                50, // Arbitrary width
-                                                            height: 8.0,
-                                                            color:
-                                                                Colors.grey[300],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                width:
-                                                                    40, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 5,
-                                                              ),
-                                                              Container(
-                                                                width:
-                                                                    60, // Arbitrary width
-                                                                height: 8.0,
-                                                                color: Colors
-                                                                    .grey[300],
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              } else if (snapshot.hasError) {
-                                return SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      ListView.builder(
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        FutureBuilder<List<dynamic>>(
+                          future: _standUpData,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: 7,
@@ -738,12 +524,13 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                     baseColor: Colors.grey[300]!,
                                     highlightColor: Colors.grey[100]!,
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 20, left: 20),
+                                      padding: const EdgeInsets.only(
+                                          right: 20, left: 20),
                                       child: Column(
                                         children: [
                                           Container(
-                                            margin: const EdgeInsets.only(bottom: 15),
+                                            margin: const EdgeInsets.only(
+                                                bottom: 15),
                                             width: double.infinity,
                                             height: 95,
                                             decoration: BoxDecoration(
@@ -751,7 +538,8 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                                     BorderRadius.circular(8),
                                                 color: Colors.white,
                                                 border: Border.all(
-                                                    color: const Color(0xffC2C2C2)
+                                                    color: const Color(
+                                                            0xffC2C2C2)
                                                         .withOpacity(0.30))),
                                             child: Column(
                                               crossAxisAlignment:
@@ -867,7 +655,8 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                                           width:
                                                               50, // Arbitrary width
                                                           height: 8.0,
-                                                          color: Colors.grey[300],
+                                                          color:
+                                                              Colors.grey[300],
                                                         ),
                                                         Row(
                                                           children: [
@@ -902,66 +691,268 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                     ),
                                   );
                                 },
-                              )
-                                    ],
-                                  ),
-                                );
-                              } else if (!snapshot.hasData ||
-                                  snapshot.data!.isEmpty) {
-                                return Container(   
-                                    margin: EdgeInsets.only(top:  MediaQuery.of(context).size.height * 0.08,),  
+                              );
+                            } else if (snapshot.hasError) {
+                              return SingleChildScrollView(
                                 child: Column(
                                   children: [
-                                    SvgPicture.asset(
-                                  "assets/img/EMPTY.svg",
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  fit: BoxFit.cover,
-                                ),
-                                SizedBox(height: 15,),
-                               Text(
-                                "Stand Up Kosong",
-                                style: GoogleFonts.getFont('Montserrat',
-                                    textStyle: TextStyle(
-                                        color: kTextBlcknw,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.044)),
-                              ),
+                                    ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: 7,
+                                      itemBuilder: (context, index) {
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 20, left: 20),
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                      bottom: 15),
+                                                  width: double.infinity,
+                                                  height: 95,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      color: Colors.white,
+                                                      border: Border.all(
+                                                          color: const Color(
+                                                                  0xffC2C2C2)
+                                                              .withOpacity(
+                                                                  0.30))),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      IntrinsicHeight(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 5,
+                                                                  left: 10,
+                                                                  right: 10),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        top: 15,
+                                                                        bottom:
+                                                                            7,
+                                                                        right:
+                                                                            5),
+                                                                    child:
+                                                                        Container(
+                                                                      width: 20,
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          300],
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        100, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        50, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              const Spacer(),
+                                                              const VerticalDivider(
+                                                                color: Color(
+                                                                    0xffE6E6E6),
+                                                                thickness: 1,
+                                                              ),
+                                                              const Spacer(),
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  Container(
+                                                                    width:
+                                                                        50, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 3,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        30, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      Container(
+                                                        color: const Color(
+                                                                0xffD9D9D9)
+                                                            .withOpacity(0.15),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  bottom: 10,
+                                                                  top: 10,
+                                                                  right: 10,
+                                                                  left: 10),
+                                                          child: Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Container(
+                                                                width:
+                                                                    50, // Arbitrary width
+                                                                height: 8.0,
+                                                                color: Colors
+                                                                    .grey[300],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    width:
+                                                                        40, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 5,
+                                                                  ),
+                                                                  Container(
+                                                                    width:
+                                                                        60, // Arbitrary width
+                                                                    height: 8.0,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        300],
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )
                                   ],
-                                )
-                              
-                            );
-                              } else {
-                                List<dynamic> allData = snapshot.data!;
-                                List<dynamic> filteredData =
-                                    filterData(allData, _searchQuery);
-                                if (filteredData.isEmpty) {
-                                  return Center(
-                                    child: Container(
-                                margin: EdgeInsets.only(top: 15),
-                                child: SvgPicture.asset(
-                                  "assets/img/404.svg",
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  fit: BoxFit.cover,
                                 ),
-                              )
-                                  );
-                                }
-                                return ListView.builder(
+                              );
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Container(
+                                  margin: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.08,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SvgPicture.asset(
+                                        "assets/img/EMPTY.svg",
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                        height:
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Text(
+                                        "Stand Up Kosong",
+                                        style: GoogleFonts.getFont('Montserrat',
+                                            textStyle: TextStyle(
+                                                color: kTextBlcknw,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.044)),
+                                      ),
+                                    ],
+                                  ));
+                            } else {
+                              List<dynamic> allData = snapshot.data!;
+                              List<dynamic> filteredData =
+                                  filterData(allData, _searchQuery);
+                              if (filteredData.isEmpty) {
+                                return Center(
+                                    child: Container(
+                                  margin: EdgeInsets.only(top: 15),
+                                  child: SvgPicture.asset(
+                                    "assets/img/404.svg",
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.5,
+                                    height:
+                                        MediaQuery.of(context).size.width * 0.5,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ));
+                              }
+                              return ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: snapshot.data!
                                     .length, // Menentukan jumlah total item
                                 itemBuilder: (BuildContext context, int index) {
                                   final itemData = snapshot.data![index];
-                    
+
                                   return GestureDetector(
                                     onTap: () {
                                       if (currentUser == itemData.userId) {
@@ -1023,7 +1014,8 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                                               const Color(
                                                                   0xff4381CA),
                                                               const Color(
-                                                                  0xff4381CA)] // Colors when blocker is not null
+                                                                  0xff4381CA)
+                                                            ] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
                                                               kTextBlockerr
@@ -1272,17 +1264,16 @@ class _GeneralStandUpState extends State<GeneralStandUp>
                                   );
                                 },
                               );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
-          )),
-    );
+          ),
+        ));
   }
 }

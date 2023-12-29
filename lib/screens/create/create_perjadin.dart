@@ -22,9 +22,6 @@ class CreatePerjadin extends StatefulWidget {
 
 class _CreatePerjadinState extends State<CreatePerjadin>
     with WidgetsBindingObserver {
-  DateTime? _selectedDate;
-  DateTime? _selesaiTanggal;
-  DateTime? _tanggalKembali;
   FilePickerResult? _pickedFile;
 
   late Timer _timer;
@@ -33,7 +30,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
 
   bool _timerInitialized = false;
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -64,7 +61,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     int userId = preferences?.getInt('user_id') ?? 0;
     // String user = userId.toString();
     final String urlj =
-        'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
+        'https://admin.approval.impstudio.id/api/profile?user_id=$userId';
     var response = await http.get(Uri.parse(urlj));
     print(response.body);
     return jsonDecode(response.body);
@@ -85,67 +82,8 @@ class _CreatePerjadinState extends State<CreatePerjadin>
     }
   }
 
-  Future<void> _selectDate() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime
-          .now(), // This ensures that the user can't select a date before today
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _selectedDate = newDate;
-      });
-    }
-  }
-
-  Future<void> _selesaiTanggall() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _selesaiTanggal ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _selesaiTanggal = newDate;
-      });
-    }
-  }
-
-  Future<void> _btntanggalKembali() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _tanggalKembali ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _tanggalKembali = newDate;
-      });
-    }
-  }
-
-  int get differenceInDays {
-    if (_selectedDate != null && _selesaiTanggal != null) {
-      return _selesaiTanggal!.difference(_selectedDate!).inDays;
-    }
-    return 0; // Default value when either date is null
-  }
-
-  int get differenceInDays2 {
-    if (_tanggalKembali != null) {
-      return _tanggalKembali!.difference(_selesaiTanggal!).inDays;
-    }
-    return 0; // Default value when the date is null
-  }
-
-@override
+  
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -302,39 +240,11 @@ class _CreatePerjadinState extends State<CreatePerjadin>
           const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
       return false;
     }
-    if (_selectedDate == null || _selesaiTanggal == null) {
-      showSnackbarWarning(
-          "Fail...",
-          "Tanggal mulai atau akhir belum diisi",
-          kTextBlocker,
-          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
-      return false;
-    }
-    if (_tanggalKembali == null) {
-      showSnackbarWarning("Fail...", "Tanggal masuk belum diisi", kTextBlocker,
-          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
-      return false;
-    }
-    if (differenceInDays < 0) {
-      showSnackbarWarning(
-          "Fail...",
-          "Tanggal mulai dan akhir tidak valid",
-          kTextBlocker,
-          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
-      return false;
-    }
-    if (differenceInDays2 > 3) {
-      showSnackbarWarning(
-          "Fail...",
-          "Maksimal untuk kembali adalah 2 hari",
-          kTextBlocker,
-          const Icon(LucideIcons.xCircle, size: 26.0, color: kTextBlocker));
-      return false;
-    }
+   
     return true;
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -500,180 +410,7 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                 ),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 18, bottom: 5),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Tanggal',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.03,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '*',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.03,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 15),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _selectDate,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selectedDate != null
-                                  ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
-                                  : 'Mulai',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const Spacer(),
-                            const Icon(
-                              LucideIcons.calendar,
-                              color: kBorder,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 15),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                              color: kBorder,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        onPressed: _selesaiTanggall,
-                        child: Row(
-                          children: [
-                            Text(
-                              _selesaiTanggal != null
-                                  ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
-                                  : 'Akhir',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: kTextgrey,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const Spacer(),
-                            const Icon(
-                              LucideIcons.calendar,
-                              color: kBorder,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-            // tgl kembali
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 18, bottom: 5),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Mulai',
-                        style: GoogleFonts.montserrat(
-                          fontSize: MediaQuery.of(context).size.width * 0.03,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '*',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.03,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 15),
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(
-                        color: kBorder,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  onPressed: _btntanggalKembali,
-                  child: Row(
-                    children: [
-                      Text(
-                        _tanggalKembali != null
-                            ? "${_tanggalKembali!.year}/${_tanggalKembali!.month}/${_tanggalKembali!.day}"
-                            : 'Tanggal masuk kembali',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: kTextgrey,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                        LucideIcons.calendar,
-                        color: kBorder,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -714,9 +451,6 @@ class _CreatePerjadinState extends State<CreatePerjadin>
                                       setState(() {
                                         final facePageArgs = {
                                           'category': 'work_trip',
-                                          'start_date': _selectedDate,
-                                          'end_date': _selesaiTanggal,
-                                          'entry_date': _tanggalKembali,
                                           'file': _pickedFile?.files.first.path,
                                         };
 

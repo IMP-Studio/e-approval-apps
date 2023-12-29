@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:imp_approval/objectbox.g.dart';
 import 'package:imp_approval/controller/store_manager.dart';
 import 'standup_model.dart';
+
 StoreManager? storeManager;
 
 @Entity()
@@ -40,7 +41,11 @@ class Profile {
 
   List<StandUps> getStandUps() {
     if (storeManager != null) {
-      return storeManager!.store.box<StandUps>().getAll().where((s) => standupFRs.contains(s)).toList();
+      return storeManager!.store
+          .box<StandUps>()
+          .getAll()
+          .where((s) => standupFRs.contains(s))
+          .toList();
     } else {
       throw Exception('storeManager is not initialized');
     }
@@ -135,10 +140,9 @@ class Profile {
   }
 }
 
-Future<List<Profile>> fetchProfile(
-    String userId) async {
+Future<List<Profile>> fetchProfile(String userId) async {
   String url =
-      'https://testing.impstudio.id/approvall/api/profile?user_id=$userId';
+      'https://admin.approval.impstudio.id/api/profile?user_id=$userId';
 
   try {
     final response = await http.get(Uri.parse(url));
@@ -157,7 +161,7 @@ Future<List<Profile>> fetchProfile(
           return profileList;
         } else {
           print("No profile data found in the response.");
-          return [];  // Return an empty list when profile are null.
+          return []; 
         }
       } else {
         throw Exception('Unexpected format in JSON response.');
@@ -173,7 +177,6 @@ Future<List<Profile>> fetchProfile(
   }
 }
 
-
 Future<void> updateCacheWithAllData(List<Profile> profileFromServer) async {
   print(
       "Starting cache update with ${profileFromServer.length} profile from server.");
@@ -187,7 +190,7 @@ Future<void> updateCacheWithAllData(List<Profile> profileFromServer) async {
     if (existingProfile == null) {
       print(
           "Profile with ID: ${profile.serverId} does not exist in cache. Adding...");
-      box.put(profile); // No need to set the id, it's directly mapped now.
+      box.put(profile); 
     } else {
       final existingUpdatedAt = DateTime.parse(existingProfile.updatedAt!);
       final newUpdatedAt = DateTime.parse(profile.updatedAt!);
@@ -196,7 +199,7 @@ Future<void> updateCacheWithAllData(List<Profile> profileFromServer) async {
         print(
             "Profile with ID: ${profile.serverId} has newer data. Updating cache...");
         box.put(
-            profile); // Directly put it. ObjectBox will recognize it as an update.
+            profile); 
       } else {
         print(
             "Profile with ID: ${profile.serverId} is up-to-date. Skipping cache update.");
@@ -209,20 +212,16 @@ Future<void> updateCacheWithAllData(List<Profile> profileFromServer) async {
 Future<List<Profile>> fetchAndUpdateCache(String userId) async {
   print("Starting fetch and update process for profile");
 
-  // Initialize the storeManager
   storeManager = await StoreManager.getInstance();
 
-  // Fetching all profile...
   print("Fetching all profile...");
   final profile = await fetchProfile(userId);
   print("Successfully fetched ${profile.length} profile.");
 
-  // Updating cache
   print("Updating cache with fetched profile...");
   await updateCacheWithAllData(profile);
   print("Cache updated successfully.");
 
-  // Access the standups
   for (var profile in profile) {
     final standups = profile.getStandUps();
     print("StandUps for Profile with ID ${profile.id}: $standups");

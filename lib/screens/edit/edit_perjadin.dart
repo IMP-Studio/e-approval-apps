@@ -28,19 +28,8 @@ class _EditPerjadinState extends State<EditPerjadin>
     ]);
   }
 
-  DateTime? _selectedDate;
-  DateTime? _selesaiTanggal;
-  DateTime? _tanggalKembali;
   FilePickerResult? _pickedFile;
 
-  String? formatDate(DateTime? date) {
-    if (date == null) return null;
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  TextEditingController mulai_work = TextEditingController();
-  TextEditingController akhir_work = TextEditingController();
-  TextEditingController tanggal_masuk = TextEditingController();
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -57,75 +46,19 @@ class _EditPerjadinState extends State<EditPerjadin>
     }
   }
 
-  Future<void> _selectDate() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _selectedDate = newDate;
-      });
-    }
-  }
-
-  Future<void> _selesaiTanggall() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _selesaiTanggal ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _selesaiTanggal = newDate;
-      });
-    }
-  }
-
-  Future<void> _btntanggalKembali() async {
-    DateTime? newDate = await showDatePicker(
-      context: context,
-      initialDate: _tanggalKembali ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-
-    if (newDate != null) {
-      setState(() {
-        _tanggalKembali = newDate;
-      });
-    }
-  }
-
   Future updatePresence() async {
     String? filePath = _pickedFile?.files.first.path;
     int idPerjadin = widget.absen['id'];
     var uri = Uri.parse(
-        'https://testing.impstudio.id/approvall/api/presence/update/$idPerjadin');
+        'https://admin.approval.impstudio.id/api/presence/update/$idPerjadin');
 
-    var request = http.MultipartRequest('POST', uri) 
-    ..fields['_method'] = 'PUT'  
-    ..fields['user_id'] = widget.absen['user_id'].toString()
-    ..fields['status'] = 'pending'
-    ..headers.addAll({
-      'Content-Type': 'multipart/form-data',
-    });
-
-    // Add dates to the request only if they're not null
-    if (_selectedDate != null) {
-      request.fields['start_date'] = formatDate(_selectedDate)!;
-    }
-    if (_selesaiTanggal != null) {
-      request.fields['end_date'] = formatDate(_selesaiTanggal)!;
-    }
-    if (_tanggalKembali != null) {
-      request.fields['entry_date'] = formatDate(_tanggalKembali)!;
-    }
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['_method'] = 'PUT'
+      ..fields['user_id'] = widget.absen['user_id'].toString()
+      ..fields['status'] = 'pending'
+      ..headers.addAll({
+        'Content-Type': 'multipart/form-data',
+      });
 
     // Add file to the request only if it's not null
     if (filePath != null) {
@@ -317,187 +250,14 @@ class _EditPerjadinState extends State<EditPerjadin>
                       const Icon(
                         LucideIcons.arrowDownCircle,
                         color: kBorder,
-                         size: 16,
+                        size: 16,
                       ),
                     ],
                   ),
                 ),
               ),
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 18, bottom: 5),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Tanggal',
-                          style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.03,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '*',
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.03,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.5,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 15),
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(
-                                color: kBorder,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onPressed: _selectDate,
-                          child: Row(
-                            children: [
-                              Text(
-                                _selectedDate != null
-                                    ? "${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}"
-                                    : '${widget.absen['start_date']}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: kTextgrey,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                LucideIcons.calendar,
-                                color: kBorder,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2.5,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 15),
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                color: kBorder,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onPressed: _selesaiTanggall,
-                          child: Row(
-                            children: [
-                              Text(
-                                _selesaiTanggal != null
-                                    ? "${_selesaiTanggal!.year}/${_selesaiTanggal!.month}/${_selesaiTanggal!.day}"
-                                    : '${widget.absen['end_date']}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: kTextgrey,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                LucideIcons.calendar,
-                                color: kBorder,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              // tgl kembali
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 18, bottom: 5),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Mulai',
-                          style: GoogleFonts.montserrat(
-                            fontSize: MediaQuery.of(context).size.width * 0.03,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '*',
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.03,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 15),
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(
-                          color: kBorder,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    onPressed: _btntanggalKembali,
-                    child: Row(
-                      children: [
-                        Text(
-                          _tanggalKembali != null
-                              ? "${_tanggalKembali!.year}/${_tanggalKembali!.month}/${_tanggalKembali!.day}"
-                              : '${widget.absen['entry_date']}',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: kTextgrey,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          LucideIcons.calendar,
-                          color: kBorder,
-                          size: 18,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -507,43 +267,38 @@ class _EditPerjadinState extends State<EditPerjadin>
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
-                          width: 110,
-                          child: 
-                          ElevatedButton(
-                                         onPressed: () {
-                              print(
-                                _pickedFile?.files.first.path,
-                              );
-                              print(_selesaiTanggal);
-                              print(_selectedDate);
-                              print(_tanggalKembali);
-                              print(widget.absen['id']);
+                            width: 110,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                print(
+                                  _pickedFile?.files.first.path,
+                                );
+                                print(widget.absen['id']);
 
-                              updatePresence().then((value) {
-                                Navigator.pop(context); // Pop once
-                                Navigator.pop(context, 'refresh'); // Pop again
-                              });
-                            },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                    backgroundColor: kButton,
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Update Perjadin',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10,
-                                      color: whiteText,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                )
-                          
-                        ),
+                                updatePresence().then((value) {
+                                  Navigator.pop(context); // Pop once
+                                  Navigator.pop(
+                                      context, 'refresh'); // Pop again
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                backgroundColor: kButton,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'Update Perjadin',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  color: whiteText,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            )),
                       ],
                     ),
                   ),

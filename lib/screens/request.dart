@@ -26,7 +26,7 @@ class RequestScreen extends StatefulWidget {
 class _RequestScreenState extends State<RequestScreen> {
   SharedPreferences? preferences;
 
-@override
+  @override
   void initState() {
     super.initState();
     getUserData().then((_) {
@@ -48,9 +48,8 @@ class _RequestScreenState extends State<RequestScreen> {
   }
 
   Future getAbsensiAll() async {
-
     String baseURL =
-        'https://testing.impstudio.id/approvall/api/presence?id=${widget.profile['user_id']}';
+        'https://admin.approval.impstudio.id/api/presence?id=${widget.profile['user_id']}';
     // String commonParams = '&status=pending';
 
     String specificParams;
@@ -74,7 +73,7 @@ class _RequestScreenState extends State<RequestScreen> {
   // Future getAbsensiRejected() async {
   //   int userId = preferences?.getInt('user_id') ?? 0;
 
-  //   final String urlj =  'https://testing.impstudio.id/approvall/api/presence?id=${widget.profile['user_id']}&status=rejected';
+  //   final String urlj =  'https://admin.approval.impstudio.id/api/presence?id=${widget.profile['user_id']}&status=rejected';
 
   //   var response = await http.get(Uri.parse(urlj));
   //   print(response.body);
@@ -186,14 +185,14 @@ class _RequestScreenState extends State<RequestScreen> {
       switch (status) {
         case 'rejected':
           containerColor = const Color(0xffF9DCDC);
-          textColor =
-              const Color(0xffCA4343); // Or any color that matches well with red.
+          textColor = const Color(
+              0xffCA4343); // Or any color that matches well with red.
           text = 'Rejected';
           break;
         case 'pending':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         case 'allowed':
@@ -208,8 +207,8 @@ class _RequestScreenState extends State<RequestScreen> {
           break;
         case 'preliminary':
           containerColor = const Color(0xffFFEFC6);
-          textColor =
-              const Color(0xffFFC52D); // Black usually matches well with yellow.
+          textColor = const Color(
+              0xffFFC52D); // Black usually matches well with yellow.
           text = 'Pending';
           break;
         default:
@@ -472,7 +471,6 @@ class _RequestScreenState extends State<RequestScreen> {
                                               print(snapshot.data['data'][index]
                                                   ['entry_time']);
 
-
                                               return GestureDetector(
                                                 onTap: () {
                                                   String category = snapshot
@@ -514,8 +512,7 @@ class _RequestScreenState extends State<RequestScreen> {
                                                       break;
                                                     default:
                                                       detailPage =
-                                                          DetailAbsensi(
-                                                              );
+                                                          DetailAbsensi();
                                                       break;
                                                   }
 
@@ -527,7 +524,8 @@ class _RequestScreenState extends State<RequestScreen> {
                                                 },
                                                 child: Container(
                                                   // margin: EdgeInsets.only(right: 5.0),
-                                                  padding: const EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       vertical: 10.0),
                                                   decoration: const BoxDecoration(
                                                       border: Border(
@@ -649,8 +647,9 @@ class _RequestScreenState extends State<RequestScreen> {
                                                       Column(
                                                         children: [
                                                           Container(
-                                                            padding: const EdgeInsets
-                                                                .symmetric(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .symmetric(
                                                                     vertical:
                                                                         10),
                                                             child: Column(
@@ -658,7 +657,9 @@ class _RequestScreenState extends State<RequestScreen> {
                                                                 Row(
                                                                   children: [
                                                                     Text(
-                                                                      DateFormat('dd MMMM').format(DateTime.parse(snapshot.data['data'][index]
+                                                                      DateFormat(
+                                                                              'dd MMMM')
+                                                                          .format(DateTime.parse(snapshot.data['data'][index]
                                                                               [
                                                                               'date'])),
                                                                       style: GoogleFonts.getFont(

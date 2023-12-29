@@ -31,7 +31,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -234,8 +234,8 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   TextEditingController tanggal_masuk = TextEditingController();
 
   Future<List<Map<String, dynamic>>> fetchLeaveOptions() async {
-    final response = await http.get(
-        Uri.parse('https://testing.impstudio.id/approvall/api/leave/option'));
+    final response = await http
+        .get(Uri.parse('https://admin.approval.impstudio.id/api/leave/option'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -249,11 +249,8 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
   }
 
   Future<List<Map<String, dynamic>>> fetchSubtitue() async {
-
-
-
-    final response = await http.get(Uri.parse(
-        'https://testing.impstudio.id/approvall/api/user'));
+    final response = await http
+        .get(Uri.parse('https://admin.approval.impstudio.id/api/user'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -299,8 +296,7 @@ class _CreateCutiState extends State<CreateCuti> with WidgetsBindingObserver {
       return;
     }
 
-    var uri =
-        Uri.parse('https://testing.impstudio.id/approvall/api/leave/store');
+    var uri = Uri.parse('https://admin.approval.impstudio.id/api/leave/store');
 
     // Determine the correct selected value based on leave type
     String? leaveDetailId;

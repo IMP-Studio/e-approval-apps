@@ -15,6 +15,8 @@ import 'package:objectbox/objectbox.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'models/leave_model.dart';
+import 'models/national_leave_model.dart';
+import 'models/notification_model.dart';
 import 'models/presence_model.dart';
 import 'models/profile_model.dart';
 import 'models/project_model.dart';
@@ -664,6 +666,324 @@ final _entities = <ModelEntity>[
             name: 'standupFRs',
             targetId: const IdUid(5, 3447564331827907237))
       ],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(11, 2450041176175030163),
+      name: 'NationalLeaves',
+      lastPropertyId: const IdUid(4, 6733025015433709703),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 2993939422731510970),
+            name: 'id',
+            type: 6,
+            flags: 129),
+        ModelProperty(
+            id: const IdUid(2, 1756850172530871682),
+            name: 'holidayDate',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 6577941145926313677),
+            name: 'holidayName',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 6733025015433709703),
+            name: 'isNationalHoliday',
+            type: 1,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(12, 4696628877672266086),
+      name: 'Notifications',
+      lastPropertyId: const IdUid(56, 5047666160478927218),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 6885501093685389351),
+            name: 'androidAccentColor',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(2, 9212443070861545397),
+            name: 'appId',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 1095908106086988607),
+            name: 'bigPicture',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 293308897674372565),
+            name: 'canceled',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 3340618986432079246),
+            name: 'converted',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 1991061668052561224),
+            name: 'delayedOption',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(7, 1096077836986907467),
+            name: 'errored',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(8, 996992131495289764),
+            name: 'failed',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(9, 6507920391869279928),
+            name: 'globalImage',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(10, 8365408506003094974),
+            name: 'id',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(11, 2754901662830747673),
+            name: 'includePlayerIds',
+            type: 30,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(12, 483282965826082735),
+            name: 'isAdm',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(13, 6724809299582128522),
+            name: 'isAndroid',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(14, 3749209909819020960),
+            name: 'isChrome',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(15, 6208088662151372823),
+            name: 'isChromeWeb',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(16, 576426306085231107),
+            name: 'isAlexa',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(17, 3265467006994937084),
+            name: 'isFirefox',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(18, 5197249647844011900),
+            name: 'isIos',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(19, 3621735353334013449),
+            name: 'isSafari',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(20, 9193003082514561664),
+            name: 'isWP',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(21, 2938282340389701640),
+            name: 'isWPWNS',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(22, 2360335010713793475),
+            name: 'isEdge',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(23, 7157938350408669343),
+            name: 'isHuawei',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(24, 5217595281759711190),
+            name: 'isSMS',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(25, 3534507585397223090),
+            name: 'largeIcon',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(26, 3065946939870993164),
+            name: 'priority',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(27, 4478560615290219083),
+            name: 'queuedAt',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(28, 741906101181657494),
+            name: 'remaining',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(29, 905088708456953251),
+            name: 'sendAfter',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(30, 4764930406215009538),
+            name: 'completedAt',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(31, 2886636301431420438),
+            name: 'smallIcon',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(32, 4004202799951892256),
+            name: 'successful',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(33, 3821645751089496009),
+            name: 'tags',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(34, 3504333649070967191),
+            name: 'filters',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(35, 7921366369387417761),
+            name: 'templateId',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(36, 2120321370655122919),
+            name: 'ttl',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(37, 4387093452307644022),
+            name: 'url',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(38, 3195728144410324630),
+            name: 'webUrl',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(39, 6772038422478647516),
+            name: 'appUrl',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(40, 8137501967294327214),
+            name: 'includeExternalUserIds',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(41, 475053805926535660),
+            name: 'includeAliases',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(42, 5651897034816458208),
+            name: 'fcapStatus',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(43, 4365124934860033349),
+            name: 'smsFrom',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(44, 5272652392291358898),
+            name: 'smsMediaUrls',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(45, 2994013467266148635),
+            name: 'subtitle',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(46, 5122603629352214529),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(47, 8461868874800588878),
+            name: 'emailClickTrackingDisabled',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(48, 8089749558783286801),
+            name: 'isEmail',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(49, 4539886014083165702),
+            name: 'emailSubject',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(50, 8716776857277678361),
+            name: 'emailFromName',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(51, 5816825882737334076),
+            name: 'emailFromAddress',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(52, 8453284551845477092),
+            name: 'emailPreheader',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(53, 1555495093400295444),
+            name: 'emailReplyToAddress',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(54, 2854561095825740077),
+            name: 'includeUnsubscribed',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(55, 5247869847197380189),
+            name: 'threadId',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(56, 5047666160478927218),
+            name: 'serverId',
+            type: 6,
+            flags: 129)
+      ],
+      relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
@@ -694,7 +1014,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(9, 5813840121112059263),
+      lastEntityId: const IdUid(12, 4696628877672266086),
       lastIndexId: const IdUid(5, 6712574827080867299),
       lastRelationId: const IdUid(2, 672913125204316388),
       lastSequenceId: const IdUid(0, 0),
@@ -702,7 +1022,8 @@ ModelDefinition getObjectBoxModel() {
         6130316900400702390,
         570805067087976729,
         761215203056397191,
-        5813840121112059263
+        5813840121112059263,
+        499253502756526266
       ],
       retiredIndexUids: const [
         4407119055099483574,
@@ -776,7 +1097,105 @@ ModelDefinition getObjectBoxModel() {
         8876062551269627735,
         4851485470391153168,
         7800454804698016189,
-        5749617338215995293
+        5749617338215995293,
+        3767966724946778858,
+        2181541122550289360,
+        7438158008476812509,
+        1984163322136926153,
+        5929635313693087061,
+        6717912870209478140,
+        5389914885778483570,
+        1352562662234058748,
+        4604653056374006203,
+        8258765220690332838,
+        4609371955705519223,
+        8764120372671487701,
+        6838696960842603821,
+        2417431482730559816,
+        1337713487728885449,
+        4920732128698833149,
+        3173242730425556148,
+        4919078095166214098,
+        4979659526363679620,
+        8746460451369186513,
+        3463406434174525961,
+        3066276906317681331,
+        5850235133258758618,
+        4134776404374260535,
+        6757906645593843911,
+        5898237631407490107,
+        1924004895446692748,
+        2989318420015624901,
+        7143127823945113423,
+        3283542735245338036,
+        7636268802486781976,
+        1725807164648612098,
+        2668093526384090377,
+        920973959940726771,
+        4260650737311317492,
+        1336862869914689509,
+        2266182709020374479,
+        6492335196975743034,
+        6968604597055805460,
+        5803179660685973344,
+        8389712195263540500,
+        4577435812329486568,
+        8066108360765745365,
+        4490931161933161720,
+        6445423877923369408,
+        337151105116277315,
+        1658809419135878157,
+        1423061867983171281,
+        5995029542395479053,
+        1824087525598434018,
+        5180457232739941484,
+        21425293888986391,
+        6734046549731882197,
+        25460985313876324,
+        543744690275412927,
+        4906228695751255535,
+        8183454054729863111,
+        4775154970951701792,
+        837275126369083861,
+        1524460049974133865,
+        4997350960584978055,
+        8824017551800509882,
+        2465551686890159784,
+        8396979995507654068,
+        2551247098150937020,
+        7530621704761430076,
+        711637918740745127,
+        4903091817268759875,
+        170267625214840692,
+        7234707928455855286,
+        3864863410974565587,
+        8579578314378922321,
+        1300049347661974760,
+        8815347747170359303,
+        7167017000585688697,
+        4008653547934647708,
+        1669611973855977610,
+        8573468139058060423,
+        7122054397923407204,
+        3284229658671559668,
+        3554051892700006088,
+        5578114657794800718,
+        6314623232181674935,
+        2993033537306724253,
+        5954213759217338269,
+        4581207776736400576,
+        1039934313710198021,
+        8417252874219778011,
+        1129209676209748692,
+        825590452238149181,
+        9006477851118377960,
+        2736071507477546168,
+        6733228960588564088,
+        6493966713063697450,
+        6541535176959709900,
+        1819195548749626227,
+        170730600790505061,
+        3938548790250571017
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -1622,6 +2041,380 @@ ModelDefinition getObjectBoxModel() {
           InternalToManyAccess.setRelInfo<Profile>(object.standupFRs, store,
               RelInfo<Profile>.toMany(2, object.serverId));
           return object;
+        }),
+    NationalLeaves: EntityDefinition<NationalLeaves>(
+        model: _entities[5],
+        toOneRelations: (NationalLeaves object) => [],
+        toManyRelations: (NationalLeaves object) => {},
+        getId: (NationalLeaves object) => object.id,
+        setId: (NationalLeaves object, int id) {
+          object.id = id;
+        },
+        objectToFB: (NationalLeaves object, fb.Builder fbb) {
+          final holidayDateOffset = object.holidayDate == null
+              ? null
+              : fbb.writeString(object.holidayDate!);
+          final holidayNameOffset = object.holidayName == null
+              ? null
+              : fbb.writeString(object.holidayName!);
+          fbb.startTable(5);
+          fbb.addInt64(0, object.id ?? 0);
+          fbb.addOffset(1, holidayDateOffset);
+          fbb.addOffset(2, holidayNameOffset);
+          fbb.addBool(3, object.isNationalHoliday);
+          fbb.finish(fbb.endTable());
+          return object.id ?? 0;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final holidayDateParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 6);
+          final holidayNameParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 8);
+          final isNationalHolidayParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 10);
+          final idParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 4);
+          final object = NationalLeaves(
+              holidayDate: holidayDateParam,
+              holidayName: holidayNameParam,
+              isNationalHoliday: isNationalHolidayParam,
+              id: idParam);
+
+          return object;
+        }),
+    Notifications: EntityDefinition<Notifications>(
+        model: _entities[6],
+        toOneRelations: (Notifications object) => [],
+        toManyRelations: (Notifications object) => {},
+        getId: (Notifications object) => object.serverId,
+        setId: (Notifications object, int id) {
+          object.serverId = id;
+        },
+        objectToFB: (Notifications object, fb.Builder fbb) {
+          final androidAccentColorOffset = object.androidAccentColor == null
+              ? null
+              : fbb.writeString(object.androidAccentColor!);
+          final appIdOffset =
+              object.appId == null ? null : fbb.writeString(object.appId!);
+          final bigPictureOffset = object.bigPicture == null
+              ? null
+              : fbb.writeString(object.bigPicture!);
+          final delayedOptionOffset = object.delayedOption == null
+              ? null
+              : fbb.writeString(object.delayedOption!);
+          final globalImageOffset = object.globalImage == null
+              ? null
+              : fbb.writeString(object.globalImage!);
+          final includePlayerIdsOffset = object.includePlayerIds == null
+              ? null
+              : fbb.writeList(object.includePlayerIds!
+                  .map(fbb.writeString)
+                  .toList(growable: false));
+          final largeIconOffset = object.largeIcon == null
+              ? null
+              : fbb.writeString(object.largeIcon!);
+          final smallIconOffset = object.smallIcon == null
+              ? null
+              : fbb.writeString(object.smallIcon!);
+          final tagsOffset =
+              object.tags == null ? null : fbb.writeString(object.tags!);
+          final filtersOffset =
+              object.filters == null ? null : fbb.writeString(object.filters!);
+          final templateIdOffset = object.templateId == null
+              ? null
+              : fbb.writeString(object.templateId!);
+          final urlOffset =
+              object.url == null ? null : fbb.writeString(object.url!);
+          final webUrlOffset =
+              object.webUrl == null ? null : fbb.writeString(object.webUrl!);
+          final appUrlOffset =
+              object.appUrl == null ? null : fbb.writeString(object.appUrl!);
+          final includeAliasesOffset = object.includeAliases == null
+              ? null
+              : fbb.writeString(object.includeAliases!);
+          final fcapStatusOffset = object.fcapStatus == null
+              ? null
+              : fbb.writeString(object.fcapStatus!);
+          final smsFromOffset =
+              object.smsFrom == null ? null : fbb.writeString(object.smsFrom!);
+          final smsMediaUrlsOffset = object.smsMediaUrls == null
+              ? null
+              : fbb.writeString(object.smsMediaUrls!);
+          final subtitleOffset = object.subtitle == null
+              ? null
+              : fbb.writeString(object.subtitle!);
+          final nameOffset =
+              object.name == null ? null : fbb.writeString(object.name!);
+          final emailClickTrackingDisabledOffset =
+              object.emailClickTrackingDisabled == null
+                  ? null
+                  : fbb.writeString(object.emailClickTrackingDisabled!);
+          final emailSubjectOffset = object.emailSubject == null
+              ? null
+              : fbb.writeString(object.emailSubject!);
+          final emailFromNameOffset = object.emailFromName == null
+              ? null
+              : fbb.writeString(object.emailFromName!);
+          final emailFromAddressOffset = object.emailFromAddress == null
+              ? null
+              : fbb.writeString(object.emailFromAddress!);
+          final emailPreheaderOffset = object.emailPreheader == null
+              ? null
+              : fbb.writeString(object.emailPreheader!);
+          final emailReplyToAddressOffset = object.emailReplyToAddress == null
+              ? null
+              : fbb.writeString(object.emailReplyToAddress!);
+          fbb.startTable(57);
+          fbb.addOffset(0, androidAccentColorOffset);
+          fbb.addOffset(1, appIdOffset);
+          fbb.addOffset(2, bigPictureOffset);
+          fbb.addBool(3, object.canceled);
+          fbb.addInt64(4, object.converted);
+          fbb.addOffset(5, delayedOptionOffset);
+          fbb.addInt64(6, object.errored);
+          fbb.addInt64(7, object.failed);
+          fbb.addOffset(8, globalImageOffset);
+          fbb.addInt64(9, object.id);
+          fbb.addOffset(10, includePlayerIdsOffset);
+          fbb.addBool(11, object.isAdm);
+          fbb.addBool(12, object.isAndroid);
+          fbb.addBool(13, object.isChrome);
+          fbb.addBool(14, object.isChromeWeb);
+          fbb.addBool(15, object.isAlexa);
+          fbb.addBool(16, object.isFirefox);
+          fbb.addBool(17, object.isIos);
+          fbb.addBool(18, object.isSafari);
+          fbb.addBool(19, object.isWP);
+          fbb.addBool(20, object.isWPWNS);
+          fbb.addBool(21, object.isEdge);
+          fbb.addBool(22, object.isHuawei);
+          fbb.addBool(23, object.isSMS);
+          fbb.addOffset(24, largeIconOffset);
+          fbb.addInt64(25, object.priority);
+          fbb.addInt64(26, object.queuedAt);
+          fbb.addInt64(27, object.remaining);
+          fbb.addInt64(28, object.sendAfter);
+          fbb.addInt64(29, object.completedAt);
+          fbb.addOffset(30, smallIconOffset);
+          fbb.addInt64(31, object.successful);
+          fbb.addOffset(32, tagsOffset);
+          fbb.addOffset(33, filtersOffset);
+          fbb.addOffset(34, templateIdOffset);
+          fbb.addInt64(35, object.ttl);
+          fbb.addOffset(36, urlOffset);
+          fbb.addOffset(37, webUrlOffset);
+          fbb.addOffset(38, appUrlOffset);
+          fbb.addInt64(39, object.includeExternalUserIds);
+          fbb.addOffset(40, includeAliasesOffset);
+          fbb.addOffset(41, fcapStatusOffset);
+          fbb.addOffset(42, smsFromOffset);
+          fbb.addOffset(43, smsMediaUrlsOffset);
+          fbb.addOffset(44, subtitleOffset);
+          fbb.addOffset(45, nameOffset);
+          fbb.addOffset(46, emailClickTrackingDisabledOffset);
+          fbb.addBool(47, object.isEmail);
+          fbb.addOffset(48, emailSubjectOffset);
+          fbb.addOffset(49, emailFromNameOffset);
+          fbb.addOffset(50, emailFromAddressOffset);
+          fbb.addOffset(51, emailPreheaderOffset);
+          fbb.addOffset(52, emailReplyToAddressOffset);
+          fbb.addBool(53, object.includeUnsubscribed);
+          fbb.addInt64(54, object.threadId);
+          fbb.addInt64(55, object.serverId);
+          fbb.finish(fbb.endTable());
+          return object.serverId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final androidAccentColorParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 4);
+          final appIdParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 6);
+          final bigPictureParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 8);
+          final canceledParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 10);
+          final convertedParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 12);
+          final delayedOptionParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 14);
+          final erroredParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 16);
+          final failedParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 18);
+          final globalImageParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 20);
+          final idParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
+          final includePlayerIdsParam = const fb.ListReader<String>(
+                  fb.StringReader(asciiOptimization: true),
+                  lazy: false)
+              .vTableGetNullable(buffer, rootOffset, 24);
+          final includeExternalUserIdsParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 82);
+          final includeAliasesParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 84);
+          final threadIdParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 112);
+          final isAdmParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 26);
+          final isAndroidParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 28);
+          final isChromeParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 30);
+          final isChromeWebParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 32);
+          final isAlexaParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 34);
+          final isFirefoxParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 36);
+          final isIosParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 38);
+          final isSafariParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 40);
+          final isWPParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 42);
+          final isWPWNSParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 44);
+          final isEdgeParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 46);
+          final isHuaweiParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 48);
+          final isSMSParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 50);
+          final largeIconParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 52);
+          final priorityParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 54);
+          final queuedAtParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 56);
+          final remainingParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 58);
+          final sendAfterParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 60);
+          final completedAtParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 62);
+          final smallIconParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 64);
+          final successfulParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 66);
+          final tagsParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 68);
+          final filtersParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 70);
+          final templateIdParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 72);
+          final ttlParam =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 74);
+          final urlParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 76);
+          final webUrlParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 78);
+          final appUrlParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 80);
+          final fcapStatusParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 86);
+          final smsFromParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 88);
+          final smsMediaUrlsParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 90);
+          final subtitleParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 92);
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 94);
+          final emailClickTrackingDisabledParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 96);
+          final isEmailParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 98);
+          final emailSubjectParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 100);
+          final emailFromNameParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 102);
+          final emailFromAddressParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 104);
+          final emailPreheaderParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 106);
+          final emailReplyToAddressParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGetNullable(buffer, rootOffset, 108);
+          final includeUnsubscribedParam =
+              const fb.BoolReader().vTableGetNullable(buffer, rootOffset, 110);
+          final serverIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 114, 0);
+          final object = Notifications(
+              androidAccentColor: androidAccentColorParam,
+              appId: appIdParam,
+              bigPicture: bigPictureParam,
+              canceled: canceledParam,
+              converted: convertedParam,
+              delayedOption: delayedOptionParam,
+              errored: erroredParam,
+              failed: failedParam,
+              globalImage: globalImageParam,
+              id: idParam,
+              includePlayerIds: includePlayerIdsParam,
+              includeExternalUserIds: includeExternalUserIdsParam,
+              includeAliases: includeAliasesParam,
+              threadId: threadIdParam,
+              isAdm: isAdmParam,
+              isAndroid: isAndroidParam,
+              isChrome: isChromeParam,
+              isChromeWeb: isChromeWebParam,
+              isAlexa: isAlexaParam,
+              isFirefox: isFirefoxParam,
+              isIos: isIosParam,
+              isSafari: isSafariParam,
+              isWP: isWPParam,
+              isWPWNS: isWPWNSParam,
+              isEdge: isEdgeParam,
+              isHuawei: isHuaweiParam,
+              isSMS: isSMSParam,
+              largeIcon: largeIconParam,
+              priority: priorityParam,
+              queuedAt: queuedAtParam,
+              remaining: remainingParam,
+              sendAfter: sendAfterParam,
+              completedAt: completedAtParam,
+              smallIcon: smallIconParam,
+              successful: successfulParam,
+              tags: tagsParam,
+              filters: filtersParam,
+              templateId: templateIdParam,
+              ttl: ttlParam,
+              url: urlParam,
+              webUrl: webUrlParam,
+              appUrl: appUrlParam,
+              fcapStatus: fcapStatusParam,
+              smsFrom: smsFromParam,
+              smsMediaUrls: smsMediaUrlsParam,
+              subtitle: subtitleParam,
+              name: nameParam,
+              emailClickTrackingDisabled: emailClickTrackingDisabledParam,
+              isEmail: isEmailParam,
+              emailSubject: emailSubjectParam,
+              emailFromName: emailFromNameParam,
+              emailFromAddress: emailFromAddressParam,
+              emailPreheader: emailPreheaderParam,
+              emailReplyToAddress: emailReplyToAddressParam,
+              includeUnsubscribed: includeUnsubscribedParam,
+              serverId: serverIdParam);
+
+          return object;
         })
   };
 
@@ -2106,4 +2899,250 @@ class Profile_ {
   /// see [Profile.standupFRs]
   static final standupFRs =
       QueryRelationToMany<Profile, StandUps>(_entities[4].relations[0]);
+}
+
+/// [NationalLeaves] entity fields to define ObjectBox queries.
+class NationalLeaves_ {
+  /// see [NationalLeaves.id]
+  static final id =
+      QueryIntegerProperty<NationalLeaves>(_entities[5].properties[0]);
+
+  /// see [NationalLeaves.holidayDate]
+  static final holidayDate =
+      QueryStringProperty<NationalLeaves>(_entities[5].properties[1]);
+
+  /// see [NationalLeaves.holidayName]
+  static final holidayName =
+      QueryStringProperty<NationalLeaves>(_entities[5].properties[2]);
+
+  /// see [NationalLeaves.isNationalHoliday]
+  static final isNationalHoliday =
+      QueryBooleanProperty<NationalLeaves>(_entities[5].properties[3]);
+}
+
+/// [Notifications] entity fields to define ObjectBox queries.
+class Notifications_ {
+  /// see [Notifications.androidAccentColor]
+  static final androidAccentColor =
+      QueryStringProperty<Notifications>(_entities[6].properties[0]);
+
+  /// see [Notifications.appId]
+  static final appId =
+      QueryStringProperty<Notifications>(_entities[6].properties[1]);
+
+  /// see [Notifications.bigPicture]
+  static final bigPicture =
+      QueryStringProperty<Notifications>(_entities[6].properties[2]);
+
+  /// see [Notifications.canceled]
+  static final canceled =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[3]);
+
+  /// see [Notifications.converted]
+  static final converted =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[4]);
+
+  /// see [Notifications.delayedOption]
+  static final delayedOption =
+      QueryStringProperty<Notifications>(_entities[6].properties[5]);
+
+  /// see [Notifications.errored]
+  static final errored =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[6]);
+
+  /// see [Notifications.failed]
+  static final failed =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[7]);
+
+  /// see [Notifications.globalImage]
+  static final globalImage =
+      QueryStringProperty<Notifications>(_entities[6].properties[8]);
+
+  /// see [Notifications.id]
+  static final id =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[9]);
+
+  /// see [Notifications.includePlayerIds]
+  static final includePlayerIds =
+      QueryStringVectorProperty<Notifications>(_entities[6].properties[10]);
+
+  /// see [Notifications.isAdm]
+  static final isAdm =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[11]);
+
+  /// see [Notifications.isAndroid]
+  static final isAndroid =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[12]);
+
+  /// see [Notifications.isChrome]
+  static final isChrome =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[13]);
+
+  /// see [Notifications.isChromeWeb]
+  static final isChromeWeb =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[14]);
+
+  /// see [Notifications.isAlexa]
+  static final isAlexa =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[15]);
+
+  /// see [Notifications.isFirefox]
+  static final isFirefox =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[16]);
+
+  /// see [Notifications.isIos]
+  static final isIos =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[17]);
+
+  /// see [Notifications.isSafari]
+  static final isSafari =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[18]);
+
+  /// see [Notifications.isWP]
+  static final isWP =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[19]);
+
+  /// see [Notifications.isWPWNS]
+  static final isWPWNS =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[20]);
+
+  /// see [Notifications.isEdge]
+  static final isEdge =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[21]);
+
+  /// see [Notifications.isHuawei]
+  static final isHuawei =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[22]);
+
+  /// see [Notifications.isSMS]
+  static final isSMS =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[23]);
+
+  /// see [Notifications.largeIcon]
+  static final largeIcon =
+      QueryStringProperty<Notifications>(_entities[6].properties[24]);
+
+  /// see [Notifications.priority]
+  static final priority =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[25]);
+
+  /// see [Notifications.queuedAt]
+  static final queuedAt =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[26]);
+
+  /// see [Notifications.remaining]
+  static final remaining =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[27]);
+
+  /// see [Notifications.sendAfter]
+  static final sendAfter =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[28]);
+
+  /// see [Notifications.completedAt]
+  static final completedAt =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[29]);
+
+  /// see [Notifications.smallIcon]
+  static final smallIcon =
+      QueryStringProperty<Notifications>(_entities[6].properties[30]);
+
+  /// see [Notifications.successful]
+  static final successful =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[31]);
+
+  /// see [Notifications.tags]
+  static final tags =
+      QueryStringProperty<Notifications>(_entities[6].properties[32]);
+
+  /// see [Notifications.filters]
+  static final filters =
+      QueryStringProperty<Notifications>(_entities[6].properties[33]);
+
+  /// see [Notifications.templateId]
+  static final templateId =
+      QueryStringProperty<Notifications>(_entities[6].properties[34]);
+
+  /// see [Notifications.ttl]
+  static final ttl =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[35]);
+
+  /// see [Notifications.url]
+  static final url =
+      QueryStringProperty<Notifications>(_entities[6].properties[36]);
+
+  /// see [Notifications.webUrl]
+  static final webUrl =
+      QueryStringProperty<Notifications>(_entities[6].properties[37]);
+
+  /// see [Notifications.appUrl]
+  static final appUrl =
+      QueryStringProperty<Notifications>(_entities[6].properties[38]);
+
+  /// see [Notifications.includeExternalUserIds]
+  static final includeExternalUserIds =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[39]);
+
+  /// see [Notifications.includeAliases]
+  static final includeAliases =
+      QueryStringProperty<Notifications>(_entities[6].properties[40]);
+
+  /// see [Notifications.fcapStatus]
+  static final fcapStatus =
+      QueryStringProperty<Notifications>(_entities[6].properties[41]);
+
+  /// see [Notifications.smsFrom]
+  static final smsFrom =
+      QueryStringProperty<Notifications>(_entities[6].properties[42]);
+
+  /// see [Notifications.smsMediaUrls]
+  static final smsMediaUrls =
+      QueryStringProperty<Notifications>(_entities[6].properties[43]);
+
+  /// see [Notifications.subtitle]
+  static final subtitle =
+      QueryStringProperty<Notifications>(_entities[6].properties[44]);
+
+  /// see [Notifications.name]
+  static final name =
+      QueryStringProperty<Notifications>(_entities[6].properties[45]);
+
+  /// see [Notifications.emailClickTrackingDisabled]
+  static final emailClickTrackingDisabled =
+      QueryStringProperty<Notifications>(_entities[6].properties[46]);
+
+  /// see [Notifications.isEmail]
+  static final isEmail =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[47]);
+
+  /// see [Notifications.emailSubject]
+  static final emailSubject =
+      QueryStringProperty<Notifications>(_entities[6].properties[48]);
+
+  /// see [Notifications.emailFromName]
+  static final emailFromName =
+      QueryStringProperty<Notifications>(_entities[6].properties[49]);
+
+  /// see [Notifications.emailFromAddress]
+  static final emailFromAddress =
+      QueryStringProperty<Notifications>(_entities[6].properties[50]);
+
+  /// see [Notifications.emailPreheader]
+  static final emailPreheader =
+      QueryStringProperty<Notifications>(_entities[6].properties[51]);
+
+  /// see [Notifications.emailReplyToAddress]
+  static final emailReplyToAddress =
+      QueryStringProperty<Notifications>(_entities[6].properties[52]);
+
+  /// see [Notifications.includeUnsubscribed]
+  static final includeUnsubscribed =
+      QueryBooleanProperty<Notifications>(_entities[6].properties[53]);
+
+  /// see [Notifications.threadId]
+  static final threadId =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[54]);
+
+  /// see [Notifications.serverId]
+  static final serverId =
+      QueryIntegerProperty<Notifications>(_entities[6].properties[55]);
 }

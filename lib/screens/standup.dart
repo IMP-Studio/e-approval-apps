@@ -28,7 +28,7 @@ class _StandUpState extends State<StandUp>
   DateTime? _lastRefreshTime;
   Future<void> _refreshStandUp() async {
     final DateTime now = DateTime.now();
-    final Duration cooldownDuration = Duration(seconds: 30); // Adjust as needed
+    final Duration cooldownDuration = Duration(seconds: 10);
 
     if (_lastRefreshTime != null &&
         now.difference(_lastRefreshTime!) < cooldownDuration) {
@@ -263,7 +263,7 @@ class _StandUpState extends State<StandUp>
   Future<String> checkAbsensi() async {
     int userId = preferences?.getInt('user_id') ?? 0;
 
-    final urlj = 'https://testing.impstudio.id/approvall/api/presence/$userId';
+    final urlj = 'https://admin.approval.impstudio.id/api/presence/$userId';
     var response = await http.get(Uri.parse(urlj));
 
     if (response.statusCode == 200) {
@@ -486,7 +486,6 @@ class _StandUpState extends State<StandUp>
                         FutureBuilder<List<StandUps>>(
                           future: _standUpData,
                           builder: (context, snapshot) {
-                            
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return ListView.builder(
@@ -667,8 +666,8 @@ class _StandUpState extends State<StandUp>
                                 },
                               );
                             } else if (snapshot.hasError) {
-                               print('Snapshot Data: ${snapshot.data}');
-print('Snapshot Error: ${snapshot.error}');
+                              print('Snapshot Data: ${snapshot.data}');
+                              print('Snapshot Error: ${snapshot.error}');
 
                               return SingleChildScrollView(
                                 child: Column(
@@ -912,7 +911,7 @@ print('Snapshot Error: ${snapshot.error}');
                                     .length, // Menentukan jumlah total item
                                 itemBuilder: (BuildContext context, int index) {
                                   final itemData = snapshot.data![index];
-                    
+
                                   return GestureDetector(
                                     onTap: () {
                                       if (currentUser == itemData.userId) {
@@ -974,7 +973,8 @@ print('Snapshot Error: ${snapshot.error}');
                                                               const Color(
                                                                   0xff4381CA),
                                                               const Color(
-                                                                  0xff4381CA)] // Colors when blocker is not null
+                                                                  0xff4381CA)
+                                                            ] // Colors when blocker is not null
                                                           : [
                                                               kTextBlocker,
                                                               kTextBlockerr
@@ -1282,6 +1282,17 @@ print('Snapshot Error: ${snapshot.error}');
                                   LucideIcons.alertCircle,
                                   size: 26.0,
                                   color: kYelw,
+                                ));
+                          } else if (responseStatus == 'preliminaryStatus') {
+                            // ignore: unused_local_variable
+                            final snackBar = showSnackbarWarning(
+                                "Tunggu sebentar...",
+                                "Request dalam status preliminary.",
+                                kYelw,
+                                const Icon(
+                                  LucideIcons.alertCircle,
+                                  size: 26.0,
+                                  color: kTextoo,
                                 ));
                           } else if (responseStatus == 'Leave') {
                             // ignore: unused_local_variable

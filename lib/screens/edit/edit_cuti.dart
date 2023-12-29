@@ -29,7 +29,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
   bool _isMounted = false;
   bool _isSnackbarVisible = false;
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isMounted = true;
@@ -285,8 +285,8 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
   TextEditingController tanggal_masuk = TextEditingController();
 
   Future<List<Map<String, dynamic>>> fetchLeaveOptions() async {
-    final response = await http.get(
-        Uri.parse('https://testing.impstudio.id/approvall/api/leave/option'));
+    final response = await http
+        .get(Uri.parse('https://admin.approval.impstudio.id/api/leave/option'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -303,7 +303,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
     int divisionId = preferences?.getInt('division_id') ?? 0;
 
     final response = await http.get(Uri.parse(
-        'https://testing.impstudio.id/approvall/api/user?division=$divisionId'));
+        'https://admin.approval.impstudio.id/api/user?division=$divisionId'));
     if (response.statusCode == 200) {
       final parsedResponse = json.decode(response.body);
       if (parsedResponse['message'] == 'Success') {
@@ -351,7 +351,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
     var leaveId = widget.absen['id'];
 
     var uri = Uri.parse(
-        'https://testing.impstudio.id/approvall/api/leave/update/$leaveId');
+        'https://admin.approval.impstudio.id/api/leave/update/$leaveId');
 
     // Determine the correct selected value based on leave type
     String? leaveDetailId;
@@ -374,7 +374,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
     }
 
     http.MultipartRequest request = new http.MultipartRequest('POST', uri)
-    ..fields['_method'] = 'PUT' 
+      ..fields['_method'] = 'PUT'
       ..fields['user_id'] = widget.absen['user_id'].toString()
       ..fields['leave_detail_id'] =
           leaveDetailId ?? widget.absen['leave_detail_id'].toString()
@@ -383,32 +383,31 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
       ..fields['submission_date'] = DateTime.now().toIso8601String()
       ..fields['total_leave_days'] =
           (_selesaiTanggal!.difference(_mulaiTanggal!).inDays + 1).toString()
-      ..fields['start_date'] =
-          formatDate(_mulaiTanggal!)
-      ..fields['end_date'] =
-          formatDate(_selesaiTanggal!)
+      ..fields['start_date'] = formatDate(_mulaiTanggal!)
+      ..fields['end_date'] = formatDate(_selesaiTanggal!)
       ..fields['entry_date'] = formatDate(_tanggalMasuknya!);
 
 // For file upload
-    if (selectedValueType != 'yearly' && _pickedFile != null && _pickedFile!.files.isNotEmpty) {
-    if (_pickedFile!.files.first.size > (5 * 1024 * 1024)) {
+    if (selectedValueType != 'yearly' &&
+        _pickedFile != null &&
+        _pickedFile!.files.isNotEmpty) {
+      if (_pickedFile!.files.first.size > (5 * 1024 * 1024)) {
         print("Error: The file is too large.");
         return;
-    }
+      }
 
-    request.files.add(await http.MultipartFile.fromPath(
-      'file',
-      _pickedFile!.files.first.path!,
-    ));
-} else if (selectedValueType == 'yearly') {
-    request.fields['file'] = ''; 
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        _pickedFile!.files.first.path!,
+      ));
+    } else if (selectedValueType == 'yearly') {
+      request.fields['file'] = '';
 // Explicitly setting file to null for yearly type
-} else {
-    print("Warning: No file selected, file is empty.");
-    // If you require a file to always be present for other types, you can return here.
-    // Otherwise, you can proceed without the file.
-}
-
+    } else {
+      print("Warning: No file selected, file is empty.");
+      // If you require a file to always be present for other types, you can return here.
+      // Otherwise, you can proceed without the file.
+    }
 
     try {
       http.StreamedResponse response = await request.send();
@@ -480,8 +479,6 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
     }
   }
 
-
-
   // date
   Future<void> _memulaiTanggal() async {
     DateTime? newDate = await showDatePicker(
@@ -491,7 +488,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
       lastDate: DateTime(2100),
     );
 
-      if (newDate != null) {
+    if (newDate != null) {
       setState(() {
         _mulaiTanggal = newDate;
       });
@@ -591,7 +588,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-            color: Colors.grey,
+              color: Colors.grey,
             ),
             width: double.infinity,
             height: 50,
@@ -908,6 +905,7 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
                 const Icon(
                   LucideIcons.arrowDownCircle,
                   color: kBorder,
+                  size: 16,
                 ),
               ],
             ),
@@ -984,17 +982,6 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
               color: kTextBlocker,
             ));
         return false;
-      } else if (_pickedFile == null && selectedValueType == 'exclusive' || _pickedFile == null && selectedValueType == 'emergency' ) {
-        showSnackbarWarning(
-            "Fail...",
-            "File belum dipilih",
-            kTextBlocker,
-            const Icon(
-              LucideIcons.xCircle,
-              size: 26.0,
-              color: kTextBlocker,
-            ));
-        return false;
       } else if (_mulaiTanggal!.isBefore(now.add(const Duration(days: 4)))) {
         showSnackbarWarning(
             "Fail...",
@@ -1035,32 +1022,6 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
               ));
           return false;
         }
-      }
-    }
-
-    if (selectedValueType == 'emergency') {
-      if (selectedValueEmergency == null) {
-        showSnackbarWarning(
-            "Fail...",
-            "Cuti darurat belum dipilih",
-            kTextBlocker,
-            const Icon(
-              LucideIcons.xCircle,
-              size: 26.0,
-              color: kTextBlocker,
-            ));
-        return false;
-      } else if (_pickedFile == null) {
-        showSnackbarWarning(
-            "Fail...",
-            "File belum dipilih",
-            kTextBlocker,
-            const Icon(
-              LucideIcons.xCircle,
-              size: 26.0,
-              color: kTextBlocker,
-            ));
-        return false;
       }
     }
 
@@ -1237,29 +1198,30 @@ class _EditCutiState extends State<EditCuti> with WidgetsBindingObserver {
                 return null;
               },
               onChanged: (value) {
-  setState(() {
-    selectedValueType = value;
+                setState(() {
+                  selectedValueType = value;
 
-    if (selectedValueType == 'yearly' || selectedValueType == '1') {
-      isButtonDisabled = false;
-      _pickedFile = null; // Set file to null when 'yearly' is selected
-      _selesaiTanggal = null;
-      _tanggalMasuknya = null;
-    } else if (selectedValueType == 'exclusive') {
-      isButtonDisabled = true;
-      selectedValueEmergency = null;
-      // Call a function here to set _selesaiTanggal and _tanggalMasuknya based on _mulaiTanggal
-      // _calculateEndAndEntryDates();
-    } else if (selectedValueType == 'emergency') {
-      selectedValueExclusive = null;
-      // _calculateEndAndEntryDates();
-    }
+                  if (selectedValueType == 'yearly' ||
+                      selectedValueType == '1') {
+                    isButtonDisabled = false;
+                    _pickedFile =
+                        null; // Set file to null when 'yearly' is selected
+                    _selesaiTanggal = null;
+                    _tanggalMasuknya = null;
+                  } else if (selectedValueType == 'exclusive') {
+                    isButtonDisabled = true;
+                    selectedValueEmergency = null;
+                    // Call a function here to set _selesaiTanggal and _tanggalMasuknya based on _mulaiTanggal
+                    // _calculateEndAndEntryDates();
+                  } else if (selectedValueType == 'emergency') {
+                    selectedValueExclusive = null;
+                    // _calculateEndAndEntryDates();
+                  }
 
-    isKhususSelected = selectedValueType == 'exclusive';
-    isDaruratSelected = selectedValueType == 'emergency';
-  });
-},
-
+                  isKhususSelected = selectedValueType == 'exclusive';
+                  isDaruratSelected = selectedValueType == 'emergency';
+                });
+              },
               icon: const Icon(LucideIcons.arrowDownCircle,
                   color: Color(0xffB6B6B6), size: 17),
             ),

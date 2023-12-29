@@ -19,7 +19,7 @@ class Projects {
   String? createdAt;
   String? updatedAt;
   @Id(assignable: true)
-  int serverId = 0; // This will store the ID from the server.
+  int serverId = 0; 
 
   Projects(
       {this.id,
@@ -71,7 +71,7 @@ class Projects {
 }
 
 Future<List<Projects>> fetchAllProjects() async {
-  String url = 'https://testing.impstudio.id/approvall/api/project';
+  String url = 'https://admin.approval.impstudio.id/api/project';
   print("Fetching data from URL: $url");
 
   try {
@@ -106,7 +106,6 @@ Future<List<Projects>> fetchAllProjects() async {
   }
 }
 
-
 Future<void> updateCacheWithAllData(List<Projects> projectsFromServer) async {
   print(
       "Starting cache update with ${projectsFromServer.length} projects from server.");
@@ -120,7 +119,7 @@ Future<void> updateCacheWithAllData(List<Projects> projectsFromServer) async {
     if (existingProject == null) {
       print(
           "Project with ID: ${project.serverId} does not exist in cache. Adding...");
-      box.put(project); // No need to set the id, it's directly mapped now.
+      box.put(project); 
     } else {
       final existingUpdatedAt = DateTime.parse(existingProject.updatedAt!);
       final newUpdatedAt = DateTime.parse(project.updatedAt!);
@@ -129,7 +128,7 @@ Future<void> updateCacheWithAllData(List<Projects> projectsFromServer) async {
         print(
             "Project with ID: ${project.serverId} has newer data. Updating cache...");
         box.put(
-            project); // Directly put it. ObjectBox will recognize it as an update.
+            project);
       } else {
         print(
             "Project with ID: ${project.serverId} is up-to-date. Skipping cache update.");
@@ -140,15 +139,12 @@ Future<void> updateCacheWithAllData(List<Projects> projectsFromServer) async {
 }
 
 Future<List<Projects>> fetchAndUpdateCache() async {
-  print(
-      "Starting fetch and update process for project");
+  print("Starting fetch and update process for project");
 
-  // Fetching all pro
   print("Fetching all projects...");
   final projects = await fetchAllProjects();
   print("Successfully fetched ${projects.length} projects.");
 
-  // Updating cache
   print("Updating cache with fetched projects...");
   await updateCacheWithAllData(projects);
   print("Cache updated successfully.");

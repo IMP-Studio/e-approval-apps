@@ -23,7 +23,6 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
   final double _tinggidescc = 68;
   bool _processing = false;
 
-
   SharedPreferences? preferences;
 
   @override
@@ -55,7 +54,7 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
 
   Future storeStandUp() async {
     final response = await http.post(
-        Uri.parse('https://testing.impstudio.id/approvall/api/standup/store'),
+        Uri.parse('https://admin.approval.impstudio.id/api/standup/store'),
         body: {
           "user_id": preferences
               ?.getInt('user_id')
@@ -564,30 +563,33 @@ class _CreateDetailStandupState extends State<CreateDetailStandup>
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              
                               onPressed: () {
-                                  if (!_processing) {
-                                      _processing = true;  // Set processing to true to prevent multiple submissions
-                                    
-                                      // Print values (existing logic)
-                                      print('Done: ${done.text}');
-                                      print('Doing: ${doing.text}');
-                                      print('Blocker: ${blocker.text}');
-                                      print('Project ID: ${widget.project['projectid']}');
+                                if (!_processing) {
+                                  _processing =
+                                      true; // Set processing to true to prevent multiple submissions
 
-                                      // Make the storeStandUp call and navigate afterwards
-                                      storeStandUp().then((_) {
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(builder: (context) => MainLayout())
-                                          );
-                                      }).catchError((error) {
-                                          print("Error: $error");
-                                      }).whenComplete(() {
-                                          _processing = false;  // Reset the processing flag
-                                      }); 
-                                  }
-                              },  
+                                  // Print values (existing logic)
+                                  print('Done: ${done.text}');
+                                  print('Doing: ${doing.text}');
+                                  print('Blocker: ${blocker.text}');
+                                  print(
+                                      'Project ID: ${widget.project['projectid']}');
+
+                                  // Make the storeStandUp call and navigate afterwards
+                                  storeStandUp().then((_) {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                MainLayout()));
+                                  }).catchError((error) {
+                                    print("Error: $error");
+                                  }).whenComplete(() {
+                                    _processing =
+                                        false; // Reset the processing flag
+                                  });
+                                }
+                              },
                               child: Text(
                                 'Kirim',
                                 style: GoogleFonts.inter(

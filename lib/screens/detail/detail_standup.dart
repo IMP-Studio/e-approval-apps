@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:imp_approval/models/standup_model.dart';
+
 class DetailStandUp extends StatefulWidget {
   final StandUps standup;
   const DetailStandUp({super.key, required this.standup});
@@ -23,7 +24,7 @@ class _DetailStandUpState extends State<DetailStandUp>
 
   SharedPreferences? preferences;
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -32,7 +33,7 @@ class _DetailStandUpState extends State<DetailStandUp>
       DeviceOrientation.portraitDown,
     ]);
     getUserData().then((_) {
-      done.text = widget.standup.done?? '';
+      done.text = widget.standup.done ?? '';
       doing.text = widget.standup.doing ?? '';
       blocker.text = widget.standup.blocker ?? '';
     });
@@ -57,7 +58,7 @@ class _DetailStandUpState extends State<DetailStandUp>
     int idStandup = widget.standup.id;
     final response = await http.put(
         Uri.parse(
-            'https://testing.impstudio.id/approvall/api/standup/update/$idStandup'),
+            'https://admin.approval.impstudio.id/api/standup/update/$idStandup'),
         body: {
           "user_id": preferences
               ?.getInt('user_id')
@@ -72,8 +73,8 @@ class _DetailStandUpState extends State<DetailStandUp>
     print('Response status: ${response.statusCode}');
     return json.decode(response.body);
   }
-  @override
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
